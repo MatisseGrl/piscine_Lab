@@ -5,7 +5,7 @@
 Dernière mise à jour : 3 novembre 2026. **Rendu le 16 novembre 2026 (J-13).**
 
 ## Étape en cours
-Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. **À faire plus tard : finaliser le venv** (environnement uv en place et commité ; reste à ajouter `tokenizers` et `tzdata` exigés par le kit). Prochaine étape : `Value` + `backward()` (bloc 1, codé par Matisse).
+Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépendances du kit ajoutées (`tokenizers`, `tzdata`, `regex` en dev). Tests du kit OK (5 passed, 3/11). Prochaine étape : `Value` + `backward()` (bloc 1, codé par Matisse).
 
 ## Fait
 - [x] Dépôt `MatisseGrl/piscine_Lab` cloné dans `Documents/piscine_Lab`

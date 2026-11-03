@@ -6,8 +6,10 @@ requires-python = ">=3.12"
 dependencies = [
     "matplotlib>=3.11.2",
     "numpy>=2.5.4",
+    "tokenizers>=0.23.3",
     "torch>=2.15.0",
     "tqdm>=4.70.1",
+    "tzdata>=2026.6",
 ]
 
 [dependency-groups]
@@ -15,6 +17,7 @@ dev = [
     "ipykernel>=7.4.0",
     "jupyterlab>=4.6.5",
     "pytest>=9.2.0",
+    "regex>=2026.9.29",
 ]
 
 [tool.pytest.ini_options]
