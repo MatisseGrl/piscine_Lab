@@ -28,7 +28,7 @@ Les attendus, le règlement de la compétition et le barème sont dans `docs/SUJ
 
 ## Stack
 
-Python, PyTorch, pytest. Pipeline : trafilatura, ftfy, fastText ou GlotLID, datasketch, Presidio, Hugging Face `datasets`. Mini-GPT sur CPU en local (pas de GPU NVIDIA sur ce poste), entraînements de compétition sur Colab ou Kaggle.
+Python 3.12, uv, PyTorch, pytest. Pipeline : trafilatura, ftfy, fastText ou GlotLID, datasketch, Presidio, Hugging Face `datasets`. Mini-GPT sur CPU en local (pas de GPU NVIDIA sur ce poste), entraînements de compétition sur Colab ou Kaggle.
 
 ## Structure
 
@@ -49,10 +49,14 @@ Chaque dossier a un README qui dit ce qu'il contient : le tenir à jour. Donnée
 
 ## Commandes
 
-À compléter au fur et à mesure que le projet existe (ne pas inventer de commande qui ne tourne pas encore). Environnement Python pas encore choisi : ne pas en créer sans que Matisse le demande.
+Environnement géré par uv, Python 3.12 (comme Colab), torch CPU en local. À compléter au fur et à mesure (ne pas inventer de commande qui ne tourne pas encore).
 
 ```bash
-py -3.11 scripts/fetch_moliere.py   # 33 pièces -> data/raw/moliere/, notices -> data/raw/moliere_notices/ (stdlib, ~3 min)
+uv sync                                # installer / mettre à jour l'environnement (.venv)
+uv run pytest                          # tests
+uv run jupyter lab                     # notebooks
+uv run python scripts/fetch_moliere.py # 33 pièces -> data/raw/moliere/, notices -> data/raw/moliere_notices/ (~3 min)
+uv add <paquet>                        # ajouter une dépendance (jamais pip install à la main)
 ```
 
 ## Niveau d'accompagnement : vite sur le boilerplate, à fond sur le cœur
@@ -78,4 +82,4 @@ Il reste peu de temps (rendu le 16/11). Matisse veut aller vite sur les petits t
 
 ## Décisions encore ouvertes
 
-À trancher avec Matisse avant de coder la partie concernée, ne pas décider à sa place : environnement Python (version, uv ou pip), segment Common Crawl et sources propres retenues, outil d'identification de langue, seuil MinHash, classifieur qualité ou heuristiques seules, part de synthétique, plateforme d'entraînement (Colab ou Kaggle), publication du dataset sur Hugging Face.
+À trancher avec Matisse avant de coder la partie concernée, ne pas décider à sa place : segment Common Crawl et sources propres retenues, outil d'identification de langue, seuil MinHash, classifieur qualité ou heuristiques seules, part de synthétique, plateforme d'entraînement (Colab ou Kaggle), publication du dataset sur Hugging Face.

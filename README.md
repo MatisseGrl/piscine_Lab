@@ -41,8 +41,12 @@ Détail et prochaines étapes : [`docs/STATUS.md`](docs/STATUS.md). Journal des 
 
 ## Reproduire
 
+Prérequis : [uv](https://docs.astral.sh/uv/).
+
 ```bash
-py -3.11 scripts/fetch_moliere.py   # corpus Molière (33 pièces) depuis Wikisource
+uv sync                                 # environnement Python 3.12 + dépendances
+uv run python scripts/fetch_moliere.py  # corpus Molière (33 pièces) depuis Wikisource
+uv run pytest                           # tests
 ```
 
 Les autres commandes seront ajoutées au fur et à mesure que le code existe. Objectif : une seule commande pour regénérer le dataset final, graines fixées, hash publié à chaque soumission.

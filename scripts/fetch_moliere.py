@@ -9,8 +9,8 @@ third-party texts (Louandre 1910, Neuf-Villenaine) go to data/raw/moliere_notice
 not Molière's style, but public-domain French prose, kept for the competition.
 
 Usage:
-    py -3.11 scripts/fetch_moliere.py            # writes data/raw/moliere{,_notices}/
-    py -3.11 scripts/fetch_moliere.py --limit 2  # quick test on 2 plays
+    uv run python scripts/fetch_moliere.py          # writes data/raw/moliere{,_notices}/
+    uv run python scripts/fetch_moliere.py --limit 2  # quick test on 2 plays
 
 Standard library only, so it runs without a virtual environment.
 """
