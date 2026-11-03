@@ -1,6 +1,6 @@
 # piscine_Lab : instructions pour les agents
 
-Piscine I Lab ECE « Feed the Beast / Garbage In, GPT Out », individuelle, 16 oct. → 16 nov. 2026. Trois blocs : un mini-GPT codé from scratch sur Molière, un pipeline qui transforme du web brut français en données d'entraînement, et une compétition en bits par octet (BPB) où le modèle et le budget sont figés pour tous : seul le dataset fait la différence. Sujet complet : `SUJET.md`.
+Piscine I Lab ECE « Feed the Beast », individuelle, rendu le 16 nov. 2026 : un mini-GPT from scratch, un pipeline de données français, une compétition BPB où seul le dataset compte. Sujet complet : `SUJET.md`.
 
 L'objectif n'est pas d'aller vite : Matisse (ING4 Data & IA) doit pouvoir expliquer chaque ligne du mini-GPT et chaque choix de données à la soutenance. Quand il y a un conflit entre aller vite et comprendre, on comprend.
 
@@ -22,11 +22,9 @@ Ce que demande le sujet, rien de plus. Pas de fine-tuning, pas d'interface de ch
 
 ## Règles du sujet (non négociables)
 
-- **Bloc 1, mini-GPT : codé par Matisse.** Autograd `Value`, bigramme, BPE, transformer, boucle d'entraînement. L'agent n'écrit pas ce code : il explique le concept, donne des indices, relit, et peut écrire les tests de vérification (ex. gradients comparés à PyTorch). Si Matisse demande la solution : un indice, puis du pseudo-code, jamais le fichier complet.
-- **Compétition** : architecture et hyperparamètres du kit intouchables, vocabulaire fixé à 8 192. Interdit : poids pré-entraînés, distillation de logits, chercher à reconstituer le test set (textes publiés après le 16/10/2026).
-- **Données synthétiques** : au plus 20 % des tokens, modèle open weights uniquement, prompts publiés.
-- **2 soumissions par jour max** (checkpoint + tokenizer + logs + hash du dataset). On soumet ce qui a gagné en validation, jamais pour tester.
-- **Légal** : chaque source a sa fiche (origine, licence, volume, période, risques). Données personnelles masquées. Pas de source dont la licence n'est pas claire.
+Les attendus, le règlement de la compétition et le barème sont dans `SUJET.md` : le relire avant toute décision de fond, et le respecter. Pour l'agent, la règle qui change tout :
+
+- **Bloc 1, mini-GPT : codé par Matisse.** L'agent n'écrit pas ce code : il explique le concept, donne des indices, relit, et peut écrire les tests de vérification (ex. gradients comparés à PyTorch). Si Matisse demande la solution : un indice, puis du pseudo-code, jamais le fichier complet.
 
 ## Stack
 
