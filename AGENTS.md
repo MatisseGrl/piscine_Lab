@@ -1,13 +1,13 @@
 # piscine_Lab : instructions pour les agents
 
-Piscine I Lab ECE « Feed the Beast », individuelle, rendu le 16 nov. 2026 : un mini-GPT from scratch, un pipeline de données français, une compétition BPB où seul le dataset compte. Sujet complet : `SUJET.md`.
+Piscine I Lab ECE « Feed the Beast », individuelle, rendu le 16 nov. 2026 : un mini-GPT from scratch, un pipeline de données français, une compétition BPB où seul le dataset compte. Sujet complet : `docs/SUJET.md`.
 
 L'objectif n'est pas d'aller vite : Matisse (ING4 Data & IA) doit pouvoir expliquer chaque ligne du mini-GPT et chaque choix de données à la soutenance. Quand il y a un conflit entre aller vite et comprendre, on comprend.
 
 ## Début et fin de session
 
-- Début : lire `STATUS.md` pour savoir où on en est.
-- Fin : mettre à jour `STATUS.md` (fait, à faire, décisions, questions ouvertes, meilleur BPB).
+- Début : lire `docs/STATUS.md` pour savoir où on en est.
+- Fin : mettre à jour `docs/STATUS.md` (fait, à faire, décisions, questions ouvertes, meilleur BPB).
 
 ## Langue et ton
 
@@ -22,7 +22,7 @@ Ce que demande le sujet, rien de plus. Pas de fine-tuning, pas d'interface de ch
 
 ## Règles du sujet (non négociables)
 
-Les attendus, le règlement de la compétition et le barème sont dans `SUJET.md` : le relire avant toute décision de fond, et le respecter. Pour l'agent, la règle qui change tout :
+Les attendus, le règlement de la compétition et le barème sont dans `docs/SUJET.md` : le relire avant toute décision de fond, et le respecter. Pour l'agent, la règle qui change tout :
 
 - **Bloc 1, mini-GPT : codé par Matisse.** L'agent n'écrit pas ce code : il explique le concept, donne des indices, relit, et peut écrire les tests de vérification (ex. gradients comparés à PyTorch). Si Matisse demande la solution : un indice, puis du pseudo-code, jamais le fichier complet.
 
@@ -32,19 +32,19 @@ Python, PyTorch, pytest. Pipeline : trafilatura, ftfy, fastText ou GlotLID, data
 
 ## Structure
 
-À confirmer quand le kit de départ est là (ne pas créer de dossier vide en avance) :
-
 ```
-minigpt/        value.py, bigram.py, bpe.py, model.py, train.py   (code de Matisse)
-pipeline/       collect, clean, dedup, quality, pii, build        (une commande pour tout regénérer)
-sources/        une fiche .md par source
-experiments/    journal des essais (date, données, nb tokens, BPB, conclusion)
+docs/           SUJET.md (sujet officiel), STATUS.md (avancement)
+kit/            kit officiel, non modifié, non versionné
+minigpt/        bloc 1 : value.py, bigram.py, bpe.py, model.py, train.py   (code de Matisse)
+pipeline/       bloc 2 : collect, clean, dedup, quality, pii, build        (une commande pour tout regénérer)
+sources/        une fiche .md par source (modèle dans sources/README.md)
+data/           raw/, interim/, processed/ : non versionné
+experiments/    LOG.md : une ligne par entraînement (date, données, tokens, hash, BPB, conclusion)
 report/         ablation.md, datasheet.md
 tests/
-kit/            kit officiel, non modifié
 ```
 
-Données brutes et intermédiaires hors git (trop lourdes) : seuls le code, les fiches et les hash sont versionnés.
+Chaque dossier a un README qui dit ce qu'il contient : le tenir à jour. Données, kit, checkpoints et secrets restent hors git (voir `.gitignore`).
 
 ## Commandes
 
@@ -61,7 +61,7 @@ Il reste peu de temps (rendu le 16/11). Matisse veut aller vite sur les petits t
 
 ## Règles de travail (non négociables)
 
-1. **Mesurer avant d'affirmer.** Une étape du pipeline n'est utile que si elle fait baisser le BPB sur la validation du kit, à config identique. Chaque essai = une ligne dans `experiments/`. Pas de « ça devrait aider » sans chiffre.
+1. **Mesurer avant d'affirmer.** Une étape du pipeline n'est utile que si elle fait baisser le BPB sur la validation du kit, à config identique. Chaque essai = une ligne dans `experiments/LOG.md`. Pas de « ça devrait aider » sans chiffre.
 2. **Tests d'abord sur le mini-GPT.** Le test de vérification (contre PyTorch, contre un cas calculé à la main) s'écrit avant le code et Matisse le voit échouer.
 3. **Débogage à la main sur le bloc 1.** Quand un test casse, Matisse lit l'erreur et cherche. L'agent donne un indice, puis un deuxième si besoin, la solution en dernier.
 4. **Human in the loop.** Avant de passer au bloc suivant, demander à Matisse d'expliquer ce que fait le code.

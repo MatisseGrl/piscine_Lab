@@ -218,3 +218,24 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- piscine_Lab ---
+# Données : jamais dans git (seuls les README et les hash sont versionnés)
+data/*
+!data/README.md
+# Kit officiel : récupéré à part, non modifié
+kit/*
+!kit/README.md
+# Checkpoints et artefacts d'entraînement
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+checkpoints/
+runs/
+wandb/
+# Secrets
+kaggle.json
+.huggingface/
+# Outils locaux
+.claude/
