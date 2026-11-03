@@ -37,6 +37,7 @@ docs/           SUJET.md (sujet officiel), STATUS.md (avancement)
 kit/            kit officiel, non modifié, non versionné
 minigpt/        bloc 1 : value.py, bigram.py, bpe.py, model.py, train.py   (code de Matisse)
 pipeline/       bloc 2 : collect, clean, dedup, quality, pii, build        (une commande pour tout regénérer)
+scripts/        utilitaires hors blocs (ex. fetch_moliere.py : corpus Molière depuis Wikisource)
 sources/        une fiche .md par source (modèle dans sources/README.md)
 data/           raw/, interim/, processed/ : non versionné
 experiments/    LOG.md : une ligne par entraînement (date, données, tokens, hash, BPB, conclusion)
@@ -49,6 +50,10 @@ Chaque dossier a un README qui dit ce qu'il contient : le tenir à jour. Donnée
 ## Commandes
 
 À compléter au fur et à mesure que le projet existe (ne pas inventer de commande qui ne tourne pas encore). Environnement Python pas encore choisi : ne pas en créer sans que Matisse le demande.
+
+```bash
+py -3.11 scripts/fetch_moliere.py   # 33 pièces -> data/raw/moliere/, notices -> data/raw/moliere_notices/ (stdlib, ~3 min)
+```
 
 ## Niveau d'accompagnement : vite sur le boilerplate, à fond sur le cœur
 

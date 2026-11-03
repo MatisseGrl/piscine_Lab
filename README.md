@@ -31,6 +31,7 @@ Détail et prochaines étapes : [`docs/STATUS.md`](docs/STATUS.md). Journal des 
 ├── kit/            kit de départ officiel, non modifié, non versionné
 ├── minigpt/        bloc 1 : autograd, bigramme, BPE, transformer, entraînement
 ├── pipeline/       bloc 2 : collecte → nettoyage → dédup → qualité → PII → dataset final
+├── scripts/        utilitaires (téléchargement du corpus Molière depuis Wikisource)
 ├── sources/        une fiche par source (origine, licence, volume, période, risques)
 ├── data/           données brutes, intermédiaires et finales, non versionnées
 ├── experiments/    journal des essais (LOG.md) et configs d'ablation
@@ -40,7 +41,11 @@ Détail et prochaines étapes : [`docs/STATUS.md`](docs/STATUS.md). Journal des 
 
 ## Reproduire
 
-Les commandes seront ajoutées au fur et à mesure que le code existe. Objectif : une seule commande pour regénérer le dataset final, graines fixées, hash publié à chaque soumission.
+```bash
+py -3.11 scripts/fetch_moliere.py   # corpus Molière (33 pièces) depuis Wikisource
+```
+
+Les autres commandes seront ajoutées au fur et à mesure que le code existe. Objectif : une seule commande pour regénérer le dataset final, graines fixées, hash publié à chaque soumission.
 
 ## Données et licences
 
