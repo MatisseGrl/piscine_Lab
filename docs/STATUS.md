@@ -5,7 +5,7 @@
 Dernière mise à jour : 3 novembre 2026. **Rendu le 16 novembre 2026 (J-13).**
 
 ## Étape en cours
-Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépendances du kit ajoutées (`tokenizers`, `tzdata`, `regex` en dev). Tests du kit OK (5 passed, 3/11). Prochaine étape : `Value` + `backward()` (bloc 1, codé par Matisse).
+Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépendances du kit ajoutées (`tokenizers`, `tzdata`, `regex` en dev). Tests du kit OK (5 passed, 3/11). `Value` + `backward()` fait (7/11, PR #1, 8 tests verts). Prochaine étape : bigramme par comptage (`minigpt/bigram.py`).
 
 ## Fait
 - [x] Dépôt `MatisseGrl/piscine_Lab` cloné dans `Documents/piscine_Lab`
@@ -19,7 +19,7 @@ Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépen
 
 ## À faire
 ### Bloc 1 : mini-GPT (codé par Matisse)
-- [ ] Autograd `Value` + `backward()`, vérifié contre PyTorch
+- [x] Autograd `Value` + `backward()`, vérifié contre PyTorch
 - [ ] Bigramme par comptage (référence)
 - [ ] Tokenizer BPE from scratch (train, encode, decode)
 - [ ] Transformer décodeur (multi-têtes + masque causal, LayerNorm, MLP, résiduels)
