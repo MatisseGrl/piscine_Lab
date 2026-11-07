@@ -1,4 +1,4 @@
-"""Check minigpt.value.Value gradients against hand computations and PyTorch."""
+"""Vérifie les gradients de minigpt.value.Value : calculs à la main et comparaison avec PyTorch."""
 
 import math
 
@@ -45,7 +45,7 @@ def test_hand_example():
 
 
 def test_same_node_used_twice():
-    # b = a + a  ->  db/da = 2 (fails if grads are assigned instead of accumulated)
+    # b = a + a  ->  db/da = 2 (échoue si on écrit grad = ... au lieu de grad += ...)
     a = Value(3.0)
     b = a + a
     b.backward()
@@ -53,7 +53,7 @@ def test_same_node_used_twice():
 
 
 def test_order_matters_deep_graph():
-    # d is reached through two paths of different lengths: needs a topological order
+    # d est atteint par deux chemins de longueurs différentes : il faut un ordre topologique
     a = Value(-2.0)
     b = Value(3.0)
     d = a * b
@@ -66,7 +66,7 @@ def test_order_matters_deep_graph():
 
 
 def test_against_pytorch_expression():
-    # Same expression built twice: with Value, then with torch (float64), grads must match.
+    # Même expression construite deux fois, avec Value puis avec torch (float64) : les gradients doivent coïncider.
     a, b = Value(-4.0), Value(2.0)
     c = a + b
     d = a * b + b**3
@@ -100,7 +100,7 @@ def test_against_pytorch_expression():
 
 
 def test_against_pytorch_neuron():
-    # One tanh neuron: out = tanh(w1*x1 + w2*x2 + b), then a squared-error-like loss with exp.
+    # Un neurone tanh : out = tanh(w1*x1 + w2*x2 + b), puis une perte de type erreur quadratique avec exp.
     xs, ws, bias = [2.0, 0.5], [-3.0, 1.0], 6.8813735870195432
 
     x = [Value(v) for v in xs]

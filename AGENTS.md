@@ -6,7 +6,7 @@ Il reste peu de temps : on avance vite. Matisse (ING4 Data & IA) vise à compren
 
 ## Début et fin de session
 
-- Début : lire `docs/STATUS.md` pour savoir où on en est.
+- Début : lire `docs/STATUS.md` pour savoir où on en est, et `docs/HANDOFF.md` si tu reprends le travail d'un autre agent (contexte, décisions, pièges).
 - Fin : mettre à jour `docs/STATUS.md` (fait, à faire, décisions, questions ouvertes, meilleur BPB).
 
 ## Langue et ton
@@ -14,7 +14,7 @@ Il reste peu de temps : on avance vite. Matisse (ING4 Data & IA) vise à compren
 - Matisse parle français, familier. Réponds en français, même registre, sans formalisme.
 - Direct et honnête : si une idée est mauvaise, dis-le et explique pourquoi.
 - Réponds à la question posée. Pas de conseil non demandé, pas de listes de ressources sans raison.
-- Code, commentaires, messages de commit : en anglais. Rapport d'ablation, datasheet, fiches sources : en français.
+- **Commentaires et docstrings : en français, partout, sans exception** (règle de Matisse, 7/11). Chaque fonction et chaque ligne non triviale est commentée en français. Noms de variables, de fonctions et messages de commit : en anglais. Rapport d'ablation, datasheet, fiches sources : en français.
 
 ## Périmètre
 

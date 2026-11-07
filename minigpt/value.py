@@ -1,9 +1,9 @@
-"""Mini autograd: a scalar that remembers how it was computed.
+"""Mini autograd : un scalaire qui se souvient de la façon dont il a été calculé.
 
-Each operation builds a new Value and records (1) its parents and (2) a small
-function `_backward` that pushes the output's gradient back to those parents,
-multiplied by the local derivative (chain rule). `backward()` calls these
-functions from the output back to the inputs.
+Chaque opération construit une nouvelle Value et enregistre (1) ses parents et
+(2) une petite fonction `_backward` qui renvoie le gradient de la sortie vers
+ces parents, multiplié par la dérivée locale (règle de la chaîne).
+`backward()` appelle ces fonctions de la sortie vers les entrées.
 """
 
 import math
@@ -14,14 +14,15 @@ class Value:
         self.data = float(data)
         self.grad = 0.0
         self._parents = parents
-        self._backward = lambda: None  # leaves have nothing to propagate
+        self._backward = lambda: None  # une feuille n'a rien à propager
 
     @staticmethod
     def _wrap(x):
+        # permet d'écrire a + 1 : le nombre devient une Value
         return x if isinstance(x, Value) else Value(x)
 
-    # --- core ops: out._backward does parent.grad += local_derivative * out.grad ---
-    # `+=` (not `=`): a node used several times receives one contribution per use.
+    # --- opérations de base : out._backward fait parent.grad += dérivée_locale * out.grad ---
+    # `+=` (et pas `=`) : un nœud utilisé plusieurs fois reçoit une contribution par usage.
 
     def __add__(self, other):
         other = self._wrap(other)
@@ -46,7 +47,7 @@ class Value:
         return out
 
     def __pow__(self, n):
-        assert isinstance(n, (int, float)), "exponent must be a plain number"
+        assert isinstance(n, (int, float)), "l'exposant doit être un nombre simple"
         out = Value(self.data**n, (self,))
 
         def _backward():
@@ -59,7 +60,7 @@ class Value:
         out = Value(max(0.0, self.data), (self,))
 
         def _backward():
-            self.grad += (out.data > 0) * out.grad  # 1 if active, else 0
+            self.grad += (out.data > 0) * out.grad  # 1 si actif, 0 sinon
 
         out._backward = _backward
         return out
@@ -69,7 +70,7 @@ class Value:
         out = Value(t, (self,))
 
         def _backward():
-            self.grad += (1 - t**2) * out.grad  # d tanh(a)/da = 1 - tanh^2
+            self.grad += (1 - t**2) * out.grad  # d tanh(a)/da = 1 - tanh²
 
         out._backward = _backward
         return out
@@ -84,7 +85,7 @@ class Value:
         out._backward = _backward
         return out
 
-    # --- derived ops: built from the core ones, so they get gradients for free ---
+    # --- opérations dérivées : construites avec celles de base, donc gradients gratuits ---
 
     def __neg__(self):
         return self * -1
@@ -107,10 +108,10 @@ class Value:
     def __rtruediv__(self, other):  # 1 / a
         return self._wrap(other) * self**-1
 
-    # --- backprop ---
+    # --- rétropropagation ---
 
     def backward(self):
-        # Topological order: every node comes after its parents.
+        # Ordre topologique : chaque nœud vient après ses parents.
         topo, visited = [], set()
 
         def build(v):
@@ -122,6 +123,6 @@ class Value:
 
         build(self)
 
-        self.grad = 1.0  # d(self)/d(self) = 1: the seed of the chain rule
-        for v in reversed(topo):  # outputs first, so a node's grad is complete before it propagates
+        self.grad = 1.0  # d(self)/d(self) = 1 : la graine de la règle de la chaîne
+        for v in reversed(topo):  # sorties d'abord : le grad d'un nœud est complet avant qu'il le propage
             v._backward()
