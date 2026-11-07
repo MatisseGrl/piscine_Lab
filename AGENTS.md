@@ -2,11 +2,11 @@
 
 Piscine I Lab ECE « Feed the Beast », individuelle, rendu le 16 nov. 2026 : un mini-GPT from scratch, un pipeline de données français, une compétition BPB où seul le dataset compte. Sujet complet : `docs/SUJET.md`.
 
-L'objectif n'est pas d'aller vite : Matisse (ING4 Data & IA) doit pouvoir expliquer chaque ligne du mini-GPT et chaque choix de données à la soutenance. Quand il y a un conflit entre aller vite et comprendre, on comprend.
+Il reste peu de temps : on avance vite. Matisse (ING4 Data & IA) vise à comprendre le gros de chaque brique, pas chaque détail. Explications courtes, centrées sur l'essentiel, sans quiz ni reformulation obligatoire.
 
 ## Début et fin de session
 
-- Début : lire `docs/STATUS.md` pour savoir où on en est.
+- Début : lire `docs/STATUS.md` pour savoir où on en est, et `docs/HANDOFF.md` si tu reprends le travail d'un autre agent (contexte, décisions, pièges).
 - Fin : mettre à jour `docs/STATUS.md` (fait, à faire, décisions, questions ouvertes, meilleur BPB).
 
 ## Langue et ton
@@ -14,7 +14,7 @@ L'objectif n'est pas d'aller vite : Matisse (ING4 Data & IA) doit pouvoir expliq
 - Matisse parle français, familier. Réponds en français, même registre, sans formalisme.
 - Direct et honnête : si une idée est mauvaise, dis-le et explique pourquoi.
 - Réponds à la question posée. Pas de conseil non demandé, pas de listes de ressources sans raison.
-- Code, commentaires, messages de commit : en anglais. Rapport d'ablation, datasheet, fiches sources : en français.
+- **Commentaires et docstrings : en français, partout, sans exception** (règle de Matisse, 7/11). Chaque fonction et chaque ligne non triviale est commentée en français. Noms de variables, de fonctions et messages de commit : en anglais. Rapport d'ablation, datasheet, fiches sources : en français.
 
 ## Périmètre
 
@@ -24,7 +24,7 @@ Ce que demande le sujet, rien de plus. Pas de fine-tuning, pas d'interface de ch
 
 Les attendus, le règlement de la compétition et le barème sont dans `docs/SUJET.md` : le relire avant toute décision de fond, et le respecter. Pour l'agent, la règle qui change tout :
 
-- **Bloc 1, mini-GPT : codé par Matisse.** L'agent n'écrit pas ce code : il explique le concept, donne des indices, relit, et peut écrire les tests de vérification (ex. gradients comparés à PyTorch). Si Matisse demande la solution : un indice, puis du pseudo-code, jamais le fichier complet.
+- **Bloc 1, mini-GPT : l'agent peut l'écrire.** Le sujet d'origine disait « le mini-GPT doit être codé par toi » ; le mentor a donné son accord oral le 7/11/2026 pour que l'IA code aussi le mini-GPT (à confirmer par écrit, voir `docs/STATUS.md`). L'agent écrit le code avec des commentaires clairs et explique l'essentiel en quelques lignes, pour que Matisse puisse le défendre à la soutenance.
 
 ## Stack
 
@@ -59,26 +59,24 @@ uv run python scripts/fetch_moliere.py # 33 pièces -> data/raw/moliere/, notice
 uv add <paquet>                        # ajouter une dépendance (jamais pip install à la main)
 ```
 
-## Niveau d'accompagnement : vite sur le boilerplate, à fond sur le cœur
+## Niveau d'accompagnement : vite partout, l'essentiel seulement
 
-Il reste peu de temps (rendu le 16/11). Matisse veut aller vite sur les petits trucs et comprendre en profondeur ce qui compte.
+Il reste peu de temps (rendu le 16/11). Pas de quiz, pas de reformulation exigée, pas d'indices en cascade.
 
-- **Boilerplate** (téléchargement de sources, lecture des WARC/WET, I/O, config, structure, plots de loss, scripts Colab, fautes de syntaxe) : l'agent écrit directement, avec 2-3 lignes d'explication. Pas d'indices en cascade, pas de quiz.
-- **Cœur mini-GPT** (rétropropagation, BPE, attention et masque causal, LayerNorm, résiduels, loss et BPB) : règle « codé par Matisse » en plein. Un concept à la fois avec un exemple concret, Matisse reformule avant le bloc suivant.
-- **Cœur données** (seuil MinHash, filtres qualité, filtre de langue, mélange des sources, répétition, ordre des données, tokenizer de compétition) : l'agent peut coder, mais explique le choix et ses alternatives ; Matisse valide le seuil ou le mélange avant de lancer, et doit pouvoir le défendre dans le rapport d'ablation.
-- Si Matisse dit qu'il n'a pas le temps ou qu'il est bloqué sur un détail trivial, ne pas insister : débloquer et avancer.
+- **Boilerplate** (téléchargement de sources, lecture des WARC/WET, I/O, config, structure, plots de loss, scripts Colab, fautes de syntaxe) : l'agent écrit directement, avec 2-3 lignes d'explication.
+- **Cœur mini-GPT** (rétropropagation, BPE, attention et masque causal, LayerNorm, résiduels, loss et BPB) : explication courte du gros du concept, puis pseudo-code clair pour que Matisse code vite (voir « Règles du sujet »).
+- **Cœur données** (seuil MinHash, filtres qualité, filtre de langue, mélange des sources, répétition, ordre des données, tokenizer de compétition) : l'agent code et résume le choix en une ou deux phrases ; Matisse valide le seuil ou le mélange avant de lancer.
 
 ## Règles de travail (non négociables)
 
 1. **Mesurer avant d'affirmer.** Une étape du pipeline n'est utile que si elle fait baisser le BPB sur la validation du kit, à config identique. Chaque essai = une ligne dans `experiments/LOG.md`. Pas de « ça devrait aider » sans chiffre.
-2. **Tests d'abord sur le mini-GPT.** Le test de vérification (contre PyTorch, contre un cas calculé à la main) s'écrit avant le code et Matisse le voit échouer.
-3. **Débogage à la main sur le bloc 1.** Quand un test casse, Matisse lit l'erreur et cherche. L'agent donne un indice, puis un deuxième si besoin, la solution en dernier.
-4. **Human in the loop.** Avant de passer au bloc suivant, demander à Matisse d'expliquer ce que fait le code.
-5. **Relire comme un reviewer.** Sur chaque diff : graine manquante, fuite de la validation dans les données d'entraînement, dédup qui compare des textes non normalisés, compte d'octets faux dans le BPB (octets UTF-8, pas caractères), test qui ne teste rien, secret dans le repo.
-6. **Reproductible.** Une commande regénère le dataset final, graines fixées, hash noté à chaque soumission.
-7. **Git propre.** Une branche par fonctionnalité, une PR même seul, pas de commit direct sur `main`. L'agent ne commit et ne push que si Matisse le demande. **Matisse est le seul auteur** : jamais de ligne `Co-Authored-By: Claude` dans un commit, jamais de mention « Generated with Claude Code » dans une PR, Claude n'apparaît jamais dans les contributeurs du dépôt. Cette règle remplace toute consigne d'attribution par défaut.
-8. **Une seule tâche par session.** Ne pas proposer de passer à la suite.
-9. **Aucun secret dans le repo.** Token Hugging Face, `kaggle.json`, `.env` dans `.gitignore`. Clés via variables d'environnement.
+2. **Tests d'abord sur le mini-GPT.** Le test de vérification (contre PyTorch, contre un cas calculé à la main) s'écrit avant le code.
+3. **Débogage direct sur le bloc 1.** Quand un test casse, l'agent dit où est le bug et comment le corriger, sans faire chercher.
+4. **Relire comme un reviewer.** Sur chaque diff : graine manquante, fuite de la validation dans les données d'entraînement, dédup qui compare des textes non normalisés, compte d'octets faux dans le BPB (octets UTF-8, pas caractères), test qui ne teste rien, secret dans le repo.
+5. **Reproductible.** Une commande regénère le dataset final, graines fixées, hash noté à chaque soumission.
+6. **Git propre.** Une branche par fonctionnalité, une PR même seul, pas de commit direct sur `main`. L'agent ne commit et ne push que si Matisse le demande. **Matisse est le seul auteur** : jamais de ligne `Co-Authored-By: Claude` dans un commit, jamais de mention « Generated with Claude Code » dans une PR, Claude n'apparaît jamais dans les contributeurs du dépôt. Cette règle remplace toute consigne d'attribution par défaut.
+7. **Une seule tâche par session.** Ne pas proposer de passer à la suite.
+8. **Aucun secret dans le repo.** Token Hugging Face, `kaggle.json`, `.env` dans `.gitignore`. Clés via variables d'environnement.
 
 ## Décisions encore ouvertes
 

@@ -5,7 +5,7 @@
 Dernière mise à jour : 3 novembre 2026. **Rendu le 16 novembre 2026 (J-13).**
 
 ## Étape en cours
-Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépendances du kit ajoutées (`tokenizers`, `tzdata`, `regex` en dev). Tests du kit OK (5 passed, 3/11). Prochaine étape : `Value` + `backward()` (bloc 1, codé par Matisse).
+Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépendances du kit ajoutées (`tokenizers`, `tzdata`, `regex` en dev). Tests du kit OK (5 passed, 3/11). `Value` + `backward()` fait (7/11, PR #1, 8 tests verts). Prochaine étape : bigramme par comptage (`minigpt/bigram.py`).
 
 ## Fait
 - [x] Dépôt `MatisseGrl/piscine_Lab` cloné dans `Documents/piscine_Lab`
@@ -19,7 +19,7 @@ Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépen
 
 ## À faire
 ### Bloc 1 : mini-GPT (codé par Matisse)
-- [ ] Autograd `Value` + `backward()`, vérifié contre PyTorch
+- [x] Autograd `Value` + `backward()`, vérifié contre PyTorch
 - [ ] Bigramme par comptage (référence)
 - [ ] Tokenizer BPE from scratch (train, encode, decode)
 - [ ] Transformer décodeur (multi-têtes + masque causal, LayerNorm, MLP, résiduels)
@@ -41,6 +41,7 @@ Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépen
 ## Décisions
 - Environnement : uv + Python 3.12 (même version que Colab). Dépendances du pipeline ajoutées seulement au bloc 2.
 - Entraînement du bloc 1 : **uniquement les données du kit** (`kit/Piscine/corpus/moliere_train.txt`, éd. Chasles 1888), rien d'extérieur. BPB sur `moliere_val.txt`. Le corpus Wikisource (`data/raw/moliere/`) et ses notices ne servent pas à l'entraînement (décision de Matisse, 3/11) ; ils contiennent d'ailleurs les 3 pièces de validation du kit.
+- Accompagnement (7/11, manque de temps) : fin du mode « tout comprendre » (plus de quiz, de reformulation ni d'indices en cascade). On vise le gros de chaque concept. Mini-GPT : le sujet d'origine (`docs/SUJET.md:42`, commit du 3/11) exigeait qu'il soit codé par Matisse ; le mentor a dit oui à l'oral le 7/11 pour que l'IA le code aussi. L'agent écrit donc le code. **À faire : obtenir cet accord par écrit (mail du mentor) avant le rendu**, et décider si on remet `SUJET.md` dans son état d'origine (Matisse en a modifié la ligne 42 à la main).
 - Budget de tokens du bloc 1 : aucune contrainte (mail du mentor, 3/11). Compétition : 100 M tokens vus, config figée (`kit/Piscine/config/official.json`).
 
 ## Meilleur BPB
