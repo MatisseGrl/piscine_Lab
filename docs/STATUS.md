@@ -5,7 +5,7 @@
 Dernière mise à jour : 8 novembre 2026. **Rendu le 16 novembre 2026 (J-8).**
 
 ## Étape en cours
-Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépendances du kit ajoutées (`tokenizers`, `tzdata`, `regex` en dev). Tests du kit OK (5 passed, 3/11). `Value` + `backward()` fait (7/11, PR #1, 8 tests verts). Bigramme par comptage fait (8/11, branche `feat/bigram` partie de `feat/value`, PR #2) : BPB val de référence **3,3544**. Prochaine étape : tokenizer BPE (`minigpt/bpe.py`).
+Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépendances du kit ajoutées (`tokenizers`, `tzdata`, `regex` en dev). Tests du kit OK (5 passed, 3/11). `Value` + `backward()` fait (7/11, PR #1, 8 tests verts). Bigramme par comptage fait (8/11, branche `feat/bigram` partie de `feat/value`, PR #2) : BPB val de référence **3,3544**. PR #1, #2, #3 mergées sur `main`. Tokenizer BPE fait (8/11, branche `feat/bpe`) : vocab 1 024, 2,49 octets/token sur la val. Prochaine étape : Transformer décodeur (`minigpt/model.py`).
 
 ## Fait
 - [x] Dépôt `MatisseGrl/piscine_Lab` cloné dans `Documents/piscine_Lab`
@@ -21,7 +21,7 @@ Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépen
 ### Bloc 1 : mini-GPT (codé par Matisse)
 - [x] Autograd `Value` + `backward()`, vérifié contre PyTorch
 - [x] Bigramme par comptage (référence) : `minigpt/bigram.py`, octets UTF-8, Laplace alpha=1, BPB val 3,3544 (8/11)
-- [ ] Tokenizer BPE from scratch (train, encode, decode)
+- [x] Tokenizer BPE from scratch (train, encode, decode) : `minigpt/bpe.py`, vocab 1 024, 2,49 octets/token sur la val (8/11)
 - [ ] Transformer décodeur (multi-têtes + masque causal, LayerNorm, MLP, résiduels)
 - [ ] Entraînement sur Molière (`kit/Piscine/corpus/moliere_train.txt`) : courbe de loss, BPB sur `moliere_val.txt` (Misanthrope, Avare, Sicilien) calculé soi-même, 5 échantillons
 
@@ -44,6 +44,7 @@ Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépen
 - Accompagnement (7/11, manque de temps) : fin du mode « tout comprendre » (plus de quiz, de reformulation ni d'indices en cascade). On vise le gros de chaque concept. Mini-GPT : le sujet d'origine (`docs/SUJET.md:42`, commit du 3/11) exigeait qu'il soit codé par Matisse ; le mentor a dit oui à l'oral le 7/11 pour que l'IA le code aussi. L'agent écrit donc le code. **À faire : obtenir cet accord par écrit (mail du mentor) avant le rendu**, et décider si on remet `SUJET.md` dans son état d'origine (Matisse en a modifié la ligne 42 à la main).
 - Bigramme (8/11) : sur les **octets** UTF-8 (pas les caractères), donc BPB = moyenne de -log2 p par octet. Lissage de Laplace alpha=1, non réglé sur la val (régler alpha sur la val serait une fuite). Contexte spécial BOS pour le premier octet.
 - Fins de ligne : sous Windows, `core.autocrlf=true` ajoute un `\r` par ligne au checkout du kit (+60 k octets en train, +10 k en val). Toujours lire le corpus en mode texte (`minigpt.bigram.load_utf8`, comme `ftb/evaluate.py`) : sinon BPB faussement bas (3,23 au lieu de 3,35 pour le bigramme). Hash vérifié identique au fichier du kit.
+- BPE (8/11) : niveau octet (256 de base, tout texte encodable), pré-découpage en mots (regex ` ?\w+| ?[^\w\s]+|\s+`) pour que les merges ne traversent pas deux mots, égalité de fréquence -> paire vue en premier. **Vocab 1 024** (validé par Matisse) : 2,49 octets/token sur la val contre 2,02 pour 512. Entraîné sur `moliere_train.txt` seul. Merges dans `data/processed/bpe_moliere_1024.json` (non versionné, regénéré par `uv run python -m minigpt.bpe` en ~70 s, sha256 9c7ba507e0b0).
 - Budget de tokens du bloc 1 : aucune contrainte (mail du mentor, 3/11). Compétition : 100 M tokens vus, config figée (`kit/Piscine/config/official.json`).
 
 ## Meilleur BPB
