@@ -6,7 +6,7 @@ Mini-GPT codé from scratch, sans boîte noire, entraîné sur le corpus Molièr
 |---|---|---|
 | Mini-autograd (`Value` + `backward()`) | `value.py` | gradients comparés à PyTorch |
 | Bigramme par comptage | `bigram.py` | BPB de référence sur la validation |
-| Tokenizer BPE (train, encode, decode) | `bpe.py` | `decode(encode(x)) == x` |
+| Tokenizer BPE (train, encode, decode) | `bpe.py` | `decode(encode(x)) == x`, merges calculés à la main ; vocab 1 024 |
 | Transformer décodeur | `model.py` | masque causal : aucun token ne voit le futur |
 | Entraînement | `train.py` | courbe de loss, BPB validation, 5 échantillons |
 
