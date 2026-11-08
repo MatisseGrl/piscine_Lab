@@ -5,7 +5,7 @@
 Dernière mise à jour : 8 novembre 2026. **Rendu le 16 novembre 2026 (J-8).**
 
 ## Étape en cours
-Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépendances du kit ajoutées (`tokenizers`, `tzdata`, `regex` en dev). Tests du kit OK (5 passed, 3/11). `Value` + `backward()` fait (7/11, PR #1, 8 tests verts). Bigramme par comptage fait (8/11, branche `feat/bigram` partie de `feat/value`, PR #2) : BPB val de référence **3,3544**. PR #1, #2, #3 mergées sur `main`. Tokenizer BPE fait (8/11, branche `feat/bpe`) : vocab 1 024, 2,49 octets/token sur la val. Prochaine étape : Transformer décodeur (`minigpt/model.py`).
+Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépendances du kit ajoutées (`tokenizers`, `tzdata`, `regex` en dev). Tests du kit OK (5 passed, 3/11). `Value` + `backward()` fait (7/11, PR #1, 8 tests verts). Bigramme par comptage fait (8/11, branche `feat/bigram` partie de `feat/value`, PR #2) : BPB val de référence **3,3544**. PR #1, #2, #3 mergées sur `main`. Tokenizer BPE fait (8/11, branche `feat/bpe`, PR #4, à merger) : vocab 1 024, 2,49 octets/token sur la val. Prochaine étape : Transformer décodeur (`minigpt/model.py`).
 
 ## Fait
 - [x] Dépôt `MatisseGrl/piscine_Lab` cloné dans `Documents/piscine_Lab`

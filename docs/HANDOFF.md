@@ -20,14 +20,14 @@ Piscine ECE « Feed the Beast » de Matisse (individuel) : un mini-GPT from scra
 - **Bloc 1, étape 3 : tokenizer BPE terminé (8/11).**
   - Code : `minigpt/bpe.py`, classe `BPETokenizer` (`train(text, vocab_size)`, `encode`, `decode`, `save`, `load`). Niveau octet, pré-découpage en mots par regex, comptage pondéré par mot distinct (rapide : ~70 s pour 768 merges sur 1,5 Mo), encodage avec cache par mot. Lancer : `uv run python -m minigpt.bpe [vocab_size]` (défaut 1 024), écrit `data/processed/bpe_moliere_1024.json`.
   - Tests : `tests/test_bpe.py`, 8 tests (merges à la main sur `"aaabdaaabac"`, aller-retour accents / octets jamais vus / val entière, texte vide, save/load). `uv run pytest` donne 24 passed.
-  - **Vocab 1 024**, 2,49 octets/token sur la val. Branche `feat/bpe`.
+  - **Vocab 1 024**, 2,49 octets/token sur la val. Branche `feat/bpe`, PR https://github.com/MatisseGrl/piscine_Lab/pull/4 (à merger).
 - Commentaires et docstrings de `value.py`, `test_value.py` et `scripts/fetch_moliere.py` traduits en français.
 - `AGENTS.md` mis à jour : mode « tout comprendre » retiré, commentaires en français obligatoires.
 
 ## Ce qui reste (ordre du sujet, détail dans `docs/STATUS.md`)
 1. ~~Bigramme par comptage~~ : fait (BPB val 3,3544).
 2. ~~Tokenizer BPE~~ : fait (vocab 1 024).
-3. **Transformer décodeur** (prochaine étape), sur les ids de `BPETokenizer.load("data/processed/bpe_moliere_1024.json")`. Attention : le BPB se calcule toujours en divisant les bits par les **octets** UTF-8 du texte, pas par le nombre de tokens. Contenu : multi-têtes, masque causal, LayerNorm, MLP, résiduels ; test : aucun token ne voit le futur).
+3. **Transformer décodeur** (prochaine étape), sur les ids de `BPETokenizer.load("data/processed/bpe_moliere_1024.json")`. Attention : le BPB se calcule toujours en divisant les bits par les **octets** UTF-8 du texte, pas par le nombre de tokens. Contenu : multi-têtes, masque causal, LayerNorm, MLP, résiduels ; test : aucun token ne voit le futur.
 4. Entraînement sur Molière du kit uniquement (`kit/Piscine/corpus/moliere_train.txt`) : courbe de loss, BPB validation, 5 échantillons.
 5. Bloc 2 : pipeline de données (collecte Common Crawl + 2 sources FR, ftfy, langue, dédup exacte + MinHash, filtres qualité, PII) et rapport d'ablation (brut vs nettoyé vs complet).
 6. Bloc 3 : tokenizer 8 192, soumissions (2/jour), datasheet, soutenance.
