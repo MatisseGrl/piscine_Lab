@@ -35,11 +35,13 @@ Piscine ECE « Feed the Beast » de Matisse (individuel) : un mini-GPT from scra
   - `tests/test_train.py` vérifie le décalage des cibles et la baisse de loss sur un mini-texte. Suite complète : 35 tests réussis.
 
 ## Ce qui reste (ordre du sujet, détail dans `docs/STATUS.md`)
+
+La PR #6 de `feat/train` est mergée sur `main` (`29a181f`, qui contient `8a5ff57`). `feat/collect` part de ce merge. Les trois sources sont validées par Matisse. La commande de collecte est implémentée et le mode `--sample` a tourné sur les sources réelles. Voir `docs/STATUS.md` pour les contrôles effectués et `pipeline/README.md` pour les commandes.
 1. ~~Bigramme par comptage~~ : fait (BPB val 3,3544).
 2. ~~Tokenizer BPE~~ : fait (vocab 1 024).
 3. ~~Transformer décodeur~~ : fait (`minigpt/model.py`).
 4. ~~Entraînement sur Molière~~ : fait (`minigpt/train.py`, BPB val 1,8237).
-5. Bloc 2 : pipeline de données (collecte Common Crawl + 2 sources FR, ftfy, langue, dédup exacte + MinHash, filtres qualité, PII) et rapport d'ablation (brut vs nettoyé vs complet).
+5. Bloc 2 : lancer la collecte complète, puis implémenter ftfy, langue, dédup exacte + MinHash, filtres qualité, PII et rapport d'ablation (brut vs nettoyé vs complet).
 6. Bloc 3 : tokenizer 8 192, soumissions (2/jour), datasheet, soutenance.
 
 ## Décisions déjà prises (ne pas les rouvrir sans Matisse)
@@ -58,7 +60,7 @@ Piscine ECE « Feed the Beast » de Matisse (individuel) : un mini-GPT from scra
 - Avertissements « LF will be replaced by CRLF » de git sur Windows : sans gravité.
 - La PR #1 doit être mergée (ou la branche suivante créée depuis `feat/value`), sinon une nouvelle branche partira de `main` sans `Value`.
 - Kit officiel : copier ou non `ftb/`, `config/`, `data/validation.jsonl` dans ce dépôt est une question ouverte à trancher avant la première soumission.
-- Décisions encore ouvertes du bloc 2 : segment Common Crawl, outil de langue, seuil MinHash, heuristiques ou classifieur qualité, part de synthétique (plafond 20 %), Colab ou Kaggle, publication Hugging Face. À trancher avec Matisse avant de coder la partie concernée.
+- Décisions encore ouvertes du bloc 2 : outil de langue, seuil MinHash, heuristiques ou classifieur qualité, part de synthétique (plafond 20 %), Colab ou Kaggle, publication Hugging Face. À trancher avec Matisse avant de coder la partie concernée.
 
 ## Commandes utiles
 ```bash
@@ -67,4 +69,5 @@ uv run pytest
 uv run python -m minigpt.bpe  # seulement si les merges du bloc 1 manquent
 uv run python -m minigpt.train
 uv run python scripts/fetch_moliere.py
+uv run --no-sync python -m pipeline.collect --sample
 ```

@@ -9,4 +9,6 @@ data/
 └── processed/    dataset final tokenisé + tokenizer, avec son hash
 ```
 
+La [commande de collecte](../pipeline/README.md) range les sources complètes dans `raw/common_crawl/`, `raw/wikipedia_fr/` et `raw/assemblee_nationale/`. Le mode échantillon utilise exclusivement `raw/_samples/`.
+
 Le hash du dataset final est noté dans `experiments/LOG.md` à chaque soumission.

@@ -5,7 +5,11 @@
 Dernière mise à jour : 8 novembre 2026. **Rendu le 16 novembre 2026 (J-8).**
 
 ## Étape en cours
-Bloc 1 terminé sur `feat/train`, depuis `main` après le merge de la PR #5. Le mini-GPT entraîné sur Molière atteint **1,8237 BPB** sur la validation. Les 35 tests passent. Les blocs 2 et 3 restent à faire.
+Bloc 1 mergé sur `main` via la PR #6 (`29a181f`, commit d'entraînement `8a5ff57`). Le mini-GPT atteint **1,8237 BPB** sur la validation Molière. Le bloc 1 avait été validé avec 35 tests.
+
+Bloc 2, collecte : `feat/collect` part de `29a181f`. Matisse a validé le segment WET `1736703361941.29` de `CC-MAIN-2025-05`, Wikipédia FR `20231101.fr` à la révision `b4c48878f631fc348dd47a4d89c3d1e4b928a0de` et les débats de la 16e législature (ZIP XML officiel, chemin `16/vp/`).
+
+`uv run --no-sync python -m pipeline.collect --sample` vérifiée le 8/11. Deux enregistrements texte WET lus dans le premier Mio, signature du Parquet vérifiée et métadonnées de trois articles lues à distance sur la révision fixée, ZIP de 57 553 703 octets conforme au MD5 officiel avec 605 XML et un compte rendu lu. Le segment entier et les 17 fichiers Parquet restent à télécharger.
 
 ## Fait
 - [x] Dépôt `MatisseGrl/piscine_Lab` cloné dans `Documents/piscine_Lab`
@@ -26,7 +30,8 @@ Bloc 1 terminé sur `feat/train`, depuis `main` après le merge de la PR #5. Le 
 - [x] Entraînement CPU sur Molière (`minigpt/train.py`) : 2 700 pas AdamW, batch 32, taux 3e-4, graine 42. Courbe et cinq échantillons dans `experiments/`, checkpoint local dans `checkpoints/moliere_gpt.pt`.
 
 ### Bloc 2 : pipeline de données
-- [ ] Collecte : ≥ 1 segment Common Crawl + ≥ 2 sources propres FR, une fiche par source
+- [x] Commande de collecte et trois fiches sources, vérifiées sur échantillons réels
+- [ ] Exécuter la collecte complète avant le traitement
 - [ ] Nettoyage : encodage (ftfy), langue (+ précision mesurée sur échantillon annoté main), boilerplate
 - [ ] Dédup exacte (hash) + quasi-doublons (MinHash + LSH, seuil justifié)
 - [ ] Filtrage qualité + masquage données personnelles
