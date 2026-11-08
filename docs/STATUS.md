@@ -5,7 +5,7 @@
 Dernière mise à jour : 8 novembre 2026. **Rendu le 16 novembre 2026 (J-8).**
 
 ## Étape en cours
-Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépendances du kit ajoutées (`tokenizers`, `tzdata`, `regex` en dev). Tests du kit OK (5 passed, 3/11). `Value` + `backward()` fait (7/11, PR #1, 8 tests verts). Bigramme par comptage fait (8/11, branche `feat/bigram` partie de `feat/value`, PR #2) : BPB val de référence **3,3544**. PR #1, #2, #3 mergées sur `main`. Tokenizer BPE fait (8/11, PR #4 mergée) : vocab 1 024, 2,49 octets/token sur la val. Transformer décodeur fait (8/11, branche `feat/model`, PR #5, à merger) : 33 tests verts. Prochaine étape : entraînement sur Molière (`minigpt/train.py`).
+Bloc 1 terminé sur `feat/train`, depuis `main` après le merge de la PR #5. Le mini-GPT entraîné sur Molière atteint **1,8237 BPB** sur la validation. Les 35 tests passent. Les blocs 2 et 3 restent à faire.
 
 ## Fait
 - [x] Dépôt `MatisseGrl/piscine_Lab` cloné dans `Documents/piscine_Lab`
@@ -23,7 +23,7 @@ Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépen
 - [x] Bigramme par comptage (référence) : `minigpt/bigram.py`, octets UTF-8, Laplace alpha=1, BPB val 3,3544 (8/11)
 - [x] Tokenizer BPE from scratch (train, encode, decode) : `minigpt/bpe.py`, vocab 1 024, 2,49 octets/token sur la val (8/11)
 - [x] Transformer décodeur : `minigpt/model.py` (multi-têtes + masque causal à la main, LayerNorm à la main, MLP GELU, résiduels pre-norm, `generate()` avec température, `evaluate_bpb()` par octets UTF-8) (8/11)
-- [ ] Entraînement sur Molière (`kit/Piscine/corpus/moliere_train.txt`) : courbe de loss, BPB sur `moliere_val.txt` (Misanthrope, Avare, Sicilien) calculé soi-même, 5 échantillons
+- [x] Entraînement CPU sur Molière (`minigpt/train.py`) : 2 700 pas AdamW, batch 32, taux 3e-4, graine 42. Courbe et cinq échantillons dans `experiments/`, checkpoint local dans `checkpoints/moliere_gpt.pt`.
 
 ### Bloc 2 : pipeline de données
 - [ ] Collecte : ≥ 1 segment Common Crawl + ≥ 2 sources propres FR, une fiche par source
@@ -45,11 +45,11 @@ Kit officiel reçu (3/11) et cloné dans `kit/Piscine/`. Venv finalisé : dépen
 - Bigramme (8/11) : sur les **octets** UTF-8 (pas les caractères), donc BPB = moyenne de -log2 p par octet. Lissage de Laplace alpha=1, non réglé sur la val (régler alpha sur la val serait une fuite). Contexte spécial BOS pour le premier octet.
 - Fins de ligne : sous Windows, `core.autocrlf=true` ajoute un `\r` par ligne au checkout du kit (+60 k octets en train, +10 k en val). Toujours lire le corpus en mode texte (`minigpt.bigram.load_utf8`, comme `ftb/evaluate.py`) : sinon BPB faussement bas (3,23 au lieu de 3,35 pour le bigramme). Hash vérifié identique au fichier du kit.
 - BPE (8/11) : niveau octet (256 de base, tout texte encodable), pré-découpage en mots (regex ` ?\w+| ?[^\w\s]+|\s+`) pour que les merges ne traversent pas deux mots, égalité de fréquence -> paire vue en premier. **Vocab 1 024** (validé par Matisse) : 2,49 octets/token sur la val contre 2,02 pour 512. Entraîné sur `moliere_train.txt` seul. Merges dans `data/processed/bpe_moliere_1024.json` (non versionné, regénéré par `uv run python -m minigpt.bpe` en ~70 s, sha256 9c7ba507e0b0).
-- Modèle (8/11) : config par défaut `GPTConfig()` = 4 couches, 4 têtes, d_model 128, contexte 128 tokens, vocab 1 024, dropout 0 : ~1,07 M paramètres, ~0,3 s par pas (batch 32 x 128) sur le CPU du poste. Proposée par l'agent, à confirmer par Matisse avant `train.py`. Pre-norm (LayerNorm avant chaque sous-couche), tête de sortie non liée aux embeddings, init N(0, 0,02). `evaluate_bpb` : fenêtres consécutives de 128 tokens, le premier token du texte n'est pas prédit (négligeable), bits divisés par les octets UTF-8 du texte entier.
+- Modèle (8/11) : `GPTConfig()` avec 4 couches, 4 têtes, d_model 128, contexte 128 tokens, vocab 1 024, dropout 0, environ 1,07 M paramètres. Pre-norm, tête de sortie non liée aux embeddings, init N(0, 0,02). `evaluate_bpb` utilise des fenêtres consécutives de 128 tokens et divise les bits par le nombre d’octets UTF-8 du texte entier. Run CPU de référence avec 4 threads, environ 26 minutes avec les évaluations.
 - Budget de tokens du bloc 1 : aucune contrainte (mail du mentor, 3/11). Compétition : 100 M tokens vus, config figée (`kit/Piscine/config/official.json`).
 
 ## Meilleur BPB
-- Validation (Molière, `moliere_val.txt`) : 3,3544, bigramme d'octets (référence du bloc 1, 8/11)
+- Validation Molière (`moliere_val.txt`) : **1,8237** pour le mini-GPT, contre **3,3544** pour le bigramme (8/11).
 - Leaderboard : —
 
 ## Questions ouvertes

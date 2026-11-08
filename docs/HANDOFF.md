@@ -25,15 +25,20 @@ Piscine ECE « Feed the Beast » de Matisse (individuel) : un mini-GPT from scra
   - Code : `minigpt/model.py` : `GPTConfig`, `LayerNorm` (à la main), `CausalSelfAttention` (scores, masque `tril` -> -inf, softmax, à la main), `MLP` (GELU), `Block` pre-norm avec résiduels, `GPT` (`forward(idx, targets)` -> logits, loss ; `generate(idx, n, temperature, generator)`), `bits_per_byte(nll_nats, text)` et `evaluate_bpb(model, ids, text)`.
   - Config par défaut : 4 couches, 4 têtes, d_model 128, contexte 128, ~1,07 M paramètres, ~0,3 s/pas (batch 32) sur CPU. À confirmer par Matisse.
   - Tests : `tests/test_model.py`, 9 tests (formes, masque causal, attention comparée à `F.scaled_dot_product_attention` dans le test seulement, LayerNorm vs `nn.LayerNorm` valeurs et gradients, surapprentissage d'un batch < 0,05, BPB par octets sur `"été"`, BPB d'un modèle uniforme, generate reproductible). `uv run pytest` donne 33 passed.
-  - Branche `feat/model`, PR #5 (à merger).
+  - PR #5 mergée sur `main` au commit `d135cdf`.
 - Commentaires et docstrings de `value.py`, `test_value.py` et `scripts/fetch_moliere.py` traduits en français.
 - `AGENTS.md` mis à jour : mode « tout comprendre » retiré, commentaires en français obligatoires.
+- **Bloc 1, étape 5 : entraînement Molière terminé (8/11, `feat/train`).**
+  - `minigpt/train.py` échantillonne des fenêtres de 128 tokens dans le train du kit, avec des cibles décalées d’un token. AdamW sur CPU, 2 700 pas, batch 32, taux 3e-4, graine 42. Le BPB est mesuré tous les 500 pas et au dernier pas.
+  - **BPB final 1,8237**, contre 3,3544 pour le bigramme. 11 059 200 tokens vus, environ 26 minutes avec 4 threads CPU. Le détail et les empreintes des données sont dans `experiments/LOG.md`.
+  - Courbe `experiments/moliere_loss.png`, cinq générations à température 0,8 dans `experiments/moliere_samples.txt`, checkpoint ignoré par Git dans `checkpoints/moliere_gpt.pt`.
+  - `tests/test_train.py` vérifie le décalage des cibles et la baisse de loss sur un mini-texte. Suite complète : 35 tests réussis.
 
 ## Ce qui reste (ordre du sujet, détail dans `docs/STATUS.md`)
 1. ~~Bigramme par comptage~~ : fait (BPB val 3,3544).
 2. ~~Tokenizer BPE~~ : fait (vocab 1 024).
 3. ~~Transformer décodeur~~ : fait (`minigpt/model.py`).
-4. **Entraînement (prochaine étape, `minigpt/train.py`)**, ids de `BPETokenizer.load("data/processed/bpe_moliere_1024.json")`, BPB avec `evaluate_bpb` (octets UTF-8, lire le texte avec `load_utf8`). Entraînement sur Molière du kit uniquement (`kit/Piscine/corpus/moliere_train.txt`) : courbe de loss, BPB validation, 5 échantillons.
+4. ~~Entraînement sur Molière~~ : fait (`minigpt/train.py`, BPB val 1,8237).
 5. Bloc 2 : pipeline de données (collecte Common Crawl + 2 sources FR, ftfy, langue, dédup exacte + MinHash, filtres qualité, PII) et rapport d'ablation (brut vs nettoyé vs complet).
 6. Bloc 3 : tokenizer 8 192, soumissions (2/jour), datasheet, soutenance.
 
@@ -59,5 +64,7 @@ Piscine ECE « Feed the Beast » de Matisse (individuel) : un mini-GPT from scra
 ```bash
 uv sync
 uv run pytest
+uv run python -m minigpt.bpe  # seulement si les merges du bloc 1 manquent
+uv run python -m minigpt.train
 uv run python scripts/fetch_moliere.py
 ```
