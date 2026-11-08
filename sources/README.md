@@ -1,5 +1,11 @@
 # sources
 
+Sources de la collecte du bloc 2 :
+
+- [Common Crawl (WET)](common-crawl.md)
+- [Wikipédia FR](wikipedia-fr.md)
+- [Débats de la 16e législature](assemblee-nationale-16.md)
+
 Une fiche par source, nommée `<source>.md` (ex. `common-crawl.md`, `wikipedia-fr.md`). Modèle à copier :
 
 ```markdown

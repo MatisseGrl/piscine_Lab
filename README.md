@@ -18,8 +18,8 @@ Le BPB (bits par octet) mesure combien de bits le modèle utilise en moyenne pou
 
 | Bloc | État |
 |---|---|
-| Mini-GPT | À faire |
-| Pipeline | À faire |
+| Mini-GPT | Terminé |
+| Pipeline | Collecte implémentée et vérifiée sur échantillons |
 | Compétition | À faire |
 
 Détail et prochaines étapes : [`docs/STATUS.md`](docs/STATUS.md). Journal des essais : [`experiments/LOG.md`](experiments/LOG.md).
@@ -47,6 +47,8 @@ Prérequis : [uv](https://docs.astral.sh/uv/).
 uv sync                                 # environnement Python 3.12 + dépendances
 uv run python scripts/fetch_moliere.py  # corpus Molière (33 pièces) depuis Wikisource
 uv run pytest                           # tests
+uv run --no-sync python -m pipeline.collect --sample  # vérification bornée
+uv run --no-sync python -m pipeline.collect           # collecte complète (plusieurs dizaines de Gio)
 ```
 
 Les autres commandes seront ajoutées au fur et à mesure que le code existe. Objectif : une seule commande pour regénérer le dataset final, graines fixées, hash publié à chaque soumission.
