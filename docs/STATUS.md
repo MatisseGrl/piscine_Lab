@@ -2,14 +2,16 @@
 
 À lire au début de chaque session, à mettre à jour à la fin.
 
-Dernière mise à jour : 8 novembre 2026. **Rendu le 16 novembre 2026 (J-8).**
+Dernière mise à jour : 9 novembre 2026. **Rendu le 16 novembre 2026 (J-7).**
 
 ## Étape en cours
 Bloc 1 mergé sur `main` via la PR #6 (`29a181f`, commit d'entraînement `8a5ff57`). Le mini-GPT atteint **1,8237 BPB** sur la validation Molière. Le bloc 1 avait été validé avec 35 tests.
 
 Bloc 2, collecte : `feat/collect` part de `29a181f`. Matisse a validé le segment WET `1736703361941.29` de `CC-MAIN-2025-05`, Wikipédia FR `20231101.fr` à la révision `b4c48878f631fc348dd47a4d89c3d1e4b928a0de` et les débats de la 16e législature (ZIP XML officiel, chemin `16/vp/`).
 
-`uv run --no-sync python -m pipeline.collect --sample` vérifiée le 8/11. Deux enregistrements texte WET lus dans le premier Mio, signature du Parquet vérifiée et métadonnées de trois articles lues à distance sur la révision fixée, ZIP de 57 553 703 octets conforme au MD5 officiel avec 605 XML et un compte rendu lu. Le segment entier et les 17 fichiers Parquet restent à télécharger.
+`uv run --no-sync python -m pipeline.collect --sample` vérifiée le 8/11. Deux enregistrements texte WET lus dans le premier Mio, signature du Parquet vérifiée et métadonnées de trois articles lues à distance sur la révision fixée, ZIP de 57 553 703 octets conforme au MD5 officiel avec 605 XML et un compte rendu lu.
+
+Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `data/raw/` : 900 WET (91 791 596 895 octets, tailles HTTP vérifiées), 17 Parquet (4 614 488 286 octets, SHA-256 LFS vérifiés) et un ZIP XML (57 553 703 octets, MD5 officiel vérifié).
 
 ## Fait
 - [x] Dépôt `MatisseGrl/piscine_Lab` cloné dans `Documents/piscine_Lab`
@@ -31,7 +33,7 @@ Bloc 2, collecte : `feat/collect` part de `29a181f`. Matisse a validé le segmen
 
 ### Bloc 2 : pipeline de données
 - [x] Commande de collecte et trois fiches sources, vérifiées sur échantillons réels
-- [ ] Exécuter la collecte complète avant le traitement
+- [x] Collecte complète téléchargée et contrôlée
 - [ ] Nettoyage : encodage (ftfy), langue (+ précision mesurée sur échantillon annoté main), boilerplate
 - [ ] Dédup exacte (hash) + quasi-doublons (MinHash + LSH, seuil justifié)
 - [ ] Filtrage qualité + masquage données personnelles
