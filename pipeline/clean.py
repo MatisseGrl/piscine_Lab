@@ -25,7 +25,7 @@ INTERIM = ROOT / "data" / "interim"
 MODEL = INTERIM / "models" / "lid.176.bin"
 MODEL_URL = "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin"
 MODEL_HASH = "7e69ec5451bc261cc7844e49e4792a85d7f09c06789ec800fc4a44aec362764e"
-KIT = ROOT / "kit" / "Piscine-official"
+KIT = ROOT / "kit" / "Piscine"
 THRESHOLD = 0.80
 EDGE_LINES = 5
 ASSEMBLY_TEXT = "{http://schemas.assemblee-nationale.fr/referentiel}texte"
@@ -170,7 +170,23 @@ def iter_assembly(path):
                     yield f"{Path(name).stem}:{index}", "\n".join(paragraphs)
 
 
-def sources(raw, limit):
+def select_wet(paths, max_bytes):
+    """Retient le plus long préfixe d'archives entières sous le plafond."""
+    selected = []
+    total_bytes = 0
+    for path in paths:
+        size = path.stat().st_size
+        # S'arrête au premier dépassement pour conserver un préfixe stable.
+        if max_bytes is not None and total_bytes + size > max_bytes:
+            break
+        selected.append(path)
+        total_bytes += size
+    if not selected:
+        raise ValueError("Le plafond Common Crawl ne couvre pas la première archive WET")
+    return selected, total_bytes
+
+
+def sources(raw, limit, cc_max_bytes):
     """Sélectionne les trois entrées de la collecte et vérifie leurs archives."""
     wet = sorted((raw / "common_crawl" / CRAWL / SEGMENT).glob("*.warc.wet.gz"))
     wiki = sorted((raw / "wikipedia_fr" / WIKI_CONFIG).glob("*.parquet"))
@@ -179,17 +195,29 @@ def sources(raw, limit):
         raise ValueError("Une des trois sources brutes est absente")
     if limit is None and (len(wet), len(wiki)) != (900, 17):
         raise ValueError(f"Collecte incomplète : {len(wet)} WET et {len(wiki)} Parquet")
+    wet, wet_bytes = select_wet(wet, cc_max_bytes)
     return {
         "common_crawl": iter_wet(wet),
         "wikipedia_fr": iter_wikipedia(wiki),
         "assemblee_nationale": iter_assembly(assembly),
-    }
+    }, {"max_bytes": cc_max_bytes, "archive_bytes": wet_bytes, "archives": [path.name for path in wet]}
 
 
 def digest(path):
     """Calcule le SHA-256 du fichier en lecture séquentielle."""
     with path.open("rb") as stream:
         return file_digest(stream, "sha256").hexdigest()
+
+
+def default_kit():
+    """Choisit le kit standard s'il contient les deux fichiers de validation."""
+    official = KIT.with_name("Piscine-official")
+    for candidate in (KIT, official):
+        if (candidate / "data" / "validation.jsonl").is_file() and (
+            candidate / "corpus" / "moliere_val.txt"
+        ).is_file():
+            return candidate
+    return KIT
 
 
 def write_document(stream, row):
@@ -248,13 +276,13 @@ def open_output(stack, folder, source):
     return stack.enter_context(TextIOWrapper(compressed, encoding="utf-8", newline="\n"))
 
 
-def run(raw, output, kit, limit, include_raw):
+def run(raw, output, kit, limit, include_raw, cc_max_bytes=None):
     """Traite un flux stable et publie le dossier seulement après succès."""
     import fasttext
 
     if output.exists():
         raise FileExistsError(f"Choisis un dossier de sortie neuf : {output}")
-    inputs = sources(raw, limit)
+    inputs, cc_selection = sources(raw, limit, cc_max_bytes)
     validation = kit / "data" / "validation.jsonl"
     moliere = kit / "corpus" / "moliere_val.txt"
     with validation.open(encoding="utf-8") as stream:
@@ -279,6 +307,7 @@ def run(raw, output, kit, limit, include_raw):
         stats = {
             "language_threshold": THRESHOLD, "model_sha256": MODEL_HASH, "limit_per_source": limit,
             "validation_sha256": digest(validation), "moliere_validation_sha256": digest(moliere),
+            "common_crawl_selection": cc_selection,
             "sources": {},
         }
         for source, documents in inputs.items():
@@ -306,15 +335,18 @@ def main():
     """Expose une commande de nettoyage complète et un mode de vérification borné."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=INTERIM / "clean")
-    parser.add_argument("--kit", type=Path, default=KIT)
+    parser.add_argument("--kit", type=Path, default=default_kit())
     parser.add_argument("--limit-per-source", type=int)
+    parser.add_argument("--cc-max-bytes", type=int, help="Plafond d'octets compressés des archives WET.")
     parser.add_argument("--include-raw", action="store_true", help="Écrit aussi la variante brute contrôlée.")
     args = parser.parse_args()
     if args.limit_per_source is not None and args.limit_per_source < 1:
         parser.error("--limit-per-source doit être positif")
+    if args.cc_max_bytes is not None and args.cc_max_bytes < 1:
+        parser.error("--cc-max-bytes doit être positif")
     if args.limit_per_source is not None and args.out == INTERIM / "clean":
         parser.error("Indique --out pour séparer le test borné de la sortie complète")
-    run(RAW, args.out, args.kit, args.limit_per_source, args.include_raw)
+    run(RAW, args.out, args.kit, args.limit_per_source, args.include_raw, args.cc_max_bytes)
 
 
 if __name__ == "__main__":
