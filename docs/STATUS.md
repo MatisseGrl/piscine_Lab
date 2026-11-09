@@ -5,7 +5,9 @@
 Dernière mise à jour : 9 novembre 2026. **Rendu le 16 novembre 2026 (J-7).**
 
 ## Étape en cours
-Branche `feat/clean` créée depuis `main` à jour (`d8a8966`). Nettoyage implémenté et vérifié sur les 1 000 premiers documents de chacune des trois sources. Sorties de vérification et statistiques dans `data/interim/clean-verified/`. Le nettoyage intégral, l'annotation et les deux entraînements de comparaison restent à faire.
+Nettoyage mergé sur `main` via la PR #9 (`56e60a2`). Le test sur les 1 000 premiers documents de chaque source est dans `data/interim/clean-verified/`.
+
+Le 9/11 à 14 h 52, lancement de `uv run python -m pipeline.clean --include-raw` depuis ce merge. Après 53 min, Common Crawl était toujours en cours, avec 1,08 Go de brut et 37 Mo de nettoyé compressés dans le dossier temporaire. La commande publie `data/interim/clean/` à la fin des trois sources. Les statistiques et le recouvrement de l'intégral restent à vérifier sur les deux variantes.
 
 Bloc 1 mergé sur `main` via la PR #6 (`29a181f`, commit d'entraînement `8a5ff57`). Le mini-GPT atteint **1,8237 BPB** sur la validation Molière. Le bloc 1 avait été validé avec 35 tests.
 
@@ -37,7 +39,8 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 - [x] Commande de collecte et trois fiches sources, vérifiées sur échantillons réels
 - [x] Collecte complète téléchargée et contrôlée
 - [x] Nettoyage : encodage (ftfy), français et boilerplate WET, statistiques par source, garde-fou de validation et export brut pour l'ablation
-- [ ] Exécuter le nettoyage intégral, annoter le tirage de langue et mesurer la précision
+- [ ] Terminer le nettoyage intégral et vérifier les statistiques et le recouvrement du brut et du nettoyé
+- [ ] Annoter le tirage de langue (Matisse), puis mesurer la précision
 - [ ] Mesurer les BPB brut et nettoyé à configuration identique sur la validation publique du kit
 - [ ] Dédup exacte (hash) + quasi-doublons (MinHash + LSH, seuil justifié)
 - [ ] Filtrage qualité + masquage données personnelles
