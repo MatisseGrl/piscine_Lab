@@ -9,6 +9,8 @@ Déduplication sur `feat/dedup`, créée depuis `main` synchronisée au merge de
 
 Le pilote a traité 62 000 documents et en conserve 61 128 après dédup exacte. L'index représente 12,5 Mo de tableaux sur le pilote et environ 66 Mo à taille maximale après le tirage de 300 000 articles Wikipédia. Matisse a validé le seuil Jaccard à 0,97 et le premier représentant conservé dans l'ordre Assemblée, Wikipédia FR, Common Crawl, puis ordre de chaque fichier. Estimation sur ce poste de 45 à 75 min avec la relecture.
 
+Le pilote à 0,97 a retiré 22 quasi-doublons. Les compteurs et SHA-256 de sa sortie concordent et la vérification trouve zéro recouvrement sur les 230 documents publics. Le lancement intégral a été bloqué avant la dédup exacte car Windows indiquait une alimentation sur batterie. La PR #11 est en brouillon en attendant le bilan intégral.
+
 Nettoyage mergé sur `main` via la PR #9 (`56e60a2`). Le test sur les 1 000 premiers documents de chaque source est dans `data/interim/clean-verified/`.
 
 Le 9/11, le premier run a été arrêté pendant Common Crawl et ses sorties partielles ont été supprimées. Parcourir les 91,8 Go compressés aurait pris environ trois jours sur ce poste. Matisse a validé un plafond de 1 050 000 000 octets compressés pour Common Crawl, compte tenu du délai et du budget de 100 M tokens vus en compétition. Le préfixe trié couvre 10 archives WET (1 019 886 136 octets). Wikipédia FR et l'Assemblée passent en entier.

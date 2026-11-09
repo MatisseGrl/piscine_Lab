@@ -81,6 +81,17 @@ Sur ce lot, l'exact a retiré 797 documents de l'Assemblée, 6 de Wikipédia et 
 
 L'inspection du pilote montre des cas distincts à 0,955 (article 2 bis ou 2 dans deux interventions de l'Assemblée) et à 0,889 (deux woredas différents sur Wikipédia). Deux ordres du jour qui diffèrent seulement par un espace après un point atteignent 1,000. Le seuil validé est 0,97. Un seuil élevé réduit les fusions de textes qui partagent un gabarit, avec un risque résiduel si un détail significatif occupe peu de mots.
 
+| Seuil | Retraits Assemblée | Retraits Wikipédia | Retraits Common Crawl |
+|---|---:|---:|---:|
+| 0,75 | 62 | 673 | 203 |
+| 0,80 | 43 | 527 | 158 |
+| 0,85 | 20 | 382 | 114 |
+| 0,90 | 13 | 276 | 69 |
+| 0,96 | 2 | 26 | 21 |
+| 0,97 | 2 | 5 | 15 |
+
+À 0,97, le pilote retire encore des contenus distincts qui partagent un gabarit, dont les villages Lug et Medovići (0,975) et deux spectacles du site OARA (0,979). Une paire de captures de la même FAQ à 0,998 ne diffère que par l'heure affichée. Les paires inspectées servent à illustrer les limites du seuil, sans estimation de la précision sur tout le corpus.
+
 En traitement complet, la dédup exacte couvre les 2 530 051 documents. MinHash prend ensuite tous les survivants de Common Crawl et de l'Assemblée et tire 300 000 survivants Wikipédia sans remise, à graine 42, dans leur ordre d'origine. Le sous-échantillonnage et les rejets MinHash sont comptés séparément. L'index MinHash utilise 96 minima, répartis en 16 bandes de six. Une bande commune propose une paire. Le retrait exige un Jaccard exact au moins égal au seuil sur les suites de cinq mots et un représentant déjà conservé. L'index peut manquer des paires similaires qui ne partagent aucune bande.
 
 Le traitement complet vérifie le secteur sous Windows. La sortie exacte est conservée dans `data/interim/dedup/exact/`. Après une interruption de MinHash, on peut repartir de cette étape sans refaire le hash exact.

@@ -387,10 +387,10 @@ def prepare_full_run():
         # Le premier octet vaut 1 si le secteur est connecté, 255 si inconnu.
         status = (ctypes.c_ubyte * 12)()
         if not ctypes.windll.kernel32.GetSystemPowerStatus(ctypes.byref(status)) or status[0] != 1:
-            raise RuntimeError("Branche le PC sur secteur avant le traitement complet")
+            raise SystemExit("Branche le PC sur secteur avant le traitement complet")
         # Windows libère cette demande de maintien éveillé à la fin du processus.
         if not ctypes.windll.kernel32.SetThreadExecutionState(0x80000001):
-            raise RuntimeError("Impossible d'empêcher la veille pendant le traitement")
+            raise SystemExit("Impossible d'empêcher la veille pendant le traitement")
 
 
 def main():
