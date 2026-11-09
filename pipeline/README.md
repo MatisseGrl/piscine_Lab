@@ -63,3 +63,30 @@ Le tirage uniforme sans remise utilise la graine 42. Remplis chaque champ `annot
 Ajoute `--include-raw` au nettoyage complet. Le sous-dossier `raw/` contient les textes extraits avant nettoyage, après application du même garde-fou de validation. Les JSONL gzip des deux variantes sont directement lisibles par `ftb.prepare`.
 
 Pour isoler l'effet du nettoyage, réutilise le même tokenizer, entraîné hors validation, la même liste ordonnée de sources, la même configuration officielle et le même budget de tokens dans les deux runs. Contrôle séparément les entrées de chaque run avec `ftb.contamination` et mesure le BPB avec `ftb.evaluate` sur la validation publique. Note les SHA-256, les tokens vus et les deux BPB dans `experiments/LOG.md`.
+
+## Dédupliquer le nettoyé
+
+Les entrées sont les trois JSONL gzip et le `stats.json` de `data/interim/clean/`. Le pipeline contrôle leurs SHA-256 et la sélection Common Crawl du nettoyage plafonné. La déduplication exacte compare des SHA-256 du texte en minuscules, en NFC, avec des espaces uniformisés. Elle garde la ligne du premier représentant, y compris le texte et les métadonnées d'origine. Les rejets exacts sont comptés par source du texte retiré et séparés selon que le représentant vient de cette même source ou d'une autre.
+
+L'ordre validé est Assemblée nationale, Wikipédia FR, Common Crawl, puis l'ordre du fichier dans chaque source. Les sources propres passent donc en priorité. Si une page Common Crawl est déjà représentée par un article Wikipédia écarté au tirage, ce groupe de doublons peut disparaître de la sortie finale.
+
+```bash
+uv run python -m pipeline.dedup pilot
+uv run python -m pipeline.dedup all --threshold 0.97
+```
+
+Le pilote tire 50 000 articles Wikipédia, 6 000 pages Common Crawl et 6 000 sections de l'Assemblée, à graine 42, avant la dédup exacte du lot. Il compare les seuils 0,75, 0,80, 0,85, 0,90, 0,96 et 0,97. Les compteurs, la taille des tableaux de l'index et les identifiants de paires inspectables sont dans `data/interim/dedup-pilot/`.
+
+Sur ce lot, l'exact a retiré 797 documents de l'Assemblée, 6 de Wikipédia et 69 de Common Crawl. Les 872 rejets sont internes aux sources. Les signatures et l'index ont pris 168 s pour les 61 128 survivants, avec 12,5 Mo de tableaux, soit environ 66 Mo pour 322 111 documents. Le test de débit de l'exact traite 49 994 lignes représentatives en 24,3 s, hors parcours du grand gzip Wikipédia. Le traitement complet et sa relecture sont estimés à 45–75 min.
+
+L'inspection du pilote montre des cas distincts à 0,955 (article 2 bis ou 2 dans deux interventions de l'Assemblée) et à 0,889 (deux woredas différents sur Wikipédia). Deux ordres du jour qui diffèrent seulement par un espace après un point atteignent 1,000. Le seuil validé est 0,97. Un seuil élevé réduit les fusions de textes qui partagent un gabarit, avec un risque résiduel si un détail significatif occupe peu de mots.
+
+En traitement complet, la dédup exacte couvre les 2 530 051 documents. MinHash prend ensuite tous les survivants de Common Crawl et de l'Assemblée et tire 300 000 survivants Wikipédia sans remise, à graine 42, dans leur ordre d'origine. Le sous-échantillonnage et les rejets MinHash sont comptés séparément. L'index MinHash utilise 96 minima, répartis en 16 bandes de six. Une bande commune propose une paire. Le retrait exige un Jaccard exact au moins égal au seuil sur les suites de cinq mots et un représentant déjà conservé. L'index peut manquer des paires similaires qui ne partagent aucune bande.
+
+Le traitement complet vérifie le secteur sous Windows. La sortie exacte est conservée dans `data/interim/dedup/exact/`. Après une interruption de MinHash, on peut repartir de cette étape sans refaire le hash exact.
+
+```bash
+uv run python -m pipeline.dedup minhash --threshold 0.97
+```
+
+Les fichiers de `data/interim/dedup/final/` sont publiés ensemble après relecture. Le rapport donne les documents, octets UTF-8 et SHA-256 par source, ainsi que le résultat du contrôle des séquences du kit sur les 230 documents publics. Une exécution vers une sortie finale existante est refusée.
