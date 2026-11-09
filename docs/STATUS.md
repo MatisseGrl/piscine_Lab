@@ -9,7 +9,15 @@ Nettoyage mergé sur `main` via la PR #9 (`56e60a2`). Le test sur les 1 000 prem
 
 Le 9/11, le premier run a été arrêté pendant Common Crawl et ses sorties partielles ont été supprimées. Parcourir les 91,8 Go compressés aurait pris environ trois jours sur ce poste. Matisse a validé un plafond de 1 050 000 000 octets compressés pour Common Crawl, compte tenu du délai et du budget de 100 M tokens vus en compétition. Le préfixe trié couvre 10 archives WET (1 019 886 136 octets). Wikipédia FR et l'Assemblée passent en entier.
 
-Le run plafonné a démarré avec `uv run python -m pipeline.clean --include-raw --cc-max-bytes 1050000000`. La commande publie `data/interim/clean/` à la fin des trois sources. Les statistiques et le recouvrement restent à vérifier sur les deux variantes.
+Le run plafonné a abouti le 9/11 avec `uv run python -m pipeline.clean --include-raw --cc-max-bytes 1050000000`. Les sorties et les statistiques sont dans `data/interim/clean/`. Les six fichiers gzip ont été relus et leurs SHA-256 et compteurs concordent avec `stats.json`.
+
+| Source | Documents lus | Documents exportés en brut | Documents nettoyés | Octets UTF-8 nettoyés | Rejets du nettoyé | Rejets par le garde-fou |
+|---|---:|---:|---:|---:|---:|---:|
+| Common Crawl | 328 200 | 328 199 | 13 017 | 91 030 055 | 96,03 % | 1 |
+| Wikipédia FR | 2 564 646 | 2 563 979 | 2 507 940 | 7 647 370 763 | 2,21 % | 666 |
+| Assemblée nationale | 11 277 | 9 255 | 9 094 | 56 952 466 | 19,36 % | 2 022 |
+
+Sur les 230 documents de validation publique, aucune séquence de 13 mots en commun, recouvrement moyen de 0,0 et aucun document signalé pour chaque variante. L'audit compare les suites de mots en minuscules avec la même tokenisation que le kit. Ses rapports `audit-raw.json` et `audit-clean.json` sont dans le dossier de sortie. Le garde-fou du pipeline contrôle aussi la validation Molière.
 
 Bloc 1 mergé sur `main` via la PR #6 (`29a181f`, commit d'entraînement `8a5ff57`). Le mini-GPT atteint **1,8237 BPB** sur la validation Molière. Le bloc 1 avait été validé avec 35 tests.
 
@@ -41,7 +49,7 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 - [x] Commande de collecte et trois fiches sources, vérifiées sur échantillons réels
 - [x] Collecte complète téléchargée et contrôlée
 - [x] Nettoyage : encodage (ftfy), français et boilerplate WET, statistiques par source, garde-fou de validation et export brut pour l'ablation
-- [ ] Terminer le nettoyage avec Common Crawl plafonné et vérifier les statistiques et le recouvrement du brut et du nettoyé
+- [x] Terminer le nettoyage avec Common Crawl plafonné et vérifier les statistiques et le recouvrement du brut et du nettoyé
 - [ ] Annoter le tirage de langue (Matisse), puis mesurer la précision
 - [ ] Mesurer les BPB brut et nettoyé à configuration identique sur la validation publique du kit
 - [ ] Dédup exacte (hash) + quasi-doublons (MinHash + LSH, seuil justifié)
