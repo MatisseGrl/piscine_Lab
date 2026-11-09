@@ -2,14 +2,14 @@
 
 À lire au début de chaque session, à mettre à jour à la fin.
 
-Dernière mise à jour : 9 novembre 2026. **Rendu le 16 novembre 2026 (J-7).**
+Dernière mise à jour le 10 novembre 2026. **Rendu le 16 novembre 2026 (J-6).**
 
 ## Étape en cours
 Déduplication sur `feat/dedup`, créée depuis `main` synchronisée au merge de la PR #10 (`6e19b7a`). Les trois fichiers nettoyés sont présents et leurs SHA-256 correspondent au run plafonné.
 
 Le pilote a traité 62 000 documents et en conserve 61 128 après dédup exacte. L'index représente 12,5 Mo de tableaux sur le pilote et environ 66 Mo à taille maximale après le tirage de 300 000 articles Wikipédia. Matisse a validé le seuil Jaccard à 0,97 et le premier représentant conservé dans l'ordre Assemblée, Wikipédia FR, Common Crawl, puis ordre de chaque fichier. Estimation sur ce poste de 45 à 75 min avec la relecture.
 
-Le pilote à 0,97 a retiré 22 quasi-doublons. Les compteurs et SHA-256 de sa sortie concordent et la vérification trouve zéro recouvrement sur les 230 documents publics. Le lancement intégral a été bloqué avant la dédup exacte car Windows indiquait une alimentation sur batterie. La PR #11 est en brouillon en attendant le bilan intégral.
+Le 10/11, le run intégral sur secteur a abouti en environ 36 min, audit de validation compris. L'exact retire 3 815 doublons internes et aucun entre sources. Après tirage de 300 000 articles Wikipédia, MinHash retire 199 documents et la sortie finale contient 320 319 documents et 1 056 674 469 octets UTF-8. La relecture confirme les compteurs et les SHA-256 des sorties exacte et finale. Aucun recouvrement détecté avec les 230 documents publics. Le détail par source et les empreintes figurent dans `pipeline/README.md`. PR #11 ouverte.
 
 Nettoyage mergé sur `main` via la PR #9 (`56e60a2`). Le test sur les 1 000 premiers documents de chaque source est dans `data/interim/clean-verified/`.
 
@@ -58,7 +58,7 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 - [x] Terminer le nettoyage avec Common Crawl plafonné et vérifier les statistiques et le recouvrement du brut et du nettoyé
 - [ ] Annoter le tirage de langue (Matisse), puis mesurer la précision
 - [ ] Mesurer les BPB brut et nettoyé à configuration identique sur la validation publique du kit
-- [ ] Dédup exacte (hash) + quasi-doublons (MinHash + LSH, seuil justifié)
+- [x] Dédup exacte (hash) + quasi-doublons (MinHash + LSH, Jaccard 0,97), sorties relues et audit du kit
 - [ ] Filtrage qualité + masquage données personnelles
 - [ ] Rapport d'ablation (2 pages) : brut vs nettoyé vs complet
 

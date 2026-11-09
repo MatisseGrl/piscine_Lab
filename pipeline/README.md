@@ -101,3 +101,22 @@ uv run python -m pipeline.dedup minhash --threshold 0.97
 ```
 
 Les fichiers de `data/interim/dedup/final/` sont publiés ensemble après relecture. Le rapport donne les documents, octets UTF-8 et SHA-256 par source, ainsi que le résultat du contrôle des séquences du kit sur les 230 documents publics. Une exécution vers une sortie finale existante est refusée.
+
+### Résultat intégral du 10 novembre 2026
+
+Les volumes en octets portent sur le texte UTF-8. Le tirage retire 2 205 718 articles Wikipédia après l'exact. Ses 300 000 articles totalisent 912 631 767 octets UTF-8 avant MinHash.
+
+| Source | Avant dédup (docs / octets) | Après l'exact (docs / octets) | Après MinHash (docs / octets) | Rejets exacts internes / entre sources | Rejets MinHash |
+|---|---:|---:|---:|---:|---:|
+| Assemblée nationale | 9 094 / 56 952 466 | 7 716 / 56 776 613 | 7 705 / 56 773 787 | 1 378 / 0 | 11 |
+| Wikipédia FR | 2 507 940 / 7 647 370 763 | 2 505 718 / 7 646 942 693 | 299 873 / 912 560 196 | 2 222 / 0 | 127 |
+| Common Crawl | 13 017 / 91 030 055 | 12 802 / 89 330 115 | 12 741 / 87 340 486 | 215 / 0 | 61 |
+| Total | 2 530 051 / 7 795 353 284 | 2 526 236 / 7 793 049 421 | 320 319 / 1 056 674 469 | 3 815 / 0 | 199 |
+
+Le run a pris environ 36 min jusqu'à la publication, dont 655 s pour les signatures et la construction de l'index, 101 s pour les comparaisons et 209 s pour la vérification finale. Les tableaux de l'index représentent 65 385 672 octets. La relecture des deux étapes confirme les compteurs et les SHA-256. Aucune séquence de 13 mots en commun avec les 230 documents publics du kit, recouvrement moyen 0,0 et zéro document signalé.
+
+| Source | SHA-256 exact | SHA-256 final |
+|---|---|---|
+| Assemblée nationale | `e6b4521bf58d0cb7bf3633ff558dc17ca33a7f71e241385a9695f93cc3ae6c46` | `57153b1fc0f81040f3f4e2c41fd7a1c7bc31df9adee0b8f4f6307037e24a54a1` |
+| Wikipédia FR | `d7fc0ae92176f992adbd00987920846ec88278d9553760977255b0db79b07569` | `e0caf30fa7e9e9477e573059e3b42d9b2fbfddfee847460da87018576027c86e` |
+| Common Crawl | `4e003821e53436674a49f0ee75894db66a09e34106d9cc23e53b8f2355735040` | `ab743e79652a4b88e0e557a8ea16419b8138bad550ed7f7e3f5dd8d9a7fd74c9` |
