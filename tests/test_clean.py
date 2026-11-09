@@ -4,7 +4,21 @@ from io import StringIO
 
 import pytest
 
-from pipeline.clean import ValidationGuard, clean_text, process_source, remove_boilerplate
+from pipeline.clean import ValidationGuard, clean_text, process_source, remove_boilerplate, select_wet
+
+
+def test_wet_byte_cap_keeps_whole_prefix(tmp_path):
+    """Inclut l'égalité au plafond et s'arrête avant l'archive suivante."""
+    paths = []
+    for index, size in enumerate((3, 5, 9, 1)):
+        path = tmp_path / f"{index}.wet.gz"
+        path.write_bytes(b"x" * size)
+        paths.append(path)
+    assert select_wet(paths, 8) == (paths[:2], 8)
+    assert select_wet(paths, 10) == (paths[:2], 8)
+    assert select_wet(paths, None) == (paths, 18)
+    with pytest.raises(ValueError, match="première archive"):
+        select_wet(paths, 2)
 
 
 @pytest.mark.parametrize(

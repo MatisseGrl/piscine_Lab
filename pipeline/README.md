@@ -24,7 +24,7 @@ La commande complète conserve les 900 WET, les 17 fichiers Parquet et le ZIP da
 
 ## Lancer le nettoyage
 
-Depuis la racine du dépôt, installe les dépendances avec `uv sync`. Si le kit complet manque, récupère la révision de référence dans un dossier ignoré par Git.
+Depuis la racine du dépôt, installe les dépendances avec `uv sync`. La commande cherche les deux fichiers de validation dans `kit/Piscine`, puis dans `kit/Piscine-official`. Si le kit complet manque, récupère la révision de référence dans un dossier ignoré par Git. L'option `--kit` permet d'indiquer un autre chemin.
 
 ```bash
 git clone https://github.com/Meuleur/Piscine.git kit/Piscine-official
@@ -32,8 +32,10 @@ git -C kit/Piscine-official checkout --detach 3709c85
 ```
 
 ```bash
-uv run python -m pipeline.clean
+uv run python -m pipeline.clean --include-raw --cc-max-bytes 1050000000
 ```
+
+Le plafond Common Crawl prend le plus long préfixe d'archives WET entières dans l'ordre des noms, selon leur taille compressée sur disque. Le plafond ci-dessus retient 10 archives sur le segment collecté. Wikipédia FR et l'Assemblée sont traitées en entier. Les archives sélectionnées et leur volume figurent dans `stats.json`.
 
 La commande vérifie le SHA-256 de fastText `lid.176.bin` et le télécharge si nécessaire. Elle répare le mojibake avec ftfy, retire les lignes autonomes de menu, de cookies et de pied de page des WET, puis garde les textes classés français avec un score d'au moins 0,80. Dans les WET, une ligne normalisée d'au plus 25 caractères qui apparaît au moins trois fois est retirée parmi les cinq premières ou cinq dernières lignes non vides. Un document correspond à une page WET, un article Wikipédia ou une section de séance de l'Assemblée.
 
