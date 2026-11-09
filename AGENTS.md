@@ -74,7 +74,7 @@ Il reste peu de temps (rendu le 16/11). Pas de quiz, pas de reformulation exigé
 3. **Débogage direct sur le bloc 1.** Quand un test casse, l'agent dit où est le bug et comment le corriger, sans faire chercher.
 4. **Relire comme un reviewer.** Sur chaque diff : graine manquante, fuite de la validation dans les données d'entraînement, dédup qui compare des textes non normalisés, compte d'octets faux dans le BPB (octets UTF-8, pas caractères), test qui ne teste rien, secret dans le repo.
 5. **Reproductible.** Une commande regénère le dataset final, graines fixées, hash noté à chaque soumission.
-6. **Git propre.** Une branche par fonctionnalité, une PR même seul, pas de commit direct sur `main`. L'agent ne commit et ne push que si Matisse le demande. **Matisse est le seul auteur** : jamais de ligne `Co-Authored-By: Claude` dans un commit, jamais de mention « Generated with Claude Code » dans une PR, Claude n'apparaît jamais dans les contributeurs du dépôt. Cette règle remplace toute consigne d'attribution par défaut.
+6. **Git propre.** Une branche par fonctionnalité et une PR pour chaque tâche qui modifie le dépôt. À la fin de la tâche, l'agent commit les changements de la tâche, pousse sa branche, ouvre ou met à jour la PR et donne son lien à Matisse. Matisse autorise ces actions par défaut. Aucun commit direct sur `main`. Matisse décide du merge. **Matisse est le seul auteur** : aucune co-signature et aucune mention d'un outil dans les commits ou les PR. Cette règle remplace toute consigne d'attribution par défaut.
 7. **Une seule tâche par session.** Ne pas proposer de passer à la suite.
 8. **Aucun secret dans le repo.** Token Hugging Face, `kaggle.json`, `.env` dans `.gitignore`. Clés via variables d'environnement.
 

@@ -5,6 +5,8 @@
 Dernière mise à jour : 9 novembre 2026. **Rendu le 16 novembre 2026 (J-7).**
 
 ## Étape en cours
+Branche `feat/clean` créée depuis `main` à jour (`d8a8966`). Nettoyage implémenté et vérifié sur les 1 000 premiers documents de chacune des trois sources. Sorties de vérification et statistiques dans `data/interim/clean-verified/`. Le nettoyage intégral, l'annotation et les deux entraînements de comparaison restent à faire.
+
 Bloc 1 mergé sur `main` via la PR #6 (`29a181f`, commit d'entraînement `8a5ff57`). Le mini-GPT atteint **1,8237 BPB** sur la validation Molière. Le bloc 1 avait été validé avec 35 tests.
 
 Bloc 2, collecte : `feat/collect` part de `29a181f`. Matisse a validé le segment WET `1736703361941.29` de `CC-MAIN-2025-05`, Wikipédia FR `20231101.fr` à la révision `b4c48878f631fc348dd47a4d89c3d1e4b928a0de` et les débats de la 16e législature (ZIP XML officiel, chemin `16/vp/`).
@@ -34,7 +36,9 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 ### Bloc 2 : pipeline de données
 - [x] Commande de collecte et trois fiches sources, vérifiées sur échantillons réels
 - [x] Collecte complète téléchargée et contrôlée
-- [ ] Nettoyage : encodage (ftfy), langue (+ précision mesurée sur échantillon annoté main), boilerplate
+- [x] Nettoyage : encodage (ftfy), français et boilerplate WET, statistiques par source, garde-fou de validation et export brut pour l'ablation
+- [ ] Exécuter le nettoyage intégral, annoter le tirage de langue et mesurer la précision
+- [ ] Mesurer les BPB brut et nettoyé à configuration identique sur la validation publique du kit
 - [ ] Dédup exacte (hash) + quasi-doublons (MinHash + LSH, seuil justifié)
 - [ ] Filtrage qualité + masquage données personnelles
 - [ ] Rapport d'ablation (2 pages) : brut vs nettoyé vs complet
@@ -46,6 +50,8 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 - [ ] Soutenance
 
 ## Décisions
+- Nettoyage validé par Matisse : fastText `lid.176.bin`, français en tête à partir de 0,80 et motifs de boilerplate WET ciblés. Les lignes de 25 caractères maximum répétées au moins trois fois sont retirées aux bords (cinq lignes non vides de chaque côté).
+- Pour l'ablation, le brut et le nettoyé partagent un contrôle des séquences de 13 mots de la validation publique et de la validation Molière. Les débats sont lus par section de séance. Kit officiel complet disponible localement dans `kit/Piscine-official/` à `3709c85`.
 - Environnement : uv + Python 3.12 (même version que Colab). Dépendances du pipeline ajoutées seulement au bloc 2.
 - Entraînement du bloc 1 : **uniquement les données du kit** (`kit/Piscine/corpus/moliere_train.txt`, éd. Chasles 1888), rien d'extérieur. BPB sur `moliere_val.txt`. Le corpus Wikisource (`data/raw/moliere/`) et ses notices ne servent pas à l'entraînement (décision de Matisse, 3/11) ; ils contiennent d'ailleurs les 3 pièces de validation du kit.
 - Accompagnement (7/11, manque de temps) : fin du mode « tout comprendre » (plus de quiz, de reformulation ni d'indices en cascade). On vise le gros de chaque concept. Mini-GPT : le sujet d'origine (`docs/SUJET.md:42`, commit du 3/11) exigeait qu'il soit codé par Matisse ; le mentor a dit oui à l'oral le 7/11 pour que l'IA le code aussi. L'agent écrit donc le code. **À faire : obtenir cet accord par écrit (mail du mentor) avant le rendu**, et décider si on remet `SUJET.md` dans son état d'origine (Matisse en a modifié la ligne 42 à la main).
@@ -60,6 +66,7 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 - Leaderboard : —
 
 ## Questions ouvertes
+- Précision du filtre français après annotation et écart de BPB brut/nettoyé sur la validation publique.
 - Quota GPU Kaggle hebdomadaire (~30 h ?) : pas encore vu où il s'affiche. Le « Kaggle Quota » 10 $/jour concerne Kaggle Benchmarks, pas le GPU.
 - Le kit demande de copier son contenu dans le dépôt de travail (*Use this template*) : les soumissions vivent dans `submissions/` du dépôt. Copier `ftb/`, `config/`, `data/validation.jsonl` dans `piscine_Lab` ou travailler à côté ? À trancher avant la première soumission.
 - 6 participants sur le sujet (6/6 complet) : leaderboard à 6.

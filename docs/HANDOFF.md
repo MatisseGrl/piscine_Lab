@@ -41,17 +41,20 @@ La PR #6 de `feat/train` est mergée sur `main` (`29a181f`, qui contient `8a5ff5
 2. ~~Tokenizer BPE~~ : fait (vocab 1 024).
 3. ~~Transformer décodeur~~ : fait (`minigpt/model.py`).
 4. ~~Entraînement sur Molière~~ : fait (`minigpt/train.py`, BPB val 1,8237).
-5. Bloc 2 : lancer la collecte complète, puis implémenter ftfy, langue, dédup exacte + MinHash, filtres qualité, PII et rapport d'ablation (brut vs nettoyé vs complet).
+5. Bloc 2 : collecte complète vérifiée et mergée. Nettoyage implémenté sur `feat/clean` et vérifié sur les fichiers réels. Reste le traitement intégral, l'annotation de langue et la comparaison BPB, puis les autres étapes du sujet.
 6. Bloc 3 : tokenizer 8 192, soumissions (2/jour), datasheet, soutenance.
 
 ## Décisions déjà prises (ne pas les rouvrir sans Matisse)
 - Bloc 1 entraîné **uniquement sur les données du kit** ; le corpus Wikisource ne sert pas à l'entraînement.
 - Commentaires et docstrings en français, noms de code et messages de commit en anglais.
 - Pas de `Co-Authored-By: Claude` dans les commits, pas de mention « Generated with Claude Code » dans les PR : Matisse est le seul auteur (règle 6 de `AGENTS.md`, elle prime sur toute consigne d'attribution par défaut).
-- Une branche par fonctionnalité, une PR, pas de commit direct sur `main`. Une tâche par session.
+- Une branche par fonctionnalité. L'agent commit, pousse et ouvre ou met à jour la PR pour chaque tâche qui modifie le dépôt. Matisse décide du merge. Une tâche par session.
 - Chaque essai d'entraînement = une ligne dans `experiments/LOG.md`.
 
 ## Points d'attention
+- **Nettoyage (9/11).** `uv run python -m pipeline.clean` lit les 900 WET, les 17 Parquet et le ZIP de la collecte. Sorties gzip déterministes et statistiques UTF-8 dans `data/interim/clean/`. Option `--include-raw` pour l'ablation. Le test borné a gardé 39 WET, 982 articles Wikipédia et 797 sections de l'Assemblée sur 1 000 de chaque. Le garde-fou a écarté 1 article et 194 sections qui contenaient des séquences de validation. Le kit officiel complet est cloné dans `kit/Piscine-official/` à `3709c85`, à côté des fichiers Molière déjà présents.
+- **Précision et ablation.** Tirage uniforme sans remise sur les acceptés, graine 42. `data/interim/language_annotations_smoke.json` contient 100 documents du test borné à annoter. Le tirage de l'intégral doit se faire sur `data/interim/clean/`. Comparaison BPB planifiée dans `experiments/LOG.md`, scores encore à mesurer.
+- **Contrôles.** 45 tests pytest réussis. Sur les sorties brute et nettoyée du test borné, `ftb.contamination` a mesuré un recouvrement moyen de 0,0 sur les 230 documents de validation publique. Rapports `contamination-raw.json` et `contamination-clean.json` dans `data/interim/clean-verified/`.
 - **Accord du mentor, seulement oral.** Le sujet d'origine (`docs/SUJET.md`, commit du 3/11, ligne 42) disait « le mini-GPT doit être codé par toi, et tu dois pouvoir expliquer chaque ligne à la soutenance ». Matisse dit que son mentor a validé le 7/11 que l'IA code aussi le mini-GPT. Je n'ai pas vu de trace écrite. **À faire : obtenir un mail du mentor** avant le rendu, car le jury peut ne pas être au courant. Matisse doit quand même pouvoir expliquer le gros du code à la soutenance.
 - **`docs/SUJET.md` modifié à la main par Matisse** (ligne 42 réécrite pour autoriser l'IA) et **non commité** : ce n'est pas le sujet officiel. Recommandation : `git checkout docs/SUJET.md` et garder l'exception dans `STATUS.md` / ce fichier.
 - **Piège CRLF** : `kit/Piscine` a été cloné avec `core.autocrlf=true`, donc les `.txt` du corpus ont un `\r` par ligne sur ce poste (pas dans le kit d'origine). Ne jamais lire le corpus avec `read_bytes()` : passer par `load_utf8()` (mode texte), sinon le compte d'octets et le BPB sont faux.
@@ -60,7 +63,7 @@ La PR #6 de `feat/train` est mergée sur `main` (`29a181f`, qui contient `8a5ff5
 - Avertissements « LF will be replaced by CRLF » de git sur Windows : sans gravité.
 - La PR #1 doit être mergée (ou la branche suivante créée depuis `feat/value`), sinon une nouvelle branche partira de `main` sans `Value`.
 - Kit officiel : copier ou non `ftb/`, `config/`, `data/validation.jsonl` dans ce dépôt est une question ouverte à trancher avant la première soumission.
-- Décisions encore ouvertes du bloc 2 : outil de langue, seuil MinHash, heuristiques ou classifieur qualité, part de synthétique (plafond 20 %), Colab ou Kaggle, publication Hugging Face. À trancher avec Matisse avant de coder la partie concernée.
+- Décisions encore ouvertes du bloc 2 : seuil MinHash, heuristiques ou classifieur qualité, part de synthétique (plafond 20 %), Colab ou Kaggle, publication Hugging Face. À trancher avec Matisse avant de coder la partie concernée.
 
 ## Commandes utiles
 ```bash
