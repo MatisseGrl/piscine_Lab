@@ -22,4 +22,42 @@ Le mode `--sample` écrit dans `data/raw/_samples/`. Il récupère le premier Mi
 
 La commande complète conserve les 900 WET, les 17 fichiers Parquet et le ZIP dans leurs formats d’origine. Prévoir plusieurs dizaines de Gio pour le segment WET et 4,3 Gio pour Wikipédia. Une relance vérifie puis réutilise les fichiers déjà complets. Elle reprend les fichiers manquants ou invalides depuis le début. La collecte utilise la bibliothèque standard Python.
 
-Les étapes suivantes restent à implémenter.
+## Lancer le nettoyage
+
+Depuis la racine du dépôt, installe les dépendances avec `uv sync`. Si le kit complet manque, récupère la révision de référence dans un dossier ignoré par Git.
+
+```bash
+git clone https://github.com/Meuleur/Piscine.git kit/Piscine-official
+git -C kit/Piscine-official checkout --detach 3709c85
+```
+
+```bash
+uv run python -m pipeline.clean
+```
+
+La commande vérifie le SHA-256 de fastText `lid.176.bin` et le télécharge si nécessaire. Elle répare le mojibake avec ftfy, retire les lignes autonomes de menu, de cookies et de pied de page des WET, puis garde les textes classés français avec un score d'au moins 0,80. Dans les WET, une ligne normalisée d'au plus 25 caractères qui apparaît au moins trois fois est retirée parmi les cinq premières ou cinq dernières lignes non vides. Un document correspond à une page WET, un article Wikipédia ou une section de séance de l'Assemblée.
+
+La sortie `data/interim/clean/` contient un JSONL gzip par source et `stats.json` avec les volumes UTF-8, les taux de rejet, les motifs et les SHA-256. Le parcours des archives et des documents suit un ordre stable, sans tirage aléatoire. Une relance vers un dossier existant est refusée. Utilise `--out data/interim/clean-rerun` pour régénérer dans un autre dossier. Le dossier final est publié à la fin du traitement.
+
+Pour une vérification bornée sur les vrais fichiers, avec sortie brute facultative pour l'ablation :
+
+```bash
+uv run python -m pipeline.clean --limit-per-source 1000 --out data/interim/clean-verified --include-raw
+```
+
+Le nettoyage exige les 230 documents de validation publique et le fichier de validation Molière du kit. Il écarte des deux variantes tout document qui contient une séquence de 13 mots de la validation (ou un document de validation entier s'il est plus court). Il compare les mots en minuscules et vérifie aussi les raccords créés par la suppression de lignes. Le seuil d'exclusion est volontairement strict et peut retirer des formules communes. Ce contrôle porte sur le recouvrement textuel détectable par cette méthode.
+
+## Annoter la langue
+
+```bash
+uv run python -m pipeline.language_audit sample --size 100
+uv run python -m pipeline.language_audit score data/interim/language_annotations.json
+```
+
+Le tirage uniforme sans remise utilise la graine 42. Remplis chaque champ `annotation` avec `fr`, `autre` ou `mixte`. La précision divise le nombre de `fr` par le nombre total de documents annotés. Pour travailler sur le test borné, indique `--input data/interim/clean-verified --out data/interim/language_annotations_smoke.json` à la commande `sample`.
+
+## Comparer brut et nettoyé
+
+Ajoute `--include-raw` au nettoyage complet. Le sous-dossier `raw/` contient les textes extraits avant nettoyage, après application du même garde-fou de validation. Les JSONL gzip des deux variantes sont directement lisibles par `ftb.prepare`.
+
+Pour isoler l'effet du nettoyage, réutilise le même tokenizer, entraîné hors validation, la même liste ordonnée de sources, la même configuration officielle et le même budget de tokens dans les deux runs. Contrôle séparément les entrées de chaque run avec `ftb.contamination` et mesure le BPB avec `ftb.evaluate` sur la validation publique. Note les SHA-256, les tokens vus et les deux BPB dans `experiments/LOG.md`.
