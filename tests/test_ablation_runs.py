@@ -15,7 +15,7 @@ TRAIN = {"max_steps": 10, "tokens_per_step": 100, "budget_tokens": 1000}
 def manifest():
     """Manifeste minimal cohérent avec trois variantes."""
     return {
-        "tokenizer_sha256": "tok", "validation_documents": 230, "validation_bytes": 5000,
+        "tokenizer_sha256": "tok", "validation_sha256": "val", "validation_documents": 230, "validation_bytes": 5000,
         "config": {"train": TRAIN},
         "variants": {name: {"dataset_sha256": f"{name}{'0' * 60}"} for name in VARIANTS},
     }
@@ -124,3 +124,82 @@ def test_bundle_contains_only_needed_files(tmp_path):
     assert len(names) == 4 + 2 * len(VARIANTS)
     with pytest.raises(FileExistsError):
         bundle(prepared, out)
+
+
+EXTRA = ("quality", "pii", "quality_pii")
+
+
+def extra_hash(variant):
+    """Empreinte factice de 64 caractères pour une variante."""
+    return f"{variant}{'0' * 64}"[:64]
+
+
+def extra_manifest():
+    """Manifeste d'une série qualité/PII, mêmes protocole et tokenizer que la série de base."""
+    base = manifest()
+    base["variants"] = {name: {"dataset_sha256": extra_hash(name)} for name in EXTRA}
+    return base
+
+
+def prepare_extra(tmp_path, bpbs, reference_bpb=None):
+    """Écrit une série qualité/PII et, au besoin, une série de référence avec le dédupliqué."""
+    results = tmp_path / "extra"
+    results.mkdir()
+    write_json(results / "manifest.json", extra_manifest())
+    for variant, bpb in bpbs.items():
+        (results / variant).mkdir()
+        entry = record(variant, bpb)
+        entry["checkpoint"]["dataset_sha256"] = extra_hash(variant)
+        write_json(results / variant / "result.json", entry)
+    reference = None
+    if reference_bpb is not None:
+        reference = tmp_path / "ref"
+        reference.mkdir()
+        write_json(reference / "manifest.json", manifest())
+        (reference / "dedup").mkdir()
+        write_json(reference / "dedup" / "result.json", record("dedup", reference_bpb))
+    log = tmp_path / "LOG.md"
+    log.write_text("| Date | id |\n", encoding="utf-8")
+    return results, reference, log
+
+
+def test_extra_series_compared_to_reference_dedup(tmp_path):
+    """Les variantes qualité/PII se comparent au dédupliqué d'une autre série, sans l'y réécrire."""
+    results, reference, log = prepare_extra(tmp_path, {"quality": 1.90, "pii": 1.96}, reference_bpb=1.95)
+    update_log(results, log, reference)
+    text = log.read_text(encoding="utf-8")
+    assert "Baisse de 0.05 BPB par rapport à dédupliqué" in text
+    assert "Hausse de 0.01 BPB par rapport à dédupliqué" in text
+    assert "ablation-dedup-" not in text and text.count("ablation-") == 2
+
+
+def test_extra_series_without_reference_waits(tmp_path):
+    """Sans série de référence, la conclusion indique que la comparaison est en attente."""
+    results, _, log = prepare_extra(tmp_path, {"quality": 1.9})
+    update_log(results, log)
+    assert "Comparaison en attente du run de référence." in log.read_text(encoding="utf-8")
+
+
+def test_reference_with_other_tokenizer_refused(tmp_path):
+    """Refuse une référence mesurée avec un autre tokenizer ou protocole."""
+    results, reference, log = prepare_extra(tmp_path, {"quality": 1.9}, reference_bpb=1.95)
+    other = manifest()
+    other["tokenizer_sha256"] = "autre"
+    write_json(reference / "manifest.json", other)
+    with pytest.raises(ValueError, match="même protocole"):
+        update_log(results, log, reference)
+
+
+def test_bundle_follows_manifest_variants(tmp_path):
+    """L'archive d'une série qualité/PII contient ses propres trois flux."""
+    prepared = tmp_path / "prepared"
+    prepared.mkdir()
+    write_json(prepared / "manifest.json", extra_manifest())
+    (prepared / "tokenizer.json").write_text("{}", encoding="utf-8")
+    for variant in EXTRA:
+        (prepared / variant).mkdir()
+        (prepared / variant / "train.bin").write_bytes(b"\0\0")
+        (prepared / variant / "data_meta.json").write_text("{}", encoding="utf-8")
+    bundle(prepared, tmp_path / "e.zip")
+    with ZipFile(tmp_path / "e.zip") as archive:
+        assert {f"ablation/{v}/train.bin" for v in EXTRA} <= set(archive.namelist())

@@ -10,6 +10,11 @@
 - Limites : regex seulement, pas de noms ni d'adresses ; faux positifs possibles sur des versions logicielles lues comme des IPv4.
 - À faire ensuite, seulement sur demande : construire tokenizer et flux d'entraînement de ces variantes et mesurer le BPB à configuration identique (graine 1337, 100 007 936 tokens, mélange 80/12/8), après réception des trois runs Kaggle (`uv run --no-sync python -m pipeline.ablation_runs log --results runs/ablation`). Aucun entraînement, tokenizer ni soumission n'a été lancé dans cette tâche.
 
+## Variantes qualité/PII sur Kaggle (10/11)
+
+- `uv run --no-sync python -m pipeline.ablation_extra` a produit `data/processed/ablation-extra/` (flux, tokenizer identique, manifeste héritant de la base) et `ablation-extra-kaggle.zip`. Matisse lance les runs Kaggle lui-même, avec la procédure de `pipeline/README.md`. Import : `ablation_runs log --results runs/ablation-extra --reference runs/ablation`. Ne pas relancer la préparation sans nouveau dossier `--out`.
+- Ensuite : rédiger `report/ablation.md` (trame prête) et la datasheet avec les BPB réels.
+
 ## Reprise de l’ablation (10/11)
 
 - `main` est synchronisée à `cb17d9a`, avec les PR #9 à #11 intégrées. Travail local sur `codex/corpus-ablation`. Dans cette session, Matisse demande de réserver commit et push à une demande explicite.

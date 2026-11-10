@@ -10,6 +10,10 @@ Dernière mise à jour le 10 novembre 2026. **Rendu le 16 novembre 2026 (J-6).**
 
 Seuils et masquage regex validés par Matisse le 10/11. `pipeline/quality.py`, `pipeline/pii.py` et `pipeline/variants.py` écrits avec leurs tests (119 tests verts, dont ablation et ablation_runs). Les quatre variantes sont dans `data/interim/` : dédupliqué (inchangé), `quality/final/`, `pii/dedup/`, `pii/quality/`. Rejets qualité : 221 documents (0,07 %), presque tous Common Crawl. PII : surtout Common Crawl (4 702 e-mails, 6 845 téléphones). SHA-256 relus, zéro recouvrement de 13 mots avec les 230 documents publics. Durée réelle de 9 à 10 min par passe. Détail, commandes et limites dans `pipeline/README.md`. Non commité. BPB non mesuré : les trois runs Kaggle de l'ablation tournent, et ces variantes n'ont ni tokenizer ni entraînement.
 
+### Variantes qualité/PII prêtes pour Kaggle (10/11)
+
+Flux `quality`, `pii` et `quality_pii` construits dans `data/processed/ablation-extra/` avec le tokenizer et le protocole de la série de base (100 007 937 tokens chacun). Archive `data/processed/ablation-extra-kaggle.zip` prête, procédure dans `pipeline/README.md`. Entraînements non lancés : Matisse les fera sur Kaggle plus tard. Trame de `report/ablation.md` remplie, BPB à mesurer.
+
 ### Ablation
 
 Ablation sur la validation publique du kit. `main` synchronisée à `cb17d9a` (PR #9, #10 et #11 intégrées), puis branche locale `codex/corpus-ablation`. Les neuf archives d’entrée correspondent aux SHA-256 des trois audits sur les 230 documents publics. Aucun recouvrement de 13 mots n’a été relevé.
