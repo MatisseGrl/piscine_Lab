@@ -5,6 +5,22 @@
 Dernière mise à jour le 10 novembre 2026. **Rendu le 16 novembre 2026 (J-6).**
 
 ## Étape en cours
+
+Ablation sur la validation publique du kit. `main` synchronisée à `cb17d9a` (PR #9, #10 et #11 intégrées), puis branche locale `codex/corpus-ablation`. Les neuf archives d’entrée correspondent aux SHA-256 des trois audits sur les 230 documents publics. Aucun recouvrement de 13 mots n’a été relevé.
+
+Matisse a validé Wikipédia FR 80 %, Common Crawl 12 % et Assemblée nationale 8 %. Le tokenizer commun de 8 192 entrées est entraîné sur un échantillon fixe du nettoyé avec ce mélange en octets UTF-8 (graine 42) et sera réutilisé pour la compétition. Son SHA-256, reproduit à l’identique sur le même échantillon, est `b2554a8221a55c19b4008f5b605b1b6e84b6a7f84058507c15aba34eca3b2379`. Les jeux d’entraînement appliquent le mélange en tokens. Le kit intact, à `3709c85`, fixe la graine d’entraînement à 1337 et arrondit le budget nominal de 100 M à 100 007 936 tokens vus.
+
+Matisse lance les trois entraînements sur Kaggle T4 avec le lanceur de l’ablation. Le mode opératoire et les limites sont dans `pipeline/README.md`. Le journal et l’ébauche chiffrée de `report/ablation.md` attendent les résultats réels.
+
+Les trois flux sont prêts dans `data/processed/ablation/`. La relecture confirme la taille, le dernier lot du lecteur officiel et les SHA-256 ci-dessous. L’archive à importer sur Kaggle est `data/processed/ablation-kaggle.zip`.
+
+| Variante | SHA-256 de `train.bin` |
+|---|---|
+| Brut | `151ca028be94476949cc43504323741076a017e63ca307dbc2dbc2240962d8f0` |
+| Nettoyé | `71c5a146a04676041e37b64d2d7e295a88f64915a304b22e523302c6872a4002` |
+| Dédupliqué | `56ee10c62f6d9c2a6c2d48a060c2eae3850819f46c62ecd782a2c0a7ee7faaad` |
+
+### Déduplication terminée
 Déduplication sur `feat/dedup`, créée depuis `main` synchronisée au merge de la PR #10 (`6e19b7a`). Les trois fichiers nettoyés sont présents et leurs SHA-256 correspondent au run plafonné.
 
 Le pilote a traité 62 000 documents et en conserve 61 128 après dédup exacte. L'index représente 12,5 Mo de tableaux sur le pilote et environ 66 Mo à taille maximale après le tirage de 300 000 articles Wikipédia. Matisse a validé le seuil Jaccard à 0,97 et le premier représentant conservé dans l'ordre Assemblée, Wikipédia FR, Common Crawl, puis ordre de chaque fichier. Estimation sur ce poste de 45 à 75 min avec la relecture.
@@ -57,13 +73,13 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 - [x] Nettoyage : encodage (ftfy), français et boilerplate WET, statistiques par source, garde-fou de validation et export brut pour l'ablation
 - [x] Terminer le nettoyage avec Common Crawl plafonné et vérifier les statistiques et le recouvrement du brut et du nettoyé
 - [ ] Annoter le tirage de langue (Matisse), puis mesurer la précision
-- [ ] Mesurer les BPB brut et nettoyé à configuration identique sur la validation publique du kit
+- [ ] Mesurer les BPB brut, nettoyé et dédupliqué à configuration identique sur les 230 documents publics
 - [x] Dédup exacte (hash) + quasi-doublons (MinHash + LSH, Jaccard 0,97), sorties relues et audit du kit
 - [ ] Filtrage qualité + masquage données personnelles
 - [ ] Rapport d'ablation (2 pages) : brut vs nettoyé vs complet
 
 ### Bloc 3 : compétition
-- [ ] Tokenizer 8 192 entraîné sur le mix
+- [x] Tokenizer 8 192 commun entraîné sur un échantillon du nettoyé au mélange validé
 - [ ] Soumissions (2/jour) : checkpoint + tokenizer + logs + hash dataset
 - [ ] Datasheet (Gebru et al. 2018), dataset sur Hugging Face (bonus)
 - [ ] Soutenance
@@ -82,6 +98,7 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 
 ## Meilleur BPB
 - Validation Molière (`moliere_val.txt`) : **1,8237** pour le mini-GPT, contre **3,3544** pour le bigramme (8/11).
+- Validation publique du kit : en attente des trois runs Kaggle.
 - Leaderboard : —
 
 ## Questions ouvertes
