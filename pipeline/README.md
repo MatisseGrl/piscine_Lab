@@ -197,3 +197,38 @@ uv run --no-sync python -m pipeline.ablation_runs log --results runs/ablation
 ```
 
 Le BPB provient de `ftb.evaluate` sur les 230 documents, avec un dénominateur de 813 051 octets UTF-8. Le tokenizer ayant appris ses fusions sur le nettoyé, ce choix peut avantager cette variante. La sortie MinHash part du sous-échantillon Wikipédia plafonné à 300 000 articles, donc l’écart nettoyé → dédupliqué porte sur cette sortie du pipeline, sous-échantillonnage compris. Une seule graine est testée. Aucun filtre qualité ni masquage PII dans cette comparaison.
+
+### Variantes qualité et PII sur Kaggle (préparées le 10/11)
+
+Les trois flux (`quality`, `pii`, `quality_pii`) sont construits avec le tokenizer et le protocole de la série de base, sans entraîner de tokenizer : même SHA-256 de tokenizer, même configuration du kit, mêmes quotas 80/12/8 en tokens, 100 007 937 tokens par flux (contexte compris). Les entrées sont les sorties relues et auditées de `quality/final/`, `pii/dedup/` et `pii/quality/`.
+
+```powershell
+uv run --no-sync python -m pipeline.ablation_extra        # -> data/processed/ablation-extra/
+uv run --no-sync python -m pipeline.ablation_runs bundle --prepared data/processed/ablation-extra --out data/processed/ablation-extra-kaggle.zip
+```
+
+| Variante | SHA-256 de `train.bin` |
+|---|---|
+| Qualité | `f6ad793c15f01cfbcc297e30048061b8619c769bb100e9d9a9b2bc4ffa94c9cf` |
+| PII | `5b3b0e9d2c63086425c0f6c76499fc2d2745b2ff8045d32788ccac99dc14d401` |
+| Qualité + PII | `62d9a968e184b11d2923f38188bfda3a1e5427369b3820cc9c17cff4870fd033` |
+
+Sur Kaggle (T4, même session que la série de base si possible, Internet activé), importer `ablation-extra-kaggle.zip` puis :
+
+```bash
+%cd /kaggle/working
+!unzip -o /kaggle/input/CHEMIN/ablation-extra-kaggle.zip
+!git clone https://github.com/Meuleur/Piscine.git kit
+!git -C kit checkout --detach 3709c85ddaabfcd688d6eea80a5c5ed90605b549
+%pip install tokenizers==0.23.3
+!python -m pipeline.ablation_runs run --kit kit --prepared ablation --results runs/ablation-extra
+!zip /kaggle/working/ablation-extra-results.zip runs/ablation-extra/manifest.json runs/ablation-extra/environment.json runs/ablation-extra/*/result.json
+```
+
+`--variant quality`, `pii` ou `quality_pii` cible un seul run. En local, importer les résultats en les comparant au dédupliqué de la série de base :
+
+```powershell
+uv run --no-sync python -m pipeline.ablation_runs log --results runs/ablation-extra --reference runs/ablation
+```
+
+Le journal refuse la comparaison si le tokenizer, le protocole ou l'environnement GPU diffèrent. Sans `--reference`, la conclusion indique « Comparaison en attente ». Aucun entraînement n'a été lancé pour ces variantes : leur BPB reste à mesurer.

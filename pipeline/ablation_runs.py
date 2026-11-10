@@ -11,21 +11,28 @@ import subprocess
 from zoneinfo import ZoneInfo
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from pipeline.ablation import KIT_REV, ROOT, VARIANTS, kit_command, read_json, sha256, write_json
+from pipeline.ablation import KIT_REV, ROOT, kit_command, read_json, sha256, write_json
 
-LABELS = {"raw": "Brut contrôlé", "clean": "Nettoyé", "dedup": "Dédupliqué (exact + MinHash)"}
-BASELINES = {"clean": "raw", "dedup": "clean"}
+LABELS = {
+    "raw": "Brut contrôlé", "clean": "Nettoyé", "dedup": "Dédupliqué (exact + MinHash)",
+    "quality": "Dédupliqué + qualité", "pii": "Dédupliqué + PII",
+    "quality_pii": "Dédupliqué + qualité + PII",
+}
+# Référence de chaque variante ; les trois variantes de qualité/PII se comparent au dédupliqué.
+BASELINES = {
+    "clean": "raw", "dedup": "clean", "quality": "dedup", "pii": "dedup", "quality_pii": "dedup",
+}
 
 
 def bundle(prepared, output):
     """Crée l’archive à importer dans Kaggle, avec les seuls fichiers nécessaires."""
-    read_json(prepared / "manifest.json")
+    variants = list(read_json(prepared / "manifest.json")["variants"])
     with ZipFile(output, "x", compression=ZIP_DEFLATED, compresslevel=1) as archive:
         for name in ("ablation.py", "ablation_runs.py"):
             archive.write(ROOT / "pipeline" / name, f"pipeline/{name}")
         for name in ("manifest.json", "tokenizer.json"):
             archive.write(prepared / name, f"ablation/{name}")
-        for variant in VARIANTS:
+        for variant in variants:
             for name in ("train.bin", "data_meta.json"):
                 archive.write(prepared / variant / name, f"ablation/{variant}/{name}")
 
@@ -72,7 +79,8 @@ def run(kit, prepared, results, variants):
         raise ValueError("Reprends les runs avec le même environnement GPU")
     write_json(environment_path, environment)
 
-    for variant in variants:
+    # Sans choix explicite, lance toutes les variantes du manifeste.
+    for variant in variants or manifest["variants"]:
         folder = prepared / variant
         meta = manifest["variants"][variant]
         if read_json(folder / "data_meta.json") != meta or sha256(folder / "train.bin") != meta["dataset_sha256"]:
@@ -122,11 +130,32 @@ def check_result(record, manifest, variant):
         raise ValueError(f"Résultat incompatible avec le protocole : {variant}")
 
 
-def update_log(results, log):
-    """Ajoute ou remplace une ligne par run, avec les écarts calculés sur le BPB complet."""
+def load_reference(reference, manifest):
+    """Lit les runs d'une autre série, seulement si protocole et tokenizer sont identiques."""
+    other = read_json(reference / "manifest.json")
+    if (other["config"], other["tokenizer_sha256"], other["validation_sha256"]) != (
+        manifest["config"], manifest["tokenizer_sha256"], manifest["validation_sha256"],
+    ):
+        raise ValueError("La série de référence n'a pas le même protocole ou tokenizer")
+    records = {}
+    for variant in other["variants"]:
+        path = reference / variant / "result.json"
+        if path.is_file():
+            record = read_json(path)
+            check_result(record, other, variant)
+            records[variant] = record
+    return records
+
+
+def update_log(results, log, reference=None):
+    """Ajoute ou remplace une ligne par run, avec les écarts calculés sur le BPB complet.
+
+    `reference` : dossier de résultats d'une autre série (ex. l'ablation brut/nettoyé/dédupliqué)
+    qui fournit les BPB de comparaison sans être réécrit dans le journal.
+    """
     manifest = read_json(results / "manifest.json")
     records = {}
-    for variant in VARIANTS:
+    for variant in manifest["variants"]:
         path = results / variant / "result.json"
         if path.is_file():
             record = read_json(path)
@@ -135,9 +164,10 @@ def update_log(results, log):
     if not records:
         raise ValueError("Aucun result.json complet à importer")
     # Contrôle l’environnement de calcul entre les résultats d’une même série.
+    references = load_reference(reference, manifest) if reference else {}
     environments = {
         tuple(record["checkpoint"][key] for key in ("device", "precision", "torch", "tokenizers", "python"))
-        for record in records.values()
+        for record in (*records.values(), *references.values())
     }
     if len(environments) != 1:
         raise ValueError("Les entraînements n’ont pas utilisé le même environnement GPU")
@@ -149,10 +179,11 @@ def update_log(results, log):
         baseline = BASELINES.get(variant)
         if baseline is None:
             conclusion = "Référence sur les 230 documents publics."
-        elif baseline not in records:
+        elif baseline not in records and baseline not in references:
             conclusion = "Comparaison en attente du run de référence."
         else:
-            delta = bpb - records[baseline]["evaluation"]["bpb"]
+            base = records.get(baseline) or references[baseline]
+            delta = bpb - base["evaluation"]["bpb"]
             if delta < 0:
                 conclusion = f"Baisse de {-delta:.6g} BPB par rapport à {LABELS[baseline].lower()}."
             elif delta > 0:
@@ -181,19 +212,21 @@ def main():
     train.add_argument("--kit", type=Path, required=True)
     train.add_argument("--prepared", type=Path, required=True)
     train.add_argument("--results", type=Path, required=True)
-    train.add_argument("--variant", choices=VARIANTS)
+    train.add_argument("--variant", choices=list(LABELS))
     log = subparsers.add_parser("log", help="importe les résultats terminés")
     log.add_argument("--results", type=Path, required=True)
     log.add_argument("--log", type=Path, default=ROOT / "experiments/LOG.md")
+    log.add_argument("--reference", type=Path, help="série de référence (ex. runs/ablation)")
     pack = subparsers.add_parser("bundle", help="crée l’archive d’entrée Kaggle")
     pack.add_argument("--prepared", type=Path, default=ROOT / "data/processed/ablation")
     pack.add_argument("--out", type=Path, default=ROOT / "data/processed/ablation-kaggle.zip")
     args = parser.parse_args()
     if args.command == "run":
         run(args.kit.resolve(), args.prepared.resolve(), args.results.resolve(),
-            [args.variant] if args.variant else VARIANTS)
+            [args.variant] if args.variant else None)
     elif args.command == "log":
-        update_log(args.results.resolve(), args.log.resolve())
+        update_log(args.results.resolve(), args.log.resolve(),
+                   args.reference.resolve() if args.reference else None)
     else:
         bundle(args.prepared.resolve(), args.out.resolve())
 
