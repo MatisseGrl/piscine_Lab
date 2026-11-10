@@ -2,6 +2,15 @@
 
 Écrit le 7 novembre 2026, mis à jour le 8 pour qu'un autre agent (ou une autre session) reprenne sans rien perdre. Lire dans l'ordre : ce fichier, `AGENTS.md`, `docs/STATUS.md`, `docs/SUJET.md`. Rendu final : **16 novembre 2026**.
 
+## Reprise de l’ablation (10/11)
+
+- `main` est synchronisée à `cb17d9a`, avec les PR #9 à #11 intégrées. Travail local sur `codex/corpus-ablation`. Dans cette session, Matisse demande de réserver commit et push à une demande explicite.
+- Depuis un autre checkout, donner à `pipeline.ablation` le dossier `C:/Users/mgarl/OneDrive/Documents/ChatGPT/piscine_lab/data/interim` avec `--interim` et le clone intact `C:/Users/mgarl/OneDrive/Documents/ChatGPT/piscine_lab/kit/Piscine-official` avec `--kit`. `kit/Piscine/` ne contient que Molière sur ce poste.
+- Mélange validé 80/12/8 Wikipédia FR, Common Crawl, Assemblée nationale. Graine 42 pour les tirages. BPE commun 8 192 sur 10 Mo du nettoyé, mélange en octets pour cet échantillon et en tokens pour les trois jeux d’entraînement. Conserver le fichier exact `data/processed/ablation/tokenizer.json` pour la compétition.
+- Matisse lance lui-même les runs sur Kaggle T4. Le kit utilise la graine 1337 et compte 100 007 936 tokens vus après arrondi au lot entier. Les 230 documents publics ont servi au contrôle de recouvrement et à l’évaluation, avec dénominateur en octets UTF-8. Les commandes de préparation et de lancement sont dans `pipeline/README.md`.
+- Les trois flux vérifiés et leurs métadonnées sont dans `data/processed/ablation/`. Importer `data/processed/ablation-kaggle.zip` dans le notebook. Les SHA-256 sont dans `docs/STATUS.md` et `data/processed/ablation/manifest.json`.
+- Quand les résultats Kaggle arrivent, importer les trois `result.json` avec `uv run --no-sync python -m pipeline.ablation_runs log --results runs/ablation`, puis rédiger l’ébauche chiffrée du rapport. Le contraste nettoyé → dédupliqué inclut le plafonnement de Wikipédia à 300 000 articles, et le tokenizer est appris sur le nettoyé. Garder ces limites dans le rapport.
+
 ## Le projet en deux phrases
 Piscine ECE « Feed the Beast » de Matisse (individuel) : un mini-GPT from scratch, un pipeline de données français, une compétition au BPB où seul le dataset compte (architecture figée par le kit). Matisse parle français, familier ; il manque de temps et veut l'essentiel, pas d'exercices.
 

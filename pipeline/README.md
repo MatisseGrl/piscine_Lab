@@ -120,3 +120,51 @@ Le run a pris environ 36 min jusqu'à la publication, dont 655 s pour les signat
 | Assemblée nationale | `e6b4521bf58d0cb7bf3633ff558dc17ca33a7f71e241385a9695f93cc3ae6c46` | `57153b1fc0f81040f3f4e2c41fd7a1c7bc31df9adee0b8f4f6307037e24a54a1` |
 | Wikipédia FR | `d7fc0ae92176f992adbd00987920846ec88278d9553760977255b0db79b07569` | `e0caf30fa7e9e9477e573059e3b42d9b2fbfddfee847460da87018576027c86e` |
 | Common Crawl | `4e003821e53436674a49f0ee75894db66a09e34106d9cc23e53b8f2355735040` | `ab743e79652a4b88e0e557a8ea16419b8138bad550ed7f7e3f5dd8d9a7fd74c9` |
+
+## Ablation sur la validation publique du kit
+
+Mélange validé par Matisse le 10/11/2026. Wikipédia FR 80 %, Common Crawl 12 %, Assemblée nationale 8 %. Pour le tokenizer BPE commun de 8 192 entrées, ces proportions s’appliquent à un échantillon fixe de 10 Mo du nettoyé, en octets UTF-8. Pour l’entraînement, elles s’appliquent aux tokens cibles, y compris les séparateurs de document. Le tirage et le mélange des blocs par fenêtre utilisent la graine 42. Le kit entraîne avec la graine 1337.
+
+Depuis ce checkout, préparer les données et le tokenizer, puis créer l’archive Kaggle.
+
+```powershell
+uv run --no-sync python -m pipeline.ablation
+uv run --no-sync python -m pipeline.ablation_runs bundle
+```
+
+Depuis un autre checkout Windows, on peut lire directement les fichiers existants avec les chemins absolus.
+
+```powershell
+uv run --no-sync python -m pipeline.ablation --interim "C:/Users/mgarl/OneDrive/Documents/ChatGPT/piscine_lab/data/interim" --kit "C:/Users/mgarl/OneDrive/Documents/ChatGPT/piscine_lab/kit/Piscine-official"
+```
+
+Les entrées sont `clean/raw/`, `clean/` et `dedup/final/`, sous `data/interim/`. La préparation exige les empreintes des neuf archives auditées et l’empreinte de la validation publique associée. Les trois audits ne relèvent aucune séquence commune de 13 mots sur les 230 documents. La préparation refuse un dossier de sortie déjà existant. Les flux binaires, leurs SHA-256, les quotas et le tokenizer sont dans `data/processed/ablation/`. Chaque source est tirée sans remise et son flux de tokens est découpé aux limites de ses quotas dans les fenêtres de mélange du kit. Ces coupures peuvent tomber au milieu d’un document.
+
+### Lancement manuel sur Kaggle
+
+Importer `data/processed/ablation-kaggle.zip` comme entrée privée du notebook, activer Internet et sélectionner un accélérateur T4. Utiliser la même session GPU pour les trois variantes. Dans les commandes ci-dessous, remplacer le chemin d’entrée par celui que Kaggle affiche.
+
+```bash
+%cd /kaggle/working
+!unzip -o /kaggle/input/CHEMIN/ablation-kaggle.zip
+!git clone https://github.com/Meuleur/Piscine.git kit
+!git -C kit checkout --detach 3709c85ddaabfcd688d6eea80a5c5ed90605b549
+%pip install tokenizers==0.23.3
+!python -m pipeline.ablation_runs run --kit kit --prepared ablation --results runs/ablation
+```
+
+La commande enchaîne les trois entraînements et évaluations du kit. On peut cibler un seul run avec `--variant raw`, `--variant clean` ou `--variant dedup`. Le lanceur utilise le premier GPU avec micro-lots de 8 et accumulation pour conserver le lot effectif officiel de 64. Le kit arrondit le budget nominal de 100 M à 3 052 pas, soit 100 007 936 tokens vus par run. Le flux contient un token de contexte supplémentaire, ce qui évite de boucler sur le début au dernier lot. En cas d’interruption, relancer avec le même dossier de résultats pour reprendre depuis le dernier état disponible.
+
+Pour rapatrier uniquement les résultats à consigner, exécuter cette cellule après les runs.
+
+```bash
+!zip /kaggle/working/ablation-results.zip runs/ablation/manifest.json runs/ablation/environment.json runs/ablation/*/result.json
+```
+
+Télécharger `ablation-results.zip` depuis les sorties Kaggle, l’extraire à la racine du dépôt local, puis importer le journal.
+
+```powershell
+uv run --no-sync python -m pipeline.ablation_runs log --results runs/ablation
+```
+
+Le BPB provient de `ftb.evaluate` sur les 230 documents, avec un dénominateur de 813 051 octets UTF-8. Le tokenizer ayant appris ses fusions sur le nettoyé, ce choix peut avantager cette variante. La sortie MinHash part du sous-échantillon Wikipédia plafonné à 300 000 articles, donc l’écart nettoyé → dédupliqué porte sur cette sortie du pipeline, sous-échantillonnage compris. Une seule graine est testée. Aucun filtre qualité ni masquage PII dans cette comparaison.

@@ -2,7 +2,7 @@
 
 Une ligne par entraînement. Même config du kit pour tous les essais, sinon la comparaison ne vaut rien.
 
-Comparaison planifiée, sans entraînement lancé : `ablation-raw` (brut contrôlé) contre `ablation-clean` (ftfy, langue et boilerplate). Même tokenizer, même ordre de sources, même config et même budget. Les deux variantes passent le même contrôle de validation avant préparation. Les BPB restent à mesurer.
+Comparaison planifiée sur les 230 documents publics du kit entre le brut contrôlé, le nettoyé et la sortie finale MinHash. Même tokenizer, même mélange par source, même configuration et même budget. Les lignes des trois runs seront importées depuis leurs résultats Kaggle.
 
 | Date | ID | Données (mélange, étapes) | Tokens vus | Hash dataset | BPB val | Soumis | Conclusion |
 |---|---|---|---|---|---|---|---|
