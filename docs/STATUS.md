@@ -6,6 +6,12 @@ Dernière mise à jour le 10 novembre 2026. **Rendu le 16 novembre 2026 (J-6).**
 
 ## Étape en cours
 
+### Qualité et masquage PII — sorties produites (10/11)
+
+Seuils et masquage regex validés par Matisse le 10/11. `pipeline/quality.py`, `pipeline/pii.py` et `pipeline/variants.py` écrits avec leurs tests (119 tests verts, dont ablation et ablation_runs). Les quatre variantes sont dans `data/interim/` : dédupliqué (inchangé), `quality/final/`, `pii/dedup/`, `pii/quality/`. Rejets qualité : 221 documents (0,07 %), presque tous Common Crawl. PII : surtout Common Crawl (4 702 e-mails, 6 845 téléphones). SHA-256 relus, zéro recouvrement de 13 mots avec les 230 documents publics. Durée réelle de 9 à 10 min par passe. Détail, commandes et limites dans `pipeline/README.md`. Non commité. BPB non mesuré : les trois runs Kaggle de l'ablation tournent, et ces variantes n'ont ni tokenizer ni entraînement.
+
+### Ablation
+
 Ablation sur la validation publique du kit. `main` synchronisée à `cb17d9a` (PR #9, #10 et #11 intégrées), puis branche locale `codex/corpus-ablation`. Les neuf archives d’entrée correspondent aux SHA-256 des trois audits sur les 230 documents publics. Aucun recouvrement de 13 mots n’a été relevé.
 
 Matisse a validé Wikipédia FR 80 %, Common Crawl 12 % et Assemblée nationale 8 %. Le tokenizer commun de 8 192 entrées est entraîné sur un échantillon fixe du nettoyé avec ce mélange en octets UTF-8 (graine 42) et sera réutilisé pour la compétition. Son SHA-256, reproduit à l’identique sur le même échantillon, est `b2554a8221a55c19b4008f5b605b1b6e84b6a7f84058507c15aba34eca3b2379`. Les jeux d’entraînement appliquent le mélange en tokens. Le kit intact, à `3709c85`, fixe la graine d’entraînement à 1337 et arrondit le budget nominal de 100 M à 100 007 936 tokens vus.
@@ -75,7 +81,7 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 - [ ] Annoter le tirage de langue (Matisse), puis mesurer la précision
 - [ ] Mesurer les BPB brut, nettoyé et dédupliqué à configuration identique sur les 230 documents publics
 - [x] Dédup exacte (hash) + quasi-doublons (MinHash + LSH, Jaccard 0,97), sorties relues et audit du kit
-- [ ] Filtrage qualité + masquage données personnelles
+- [x] Filtrage qualité + masquage données personnelles (sorties produites, BPB à mesurer)
 - [ ] Rapport d'ablation (2 pages) : brut vs nettoyé vs complet
 
 ### Bloc 3 : compétition
