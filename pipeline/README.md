@@ -63,3 +63,60 @@ Le tirage uniforme sans remise utilise la graine 42. Remplis chaque champ `annot
 Ajoute `--include-raw` au nettoyage complet. Le sous-dossier `raw/` contient les textes extraits avant nettoyage, après application du même garde-fou de validation. Les JSONL gzip des deux variantes sont directement lisibles par `ftb.prepare`.
 
 Pour isoler l'effet du nettoyage, réutilise le même tokenizer, entraîné hors validation, la même liste ordonnée de sources, la même configuration officielle et le même budget de tokens dans les deux runs. Contrôle séparément les entrées de chaque run avec `ftb.contamination` et mesure le BPB avec `ftb.evaluate` sur la validation publique. Note les SHA-256, les tokens vus et les deux BPB dans `experiments/LOG.md`.
+
+## Dédupliquer le nettoyé
+
+Les entrées sont les trois JSONL gzip et le `stats.json` de `data/interim/clean/`. Le pipeline contrôle leurs SHA-256 et la sélection Common Crawl du nettoyage plafonné. La déduplication exacte compare des SHA-256 du texte en minuscules, en NFC, avec des espaces uniformisés. Elle garde la ligne du premier représentant, y compris le texte et les métadonnées d'origine. Les rejets exacts sont comptés par source du texte retiré et séparés selon que le représentant vient de cette même source ou d'une autre.
+
+L'ordre validé est Assemblée nationale, Wikipédia FR, Common Crawl, puis l'ordre du fichier dans chaque source. Les sources propres passent donc en priorité. Si une page Common Crawl est déjà représentée par un article Wikipédia écarté au tirage, ce groupe de doublons peut disparaître de la sortie finale.
+
+```bash
+uv run python -m pipeline.dedup pilot
+uv run python -m pipeline.dedup all --threshold 0.97
+```
+
+Le pilote tire 50 000 articles Wikipédia, 6 000 pages Common Crawl et 6 000 sections de l'Assemblée, à graine 42, avant la dédup exacte du lot. Il compare les seuils 0,75, 0,80, 0,85, 0,90, 0,96 et 0,97. Les compteurs, la taille des tableaux de l'index et les identifiants de paires inspectables sont dans `data/interim/dedup-pilot/`.
+
+Sur ce lot, l'exact a retiré 797 documents de l'Assemblée, 6 de Wikipédia et 69 de Common Crawl. Les 872 rejets sont internes aux sources. Les signatures et l'index ont pris 168 s pour les 61 128 survivants, avec 12,5 Mo de tableaux, soit environ 66 Mo pour 322 111 documents. Le test de débit de l'exact traite 49 994 lignes représentatives en 24,3 s, hors parcours du grand gzip Wikipédia. Le traitement complet et sa relecture sont estimés à 45–75 min.
+
+L'inspection du pilote montre des cas distincts à 0,955 (article 2 bis ou 2 dans deux interventions de l'Assemblée) et à 0,889 (deux woredas différents sur Wikipédia). Deux ordres du jour qui diffèrent seulement par un espace après un point atteignent 1,000. Le seuil validé est 0,97. Un seuil élevé réduit les fusions de textes qui partagent un gabarit, avec un risque résiduel si un détail significatif occupe peu de mots.
+
+| Seuil | Retraits Assemblée | Retraits Wikipédia | Retraits Common Crawl |
+|---|---:|---:|---:|
+| 0,75 | 62 | 673 | 203 |
+| 0,80 | 43 | 527 | 158 |
+| 0,85 | 20 | 382 | 114 |
+| 0,90 | 13 | 276 | 69 |
+| 0,96 | 2 | 26 | 21 |
+| 0,97 | 2 | 5 | 15 |
+
+À 0,97, le pilote retire encore des contenus distincts qui partagent un gabarit, dont les villages Lug et Medovići (0,975) et deux spectacles du site OARA (0,979). Une paire de captures de la même FAQ à 0,998 ne diffère que par l'heure affichée. Les paires inspectées servent à illustrer les limites du seuil, sans estimation de la précision sur tout le corpus.
+
+En traitement complet, la dédup exacte couvre les 2 530 051 documents. MinHash prend ensuite tous les survivants de Common Crawl et de l'Assemblée et tire 300 000 survivants Wikipédia sans remise, à graine 42, dans leur ordre d'origine. Le sous-échantillonnage et les rejets MinHash sont comptés séparément. L'index MinHash utilise 96 minima, répartis en 16 bandes de six. Une bande commune propose une paire. Le retrait exige un Jaccard exact au moins égal au seuil sur les suites de cinq mots et un représentant déjà conservé. L'index peut manquer des paires similaires qui ne partagent aucune bande.
+
+Le traitement complet vérifie le secteur sous Windows. La sortie exacte est conservée dans `data/interim/dedup/exact/`. Après une interruption de MinHash, on peut repartir de cette étape sans refaire le hash exact.
+
+```bash
+uv run python -m pipeline.dedup minhash --threshold 0.97
+```
+
+Les fichiers de `data/interim/dedup/final/` sont publiés ensemble après relecture. Le rapport donne les documents, octets UTF-8 et SHA-256 par source, ainsi que le résultat du contrôle des séquences du kit sur les 230 documents publics. Une exécution vers une sortie finale existante est refusée.
+
+### Résultat intégral du 10 novembre 2026
+
+Les volumes en octets portent sur le texte UTF-8. Le tirage retire 2 205 718 articles Wikipédia après l'exact. Ses 300 000 articles totalisent 912 631 767 octets UTF-8 avant MinHash.
+
+| Source | Avant dédup (docs / octets) | Après l'exact (docs / octets) | Après MinHash (docs / octets) | Rejets exacts internes / entre sources | Rejets MinHash |
+|---|---:|---:|---:|---:|---:|
+| Assemblée nationale | 9 094 / 56 952 466 | 7 716 / 56 776 613 | 7 705 / 56 773 787 | 1 378 / 0 | 11 |
+| Wikipédia FR | 2 507 940 / 7 647 370 763 | 2 505 718 / 7 646 942 693 | 299 873 / 912 560 196 | 2 222 / 0 | 127 |
+| Common Crawl | 13 017 / 91 030 055 | 12 802 / 89 330 115 | 12 741 / 87 340 486 | 215 / 0 | 61 |
+| Total | 2 530 051 / 7 795 353 284 | 2 526 236 / 7 793 049 421 | 320 319 / 1 056 674 469 | 3 815 / 0 | 199 |
+
+Le run a pris environ 36 min jusqu'à la publication, dont 655 s pour les signatures et la construction de l'index, 101 s pour les comparaisons et 209 s pour la vérification finale. Les tableaux de l'index représentent 65 385 672 octets. La relecture des deux étapes confirme les compteurs et les SHA-256. Aucune séquence de 13 mots en commun avec les 230 documents publics du kit, recouvrement moyen 0,0 et zéro document signalé.
+
+| Source | SHA-256 exact | SHA-256 final |
+|---|---|---|
+| Assemblée nationale | `e6b4521bf58d0cb7bf3633ff558dc17ca33a7f71e241385a9695f93cc3ae6c46` | `57153b1fc0f81040f3f4e2c41fd7a1c7bc31df9adee0b8f4f6307037e24a54a1` |
+| Wikipédia FR | `d7fc0ae92176f992adbd00987920846ec88278d9553760977255b0db79b07569` | `e0caf30fa7e9e9477e573059e3b42d9b2fbfddfee847460da87018576027c86e` |
+| Common Crawl | `4e003821e53436674a49f0ee75894db66a09e34106d9cc23e53b8f2355735040` | `ab743e79652a4b88e0e557a8ea16419b8138bad550ed7f7e3f5dd8d9a7fd74c9` |

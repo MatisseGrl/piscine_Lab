@@ -2,9 +2,15 @@
 
 À lire au début de chaque session, à mettre à jour à la fin.
 
-Dernière mise à jour : 9 novembre 2026. **Rendu le 16 novembre 2026 (J-7).**
+Dernière mise à jour le 10 novembre 2026. **Rendu le 16 novembre 2026 (J-6).**
 
 ## Étape en cours
+Déduplication sur `feat/dedup`, créée depuis `main` synchronisée au merge de la PR #10 (`6e19b7a`). Les trois fichiers nettoyés sont présents et leurs SHA-256 correspondent au run plafonné.
+
+Le pilote a traité 62 000 documents et en conserve 61 128 après dédup exacte. L'index représente 12,5 Mo de tableaux sur le pilote et environ 66 Mo à taille maximale après le tirage de 300 000 articles Wikipédia. Matisse a validé le seuil Jaccard à 0,97 et le premier représentant conservé dans l'ordre Assemblée, Wikipédia FR, Common Crawl, puis ordre de chaque fichier. Estimation sur ce poste de 45 à 75 min avec la relecture.
+
+Le 10/11, le run intégral sur secteur a abouti en environ 36 min, audit de validation compris. L'exact retire 3 815 doublons internes et aucun entre sources. Après tirage de 300 000 articles Wikipédia, MinHash retire 199 documents et la sortie finale contient 320 319 documents et 1 056 674 469 octets UTF-8. La relecture confirme les compteurs et les SHA-256 des sorties exacte et finale. Aucun recouvrement détecté avec les 230 documents publics. Le détail par source et les empreintes figurent dans `pipeline/README.md`. PR #11 ouverte.
+
 Nettoyage mergé sur `main` via la PR #9 (`56e60a2`). Le test sur les 1 000 premiers documents de chaque source est dans `data/interim/clean-verified/`.
 
 Le 9/11, le premier run a été arrêté pendant Common Crawl et ses sorties partielles ont été supprimées. Parcourir les 91,8 Go compressés aurait pris environ trois jours sur ce poste. Matisse a validé un plafond de 1 050 000 000 octets compressés pour Common Crawl, compte tenu du délai et du budget de 100 M tokens vus en compétition. Le préfixe trié couvre 10 archives WET (1 019 886 136 octets). Wikipédia FR et l'Assemblée passent en entier.
@@ -52,7 +58,7 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 - [x] Terminer le nettoyage avec Common Crawl plafonné et vérifier les statistiques et le recouvrement du brut et du nettoyé
 - [ ] Annoter le tirage de langue (Matisse), puis mesurer la précision
 - [ ] Mesurer les BPB brut et nettoyé à configuration identique sur la validation publique du kit
-- [ ] Dédup exacte (hash) + quasi-doublons (MinHash + LSH, seuil justifié)
+- [x] Dédup exacte (hash) + quasi-doublons (MinHash + LSH, Jaccard 0,97), sorties relues et audit du kit
 - [ ] Filtrage qualité + masquage données personnelles
 - [ ] Rapport d'ablation (2 pages) : brut vs nettoyé vs complet
 
