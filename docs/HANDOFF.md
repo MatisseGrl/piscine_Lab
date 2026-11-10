@@ -2,6 +2,14 @@
 
 Écrit le 7 novembre 2026, mis à jour le 8 pour qu'un autre agent (ou une autre session) reprenne sans rien perdre. Lire dans l'ordre : ce fichier, `AGENTS.md`, `docs/STATUS.md`, `docs/SUJET.md`. Rendu final : **16 novembre 2026**.
 
+## Reprise qualité et PII (10/11)
+
+- Fait sur `feat/quality` (non commitée, aucun push ni PR : sur demande de Matisse seulement, seul auteur, sans co-signature ni mention d'outil). Seuils qualité et masquage regex validés par Matisse. Code : `pipeline/quality.py`, `pipeline/pii.py`, étape commune `pipeline/variants.py`. Tests : `test_quality`, `test_pii`, `test_variants`, `test_ablation`, `test_ablation_runs` (119 tests verts).
+- Sorties sous `data/interim/` : `quality/final/`, `pii/dedup/`, `pii/quality/`, à côté de `dedup/final/` intact. Chaque `stats.json` donne volumes avant/après, taux par source et par règle, exemples expurgés, SHA-256 relus, audit à zéro recouvrement. Commandes et chiffres dans `pipeline/README.md`. Pilotes dans `data/interim/quality-pilot/` et `pii-pilot/` (supprimables).
+- Résultat à retenir : la qualité retire seulement 221 documents (0,07 %), donc effet attendu faible sur le BPB. Le PII touche surtout Common Crawl. Ces constats sont des taux, pas un effet BPB.
+- Limites : regex seulement, pas de noms ni d'adresses ; faux positifs possibles sur des versions logicielles lues comme des IPv4.
+- À faire ensuite, seulement sur demande : construire tokenizer et flux d'entraînement de ces variantes et mesurer le BPB à configuration identique (graine 1337, 100 007 936 tokens, mélange 80/12/8), après réception des trois runs Kaggle (`uv run --no-sync python -m pipeline.ablation_runs log --results runs/ablation`). Aucun entraînement, tokenizer ni soumission n'a été lancé dans cette tâche.
+
 ## Reprise de l’ablation (10/11)
 
 - `main` est synchronisée à `cb17d9a`, avec les PR #9 à #11 intégrées. Travail local sur `codex/corpus-ablation`. Dans cette session, Matisse demande de réserver commit et push à une demande explicite.

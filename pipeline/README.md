@@ -121,6 +121,35 @@ Le run a pris environ 36 min jusqu'à la publication, dont 655 s pour les signat
 | Wikipédia FR | `d7fc0ae92176f992adbd00987920846ec88278d9553760977255b0db79b07569` | `e0caf30fa7e9e9477e573059e3b42d9b2fbfddfee847460da87018576027c86e` |
 | Common Crawl | `4e003821e53436674a49f0ee75894db66a09e34106d9cc23e53b8f2355735040` | `ab743e79652a4b88e0e557a8ea16419b8138bad550ed7f7e3f5dd8d9a7fd74c9` |
 
+## Qualité et masquage PII (10 novembre 2026)
+
+Règles validées par Matisse. **Qualité** (heuristiques seules, premier motif atteint gagne) : `low_letters` (moins de 30 % de lettres parmi les caractères hors espaces, trois sources), puis pour Common Crawl seulement `too_short` (moins de 100 caractères hors espaces) et `repeated_lines` (à partir de 10 lignes non vides, plus de 60 % de lignes déjà vues dans le document). Ponctuation et longueur moyenne des mots sont mesurées sans rejeter. **PII** (regex seules, marqueurs `[EMAIL]`, `[TEL]`, `[IBAN]`, `[URL]`, `[IP]`) : e-mails, téléphones français, IBAN français à clé modulo 97 valide, URL en HTTP(S) ou `www`, IPv4 et IPv6 valides. Le texte hors segments ciblés reste identique. Noms et adresses postales ne sont pas détectés.
+
+Quatre variantes comparables, toutes dérivées de `data/interim/dedup/final/` (le dédupliqué) sans écraser aucune sortie existante :
+
+```bash
+uv run --no-sync python -m pipeline.quality                                   # dédupliqué -> quality/final
+uv run --no-sync python -m pipeline.pii                                       # dédupliqué -> pii/dedup
+uv run --no-sync python -m pipeline.pii --src data/interim/quality/final --out data/interim/pii/quality   # qualité puis PII
+```
+
+Options : `--limit N` (pilote sur les N premiers documents par source, écrit une projection de durée), `--src`, `--out` (dossier neuf obligatoire), `--kit`. Le traitement complet exige le secteur sous Windows. Chaque étape vérifie le SHA-256 de l'entrée, relit la sortie (documents, octets UTF-8, SHA-256), cherche toute suite de 13 mots des 230 documents publics et ne publie qu'à zéro recouvrement. Le code commun est dans `pipeline/variants.py`.
+
+| Variante | Dossier | Documents | Octets UTF-8 |
+|---|---|---:|---:|
+| Dédupliqué (référence) | `dedup/final/` | 320 319 | 1 056 674 469 |
+| Qualité seule | `quality/final/` | 320 098 | 1 053 824 598 |
+| PII seule | `pii/dedup/` | 320 319 | 1 055 854 450 |
+| Qualité puis PII | `pii/quality/` | 320 098 | 1 053 018 328 |
+
+Rejets qualité par source (documents avant → après) : Assemblée 7 705 → 7 705, Wikipédia FR 299 873 → 299 873, Common Crawl 12 741 → 12 520 (`too_short` 52, soit 0,41 % ; `repeated_lines` 165, soit 1,30 % ; `low_letters` 4, soit 0,03 %). Le filtre ne touche donc presque que Common Crawl et retire 221 documents au total (0,07 %) : son effet sur le BPB sera faible. Moyennes mesurées (non rejetantes) sur les gardés : ponctuation 4,4 % / 4,0 % / 3,7 % et mots de 4,78 / 4,97 / 5,22 caractères (Assemblée / Wikipédia / Common Crawl).
+
+Segments masqués (identiques pour les deux variantes PII, sauf Common Crawl après qualité), documents concernés entre parenthèses, sur le dédupliqué : Assemblée URL 2 (2) ; Wikipédia URL 9 326 (6 061), e-mail 30 (17), téléphone 43 (29), IP 1 782 (62) ; Common Crawl URL 6 252 (2 193), e-mail 4 702 (3 066), téléphone 6 845 (2 775), IP 96 (35), IBAN 2 (2). Common Crawl porte l'essentiel des données personnelles. Les 1 782 IP de Wikipédia se concentrent dans 62 documents, surtout des IPv4 d'articles techniques. Le masquage raccourcit les textes de 0,42 Mo pour Wikipédia, 0,40 Mo pour Common Crawl et de 25 octets pour l'Assemblée.
+
+Contrôles : SHA-256 des trois sorties relus et conformes à leurs `stats.json`, zéro recouvrement de 13 mots avec les 230 documents publics sur chacune. Durées sur secteur : qualité 9,8 min, PII 9,0 min (dédupliqué) et 8,4 min (après qualité) ; le pilote de 3 000 documents par source avait projeté 10,8 et 9,2 min. Les `stats.json` contiennent aussi des exemples par règle (identifiant et extrait) : les extraits de texte passent par le masquage, et les exemples PII ne donnent que la forme du segment (lettres « a », chiffres « 9 »).
+
+Limites : regex seulement, donc pas de noms ni d'adresses ; une version logicielle du type `3.10.2.1` est masquée comme une IP ; les IPv6 très courtes (moins de 5 caractères) ne le sont pas ; un numéro suivi de lettres ou chiffres collés n'est pas masqué par prudence. Aucun BPB n'est mesuré ici : l'effet de la qualité et du PII reste à mesurer à configuration identique après les trois runs Kaggle de l'ablation.
+
 ## Ablation sur la validation publique du kit
 
 Mélange validé par Matisse le 10/11/2026. Wikipédia FR 80 %, Common Crawl 12 %, Assemblée nationale 8 %. Pour le tokenizer BPE commun de 8 192 entrées, ces proportions s’appliquent à un échantillon fixe de 10 Mo du nettoyé, en octets UTF-8. Pour l’entraînement, elles s’appliquent aux tokens cibles, y compris les séparateurs de document. Le tirage et le mélange des blocs par fenêtre utilisent la graine 42. Le kit entraîne avec la graine 1337.
