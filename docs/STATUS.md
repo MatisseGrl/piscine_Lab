@@ -24,6 +24,10 @@ Résolution des conflits de la PR #21 le 11/11 : conservation des deux archives 
 
 ## Étape en cours
 
+### Reprise Molière mise en pause (11/11)
+
+Matisse vise **1,500 BPB Molière** et a signalé que le chat déraille lorsqu'il lui demande de s'expliquer. Les quatre essais de reprise sont arrêtés sur sa demande. Paliers conservés : continuation du kit au pas 400, **1,790130** ; SFT réparation au pas 250, **1,853007** et **0/8** réparations sur le développement. Le cosinus reste à **1,770614** et la page sert toujours le pas 1 000 de la PR #23. Voir la [reprise de nuit](../report/moliere_restart.md) pour les commandes, les audits et les mesures à terminer.
+
 ### Démo locale Molière (11/11)
 
 La démo multi-tour du bloc 1 suit la décision de la PR #20. Le pas 1 000 du SFT v2 avec rappel Molière à 30 % est retenu sur le développement : scénario JB **3/3**, pertinence **16/20**, contexte **7/9**. Sur les discussions inédites : **13/24** pertinentes, **7/13** en contexte et **12/24** avec couleur théâtrale. BPB de ce checkpoint : **1,854847**. Le cosinus reste le meilleur BPB Molière à **1,770614**.
