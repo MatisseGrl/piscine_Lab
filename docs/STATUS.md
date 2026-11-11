@@ -16,9 +16,11 @@ Dernière mise à jour le 11 novembre 2026. **Rendu le 16 novembre 2026 (J-5).**
 - **Langue.** Le script de score confirme **99/100** sur le tirage annoté du corpus nettoyé (graine 42). Le tirage comprend 99 articles Wikipédia et une page Common Crawl. Reporter le résultat dans le rapport ou la datasheet en précisant la composition du tirage.
 - **Datasheet et reproductibilité.** La fiche des variantes est sur `main` (PR #15). La finaliser après le choix du flux, avec ses mesures et son empreinte. Les étapes sont documentées séparément. La commande unique de régénération demandée par le sujet reste à fournir et à vérifier.
 - **Bloc 1 et soutenance.** Le mini-GPT de base est livré. La continuation est sur `main` (PR #18) à **1,770614 BPB Molière**. La démo terminal demandée par le mentor est locale et le pilote conversationnel a obtenu 0/8 réponses pertinentes. Préparer la soutenance et obtenir la confirmation écrite de l'accord du mentor sur l'usage de l'IA pour le mini-GPT.
-- **Essai et bonus.** L'archive du mélange à parts égales est disponible localement. Aucun BPB pour ce mélange dans le journal consulté. La publication Hugging Face est facultative et reste à décider.
+- **Essai et bonus.** Le mélange à parts égales est archivé et journalisé à **1,336187 BPB** ; le mélange 74/18/8 atteint **1,332464 BPB**. Le meilleur score reste celui du 80/12/8 avec qualité. La publication Hugging Face est facultative et reste à décider.
 
 Les entrées datées ci-dessous retracent les étapes précédentes.
+
+Résolution des conflits de la PR #21 le 11/11 : conservation des deux archives Kaggle, des deux entrées du journal et des priorités à jour de main.
 
 ## Étape en cours
 
@@ -37,6 +39,16 @@ Le [rapport Molière](../report/moliere_tuning.md) décrit le protocole et
 les générations. Le prochain essai vise le dialogue multi-tour. Le jeu de
 données et le checkpoint de la démo suivent le périmètre défini dans
 [Décisions](#décisions).
+
+### Run 2 Kaggle — mélange à parts égales (11/11)
+
+Le mélange à parts égales en tokens de Wikipédia FR, Common Crawl et Assemblée
+nationale atteint **1,336187 BPB** sur les 230 documents publics après
+100 007 936 tokens vus. Le tokenizer et la configuration du kit sont communs
+avec le run qualité 80/12/8. Le BPB augmente de 0,005762 et le mélange à parts
+égales nécessite de répéter des tokens de Common Crawl et de l'Assemblée.
+La référence 80/12/8 avec filtre qualité reste la meilleure sur cette validation.
+Le notebook et l'évaluation sont archivés dans `Kaggle submissions/run-02/`.
 
 ### Notebook Kaggle (11/11)
 
