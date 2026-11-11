@@ -1,5 +1,10 @@
 # STATUS : piscine_Lab (Feed the Beast)
 
+## Import du run Kaggle 74/18/8 (11/11)
+
+Notebook avec sorties et évaluation JSON archivés dans `Kaggle submissions/`, avec une ligne dans le journal. BPB vérifié identique dans les deux fichiers : **1,3324640181392153** sur 230 documents publics, pour 100 007 936 tokens vus. Le meilleur BPB compétition documenté reste **1,3304248963817598** (qualité, 80/12/8).
+À compléter : SHA-256 du dataset et date exacte du run, absents des fichiers fournis. Aucun entraînement relancé et aucun changement de mélange décidé lors de cet import.
+
 À lire au début de chaque session, à mettre à jour à la fin.
 
 Dernière mise à jour le 10 novembre 2026. **Rendu le 16 novembre 2026 (J-6).**
