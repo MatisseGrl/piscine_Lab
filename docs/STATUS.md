@@ -8,7 +8,7 @@ Dernière mise à jour le 10 novembre 2026. **Rendu le 16 novembre 2026 (J-6).**
 
 ### Notebook Kaggle (11/11)
 
-L'export Kaggle.ipynb dans le dossier Kaggle submissions regroupe les six essais et leurs sorties. Publication GitHub en attente.
+L'export Kaggle.ipynb dans le dossier Kaggle submissions regroupe les six essais et leurs sorties. Notebook publié sur main (PR #16). Les six résultats vérifiés sont importés dans Kaggle submissions/LOG.md. Le meilleur BPB sur la validation publique est de 1,330424896 pour la variante dédupliquée avec filtre qualité. Les archives de résultats ne contiennent pas les checkpoints.
 
 ### Qualité et masquage PII — sorties produites (10/11)
 
