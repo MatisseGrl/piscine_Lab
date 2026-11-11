@@ -40,7 +40,7 @@ pipeline/       bloc 2 : collect, clean, dedup, quality, pii, build        (une 
 scripts/        utilitaires hors blocs (ex. fetch_moliere.py : corpus Molière depuis Wikisource)
 sources/        une fiche .md par source (modèle dans sources/README.md)
 data/           raw/, interim/, processed/ : non versionné
-experiments/    LOG.md : une ligne par entraînement (date, données, tokens, hash, BPB, conclusion)
+Kaggle submissions/    LOG.md : une ligne par entraînement (date, données, tokens, hash, BPB, conclusion)
 report/         ablation.md, datasheet.md
 tests/
 ```
@@ -69,7 +69,7 @@ Il reste peu de temps (rendu le 16/11). Pas de quiz, pas de reformulation exigé
 
 ## Règles de travail (non négociables)
 
-1. **Mesurer avant d'affirmer.** Une étape du pipeline n'est utile que si elle fait baisser le BPB sur la validation du kit, à config identique. Chaque essai = une ligne dans `experiments/LOG.md`. Pas de « ça devrait aider » sans chiffre.
+1. **Mesurer avant d'affirmer.** Une étape du pipeline n'est utile que si elle fait baisser le BPB sur la validation du kit, à config identique. Chaque essai = une ligne dans `Kaggle submissions/LOG.md`. Pas de « ça devrait aider » sans chiffre.
 2. **Tests d'abord sur le mini-GPT.** Le test de vérification (contre PyTorch, contre un cas calculé à la main) s'écrit avant le code.
 3. **Débogage direct sur le bloc 1.** Quand un test casse, l'agent dit où est le bug et comment le corriger, sans faire chercher.
 4. **Relire comme un reviewer.** Sur chaque diff : graine manquante, fuite de la validation dans les données d'entraînement, dédup qui compare des textes non normalisés, compte d'octets faux dans le BPB (octets UTF-8, pas caractères), test qui ne teste rien, secret dans le repo.

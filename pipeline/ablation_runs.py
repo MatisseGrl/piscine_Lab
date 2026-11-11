@@ -215,7 +215,7 @@ def main():
     train.add_argument("--variant", choices=list(LABELS))
     log = subparsers.add_parser("log", help="importe les résultats terminés")
     log.add_argument("--results", type=Path, required=True)
-    log.add_argument("--log", type=Path, default=ROOT / "experiments/LOG.md")
+    log.add_argument("--log", type=Path, default=ROOT / "Kaggle submissions/LOG.md")
     log.add_argument("--reference", type=Path, help="série de référence (ex. runs/ablation)")
     pack = subparsers.add_parser("bundle", help="crée l’archive d’entrée Kaggle")
     pack.add_argument("--prepared", type=Path, default=ROOT / "data/processed/ablation")

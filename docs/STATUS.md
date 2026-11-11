@@ -6,6 +6,10 @@ Dernière mise à jour le 10 novembre 2026. **Rendu le 16 novembre 2026 (J-6).**
 
 ## Étape en cours
 
+### Notebook Kaggle (11/11)
+
+L'export Kaggle.ipynb dans le dossier Kaggle submissions regroupe les six essais et leurs sorties. Publication GitHub en attente.
+
 ### Qualité et masquage PII — sorties produites (10/11)
 
 Seuils et masquage regex validés par Matisse le 10/11. `pipeline/quality.py`, `pipeline/pii.py` et `pipeline/variants.py` écrits avec leurs tests (119 tests verts, dont ablation et ablation_runs). Les quatre variantes sont dans `data/interim/` : dédupliqué (inchangé), `quality/final/`, `pii/dedup/`, `pii/quality/`. Rejets qualité : 221 documents (0,07 %), presque tous Common Crawl. PII : surtout Common Crawl (4 702 e-mails, 6 845 téléphones). SHA-256 relus, zéro recouvrement de 13 mots avec les 230 documents publics. Durée réelle de 9 à 10 min par passe. Détail, commandes et limites dans `pipeline/README.md`. Non commité. BPB non mesuré : les trois runs Kaggle de l'ablation tournent, et ces variantes n'ont ni tokenizer ni entraînement.
@@ -62,7 +66,7 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 ## Fait
 - [x] Dépôt `MatisseGrl/piscine_Lab` cloné dans `Documents/piscine_Lab`
 - [x] `AGENTS.md` + `CLAUDE.md` (= `@AGENTS.md`), `docs/SUJET.md`, `docs/STATUS.md`
-- [x] Structure : `minigpt/`, `pipeline/`, `sources/`, `data/`, `kit/`, `experiments/LOG.md`, `report/` (ablation + datasheet), `tests/`, chacun avec son README ; `.gitignore` pour données, kit, checkpoints et secrets
+- [x] Structure : `minigpt/`, `pipeline/`, `sources/`, `data/`, `kit/`, `Kaggle submissions/LOG.md`, `report/` (ablation + datasheet), `tests/`, chacun avec son README ; `.gitignore` pour données, kit, checkpoints et secrets
 - [x] `scripts/fetch_moliere.py` : 33 pièces (~2,4 Mo) dans `data/raw/moliere/`, 14 notices de l'éditeur (~0,16 Mo) dans `data/raw/moliere_notices/`, fiche `sources/wikisource-moliere.md`
 - [x] Kaggle `matissegarlot` : téléphone vérifié, notebook de test avec 2× T4 (`nvidia-smi` OK), internet OK (huggingface.co répond 200)
 - [x] Environnement uv : Python 3.12.14, torch 2.15 CPU, numpy, matplotlib, tqdm ; dev : pytest, jupyterlab. `uv sync` pour installer
@@ -75,7 +79,7 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 - [x] Bigramme par comptage (référence) : `minigpt/bigram.py`, octets UTF-8, Laplace alpha=1, BPB val 3,3544 (8/11)
 - [x] Tokenizer BPE from scratch (train, encode, decode) : `minigpt/bpe.py`, vocab 1 024, 2,49 octets/token sur la val (8/11)
 - [x] Transformer décodeur : `minigpt/model.py` (multi-têtes + masque causal à la main, LayerNorm à la main, MLP GELU, résiduels pre-norm, `generate()` avec température, `evaluate_bpb()` par octets UTF-8) (8/11)
-- [x] Entraînement CPU sur Molière (`minigpt/train.py`) : 2 700 pas AdamW, batch 32, taux 3e-4, graine 42. Courbe et cinq échantillons dans `experiments/`, checkpoint local dans `checkpoints/moliere_gpt.pt`.
+- [x] Entraînement CPU sur Molière (`minigpt/train.py`) : 2 700 pas AdamW, batch 32, taux 3e-4, graine 42. Courbe et cinq échantillons dans `Kaggle submissions/`, checkpoint local dans `checkpoints/moliere_gpt.pt`.
 
 ### Bloc 2 : pipeline de données
 - [x] Commande de collecte et trois fiches sources, vérifiées sur échantillons réels
