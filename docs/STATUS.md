@@ -34,9 +34,9 @@ du kit, loss sur la réponse seule) a échoué. Il atteint **1,889077 BPB** et
 **0/8 réponses pertinentes** sur les questions inédites à la graine testée.
 Son checkpoint est séparé dans `runs/moliere-dialogue-20261111/`.
 Le [rapport Molière](../report/moliere_tuning.md) décrit le protocole et
-les générations. Il reste à vérifier si des échanges autonomes du train
-peuvent servir à un autre pilote et à clarifier le cadre des données
-supplémentaires pour le bloc 1.
+les générations. Le prochain essai vise le dialogue multi-tour. Le jeu de
+données et le checkpoint de la démo suivent le périmètre défini dans
+[Décisions](#décisions).
 
 ### Notebook Kaggle (11/11)
 
@@ -134,7 +134,8 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 - Nettoyage validé par Matisse : fastText `lid.176.bin`, français en tête à partir de 0,80 et motifs de boilerplate WET ciblés. Les lignes de 25 caractères maximum répétées au moins trois fois sont retirées aux bords (cinq lignes non vides de chaque côté).
 - Pour l'ablation, le brut et le nettoyé partagent un contrôle des séquences de 13 mots de la validation publique et de la validation Molière. Les débats sont lus par section de séance. Kit officiel complet disponible localement dans `kit/Piscine-official/` à `3709c85`.
 - Environnement : uv + Python 3.12 (même version que Colab). Dépendances du pipeline ajoutées seulement au bloc 2.
-- Entraînement du bloc 1 : **uniquement les données du kit** (`kit/Piscine/corpus/moliere_train.txt`, éd. Chasles 1888), rien d'extérieur. BPB sur `moliere_val.txt`. Le corpus Wikisource (`data/raw/moliere/`) et ses notices ne servent pas à l'entraînement (décision de Matisse, 3/11) ; ils contiennent d'ailleurs les 3 pièces de validation du kit.
+- Référence du bloc 1. Le mini-GPT de référence est entraîné sur `kit/Piscine/corpus/moliere_train.txt` et évalué sur `moliere_val.txt`. Le checkpoint de référence et le checkpoint cosinus sont conservés.
+- Démo conversationnelle (décision de Matisse, 11/11). Le fine-tuning multi-tour peut utiliser un **dataset de dialogues distinct**, avec des échanges tirés du train du kit, des dialogues rédigés ou synthétiques et des sources conversationnelles externes dont la licence permet cet usage. Cette autorisation remplace la décision du 3/11 pour le checkpoint de démo. Documenter les sources, les licences, la part de chaque source et la méthode de génération le cas échéant. Écarter les pièces de validation du kit et les dialogues réservés à l’évaluation. Le corpus Wikisource local contient les trois pièces de validation. Cette décision interne s’applique à la démo. Le règlement du bloc 3 reste applicable à la compétition.
 - Accompagnement (7/11, manque de temps) : fin du mode « tout comprendre » (plus de quiz, de reformulation ni d'indices en cascade). On vise le gros de chaque concept. Mini-GPT : le sujet d'origine (`docs/SUJET.md:42`, commit du 3/11) exigeait qu'il soit codé par Matisse ; le mentor a dit oui à l'oral le 7/11 pour que l'IA le code aussi. L'agent écrit donc le code. **À faire : obtenir cet accord par écrit (mail du mentor) avant le rendu**, et décider si on remet `SUJET.md` dans son état d'origine (Matisse en a modifié la ligne 42 à la main).
 - Bigramme (8/11) : sur les **octets** UTF-8 (pas les caractères), donc BPB = moyenne de -log2 p par octet. Lissage de Laplace alpha=1, non réglé sur la val (régler alpha sur la val serait une fuite). Contexte spécial BOS pour le premier octet.
 - Fins de ligne : sous Windows, `core.autocrlf=true` ajoute un `\r` par ligne au checkout du kit (+60 k octets en train, +10 k en val). Toujours lire le corpus en mode texte (`minigpt.bigram.load_utf8`, comme `ftb/evaluate.py`) : sinon BPB faussement bas (3,23 au lieu de 3,35 pour le bigramme). Hash vérifié identique au fichier du kit.
