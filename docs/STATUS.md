@@ -2,7 +2,7 @@
 
 À lire au début de chaque session, à mettre à jour à la fin.
 
-Dernière mise à jour le 10 novembre 2026. **Rendu le 16 novembre 2026 (J-6).**
+Dernière mise à jour le 11 novembre 2026. **Rendu le 16 novembre 2026 (J-5).**
 
 ## Étape en cours
 
@@ -21,6 +21,16 @@ Le [rapport Molière](../report/moliere_tuning.md) décrit le protocole et
 les générations. Il reste à vérifier si des échanges autonomes du train
 peuvent servir à un autre pilote et à clarifier le cadre des données
 supplémentaires pour le bloc 1.
+
+### Run 2 Kaggle — mélange à parts égales (11/11)
+
+Le mélange à parts égales en tokens de Wikipédia FR, Common Crawl et Assemblée
+nationale atteint **1,336187 BPB** sur les 230 documents publics après
+100 007 936 tokens vus. Le tokenizer et la configuration du kit sont communs
+avec le run qualité 80/12/8. Le BPB augmente de 0,005762 et le mélange à parts
+égales nécessite de répéter des tokens de Common Crawl et de l'Assemblée.
+La référence 80/12/8 avec filtre qualité reste la meilleure sur cette validation.
+Le notebook et l'évaluation sont archivés dans `Kaggle submissions/run-02/`.
 
 ### Notebook Kaggle (11/11)
 
@@ -128,7 +138,7 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 
 ## Meilleur BPB
 - Validation Molière (`moliere_val.txt`) : **1,8237** pour le mini-GPT, contre **3,3544** pour le bigramme (8/11).
-- Validation publique du kit : en attente des trois runs Kaggle.
+- Validation publique du kit : **1,330425 BPB** pour le dédupliqué avec filtre qualité, mélange 80/12/8.
 - Leaderboard : —
 
 ## Questions ouvertes
