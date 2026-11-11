@@ -14,7 +14,7 @@ from minigpt.bpe import BPETokenizer
 from minigpt.model import GPT, GPTConfig, evaluate_bpb
 
 TOKENIZER = Path("data/processed/bpe_moliere_1024.json")
-EXPERIMENTS = Path("experiments")
+EXPERIMENTS = Path("Kaggle submissions")
 CHECKPOINT = Path("checkpoints/moliere_gpt.pt")
 BIGRAM_BPB = 3.3544
 SEED = 42

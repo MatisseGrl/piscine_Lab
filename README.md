@@ -22,7 +22,7 @@ Le BPB (bits par octet) mesure combien de bits le modèle utilise en moyenne pou
 | Pipeline | Collecte implémentée et vérifiée sur échantillons |
 | Compétition | À faire |
 
-Détail et prochaines étapes : [`docs/STATUS.md`](docs/STATUS.md). Journal des essais : [`experiments/LOG.md`](experiments/LOG.md).
+Détail et prochaines étapes : [`docs/STATUS.md`](docs/STATUS.md). Journal des essais : [`Kaggle submissions/LOG.md`](Kaggle%20submissions/LOG.md).
 
 ## Structure
 
@@ -34,7 +34,7 @@ Détail et prochaines étapes : [`docs/STATUS.md`](docs/STATUS.md). Journal des 
 ├── scripts/        utilitaires (téléchargement du corpus Molière depuis Wikisource)
 ├── sources/        une fiche par source (origine, licence, volume, période, risques)
 ├── data/           données brutes, intermédiaires et finales, non versionnées
-├── experiments/    journal des essais (LOG.md) et configs d'ablation
+├── Kaggle submissions/    journal des essais (LOG.md) et configs d'ablation
 ├── report/         rapport d'ablation et datasheet du dataset
 └── tests/          tests (autograd contre PyTorch, BPE, BPB, étapes du pipeline)
 ```
