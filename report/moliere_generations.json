@@ -1,0 +1,128 @@
+{
+  "original": [
+    {
+      "question": "bonjour",
+      "displayed": "Vous voyez bonne, et courons-nous,\nRhicras, seul."
+    },
+    {
+      "question": "tu vas bien ?",
+      "displayed": "Vous voyez bonne, et sachante, à Clitidès."
+    },
+    {
+      "question": "Bonjour monsieur, êtes-vous de bonne humeur ce matin ?",
+      "displayed": "Vous voyez que j'ai voulu, je ne vous ai pas davantagé,\nEt que quoi vous vous trouvsiez donc..."
+    },
+    {
+      "question": "Dites-moi, comment vous portez-vous aujourd'hui ?",
+      "displayed": "Vous serez bonne, àpuis-je! Charharlot, à part."
+    },
+    {
+      "question": "Je vous salue, voulez-vous bien me saluer aussi ?",
+      "displayed": "Vous voyez que j'en vais être en telon."
+    },
+    {
+      "question": "Quel nom dois-je employer pour vous appeler, monsieur ?",
+      "displayed": "Vous voyez que j'ai voulu, aurois-vous d'expliquer ainsi:\nEnfin, je vous l'avouerai mon habile,\nEt faites-moi tout à ma navelle éclat?"
+    },
+    {
+      "question": "Je suis fort triste ce soir, pouvez-vous me consoler ?",
+      "displayed": "Vous voyez, madame, àpuis qu'à Charlotte,\nAprès ce charmé du ciel, mon amour en l'échème;\nEt songe, dans vos yeux le raison,\nSon n'a généreux, sans doute, et ce valet,\nJ'ai seigneur Alb"
+    },
+    {
+      "question": "Accepteriez-vous de m'aider dans une petite affaire ?",
+      "displayed": "Vous voyez que j'aille, pour la bonne ordre, c'est une chose."
+    },
+    {
+      "question": "Je vous remercie de votre aide, mon cher ami.",
+      "displayed": "Vous voyez, madame, àpuis qu'à Charlus,\nJe me donne bien chargé."
+    },
+    {
+      "question": "Il est temps pour moi de partir, je vous souhaite une bonne soirée.",
+      "displayed": "Vous voyez que j'ai voulu, afin, à la fierté, et je m'y consens;\nLorsqu'un, de besser le d'une femme, et l'engagez ma navelle\nen va doser sans croire en ce vie, de capable\nOn diroit,"
+    }
+  ],
+  "before": [
+    {
+      "question": "bonjour",
+      "displayed": "Vous voyez un peu, et sa femme est une bonne\nQui d'expose une autre."
+    },
+    {
+      "question": "tu vas bien ?",
+      "displayed": "Vous voyez que j'aurai bien fait, et je ne sais pas bien."
+    },
+    {
+      "question": "Bonjour monsieur, êtes-vous de bonne humeur ce matin ?",
+      "displayed": "Vous voyez que j'aille, et que je vous ai dit d'extravagine."
+    },
+    {
+      "question": "Dites-moi, comment vous portez-vous aujourd'hui ?",
+      "displayed": "Vous serez bonne, etpendant que je vous ai dit d'extrace."
+    },
+    {
+      "question": "Je vous salue, voulez-vous bien me saluer aussi ?",
+      "displayed": "Vous serez bonne, et sa femme, à tort à la fin."
+    },
+    {
+      "question": "Quel nom dois-je employer pour vous appeler, monsieur ?",
+      "displayed": "Vous serez bonne, àpuis qu'à Charlotte, et me donne bien annime\nd'abordsé de battre ou d'une grande tendresse."
+    },
+    {
+      "question": "Je suis fort triste ce soir, pouvez-vous me consoler ?",
+      "displayed": "Vous êtes bien bonne, etpendant la tête."
+    },
+    {
+      "question": "Accepteriez-vous de m'aider dans une petite affaire ?",
+      "displayed": "Vous êtes bien bonne, etpendant que ta femme destinée."
+    },
+    {
+      "question": "Je vous remercie de votre aide, mon cher ami.",
+      "displayed": "Vous serez bonne, etpercevant Charlotte."
+    },
+    {
+      "question": "Il est temps pour moi de partir, je vous souhaite une bonne soirée.",
+      "displayed": "Vous êtes bien bonne, etpendant que je vous ai dit d'extravagance."
+    }
+  ],
+  "after": [
+    {
+      "question": "bonjour",
+      "displayed": "Vous voyez un peu, et je vous en ai vu faire."
+    },
+    {
+      "question": "tu vas bien ?",
+      "displayed": "Vous serez bonne, et courons-nous faire."
+    },
+    {
+      "question": "Bonjour monsieur, êtes-vous de bonne humeur ce matin ?",
+      "displayed": "Vous serez bonne, et vous en souffrir, Et dès que je sois."
+    },
+    {
+      "question": "Dites-moi, comment vous portez-vous aujourd'hui ?",
+      "displayed": "Vous serez bonne, et vous en souffrir Clitidas."
+    },
+    {
+      "question": "Je vous salue, voulez-vous bien me saluer aussi ?",
+      "displayed": "Vous serez bonne, et courons-nous faire."
+    },
+    {
+      "question": "Quel nom dois-je employer pour vous appeler, monsieur ?",
+      "displayed": "Vous serez bonne, et vous en souffrir Clitidas."
+    },
+    {
+      "question": "Je suis fort triste ce soir, pouvez-vous me consoler ?",
+      "displayed": "Vous serez bonne, et sa femme, a-t-on d'expose une chose."
+    },
+    {
+      "question": "Accepteriez-vous de m'aider dans une petite affaire ?",
+      "displayed": "Vous êtes bien bonne, et vous en souhaiter à la fenêtre."
+    },
+    {
+      "question": "Je vous remercie de votre aide, mon cher ami.",
+      "displayed": "Vous serez bonne, et vous l'aviez pris, si je vous ai pris."
+    },
+    {
+      "question": "Il est temps pour moi de partir, je vous souhaite une bonne soirée.",
+      "displayed": "Vous serez bonne, et vous l'avantage à la fin que je te promets."
+    }
+  ]
+}
