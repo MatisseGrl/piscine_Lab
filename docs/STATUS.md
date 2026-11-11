@@ -2,7 +2,18 @@
 
 À lire au début de chaque session, à mettre à jour à la fin.
 
-Dernière mise à jour le 10 novembre 2026. **Rendu le 16 novembre 2026 (J-6).**
+Dernière mise à jour le 11 novembre 2026. **Rendu le 16 novembre 2026 (J-5).**
+
+## Priorités avant le rendu (11/11)
+
+- **Compétition.** Six essais à configuration identique sont journalisés (PR #17). Meilleur BPB public : **1,330424896**, variante dédupliquée + qualité, mélange 80/12/8. Aucun dossier de soumission sur `main` lors de la vérification. Retrouver le checkpoint et le tokenizer du run Kaggle, ou relancer le même flux si les poids sont indisponibles. Reste à valider le choix final et à déposer le paquet officiel avec les logs et le hash du flux. BPB caché et classement à confirmer.
+- **Ablation.** Finaliser le rapport de deux pages avec les six scores du journal. Le nettoyage donne la plus forte baisse observée (1,353794 → 1,334005). Le passage au dédupliqué inclut aussi le plafonnement de Wikipédia.
+- **Langue.** Le script de score confirme **99/100** sur le tirage annoté du corpus nettoyé (graine 42). Le tirage comprend 99 articles Wikipédia et une page Common Crawl. Reporter le résultat dans le rapport ou la datasheet en précisant la composition du tirage.
+- **Datasheet et reproductibilité.** La fiche des variantes est sur `main` (PR #15). La finaliser après le choix du flux, avec ses mesures et son empreinte. Les étapes sont documentées séparément. La commande unique de régénération demandée par le sujet reste à fournir et à vérifier.
+- **Bloc 1 et soutenance.** Le mini-GPT de base est livré. La continuation est sur `main` (PR #18) à **1,770614 BPB Molière**. La démo terminal demandée par le mentor est locale et le pilote conversationnel a obtenu 0/8 réponses pertinentes. Préparer la soutenance et obtenir la confirmation écrite de l'accord du mentor sur l'usage de l'IA pour le mini-GPT.
+- **Essai et bonus.** L'archive du mélange à parts égales est disponible localement. Aucun BPB pour ce mélange dans le journal consulté. La publication Hugging Face est facultative et reste à décider.
+
+Les entrées datées ci-dessous retracent les étapes précédentes.
 
 ## Étape en cours
 
@@ -102,10 +113,10 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 - [x] Collecte complète téléchargée et contrôlée
 - [x] Nettoyage : encodage (ftfy), français et boilerplate WET, statistiques par source, garde-fou de validation et export brut pour l'ablation
 - [x] Terminer le nettoyage avec Common Crawl plafonné et vérifier les statistiques et le recouvrement du brut et du nettoyé
-- [ ] Annoter le tirage de langue (Matisse), puis mesurer la précision
-- [ ] Mesurer les BPB brut, nettoyé et dédupliqué à configuration identique sur les 230 documents publics
+- [x] Annoter le tirage de langue et mesurer la précision (99/100, échantillon majoritairement Wikipédia)
+- [x] Mesurer les BPB brut, nettoyé et dédupliqué à configuration identique sur les 230 documents publics
 - [x] Dédup exacte (hash) + quasi-doublons (MinHash + LSH, Jaccard 0,97), sorties relues et audit du kit
-- [x] Filtrage qualité + masquage données personnelles (sorties produites, BPB à mesurer)
+- [x] Filtrage qualité + masquage données personnelles (sorties produites et BPB mesurés)
 - [ ] Rapport d'ablation (2 pages) : brut vs nettoyé vs complet
 
 ### Bloc 3 : compétition
@@ -127,12 +138,12 @@ Collecte complète terminée le 9/11 après plusieurs reprises réseau. Dans `da
 - Budget de tokens du bloc 1 : aucune contrainte (mail du mentor, 3/11). Compétition : 100 M tokens vus, config figée (`kit/Piscine/config/official.json`).
 
 ## Meilleur BPB
-- Validation Molière (`moliere_val.txt`) : **1,8237** pour le mini-GPT, contre **3,3544** pour le bigramme (8/11).
-- Validation publique du kit : en attente des trois runs Kaggle.
+- Validation Molière (`moliere_val.txt`) : **1,770614** après continuation, référence mini-GPT **1,823678**, bigramme **3,3544**.
+- Validation publique du kit : **1,330424896** pour le flux dédupliqué + qualité (11/11).
 - Leaderboard : —
 
 ## Questions ouvertes
-- Précision du filtre français après annotation et écart de BPB brut/nettoyé sur la validation publique.
+- Choix du flux final et disponibilité des poids Kaggle pour la soumission.
 - Quota GPU Kaggle hebdomadaire (~30 h ?) : pas encore vu où il s'affiche. Le « Kaggle Quota » 10 $/jour concerne Kaggle Benchmarks, pas le GPU.
 - Le kit demande de copier son contenu dans le dépôt de travail (*Use this template*) : les soumissions vivent dans `submissions/` du dépôt. Copier `ftb/`, `config/`, `data/validation.jsonl` dans `piscine_Lab` ou travailler à côté ? À trancher avant la première soumission.
 - 6 participants sur le sujet (6/6 complet) : leaderboard à 6.
