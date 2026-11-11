@@ -6,6 +6,22 @@ Dernière mise à jour le 10 novembre 2026. **Rendu le 16 novembre 2026 (J-6).**
 
 ## Étape en cours
 
+### Mini-GPT Molière (11/11)
+
+Meilleur BPB Molière **1,770614**, après 1 000 pas supplémentaires avec un taux
+cosinus de 1e-4 à 1e-5. À taux constant et avec les mêmes tirages, le BPB est
+de 1,778539. Le checkpoint de référence (1,823678) est conservé.
+Les mesures et les poids de continuation sont dans `runs/moliere-continuation-20261111/`.
+
+Le pilote supervisé (400 pas, 5 920 paires authentiques extraites du train
+du kit, loss sur la réponse seule) a échoué. Il atteint **1,889077 BPB** et
+**0/8 réponses pertinentes** sur les questions inédites à la graine testée.
+Son checkpoint est séparé dans `runs/moliere-dialogue-20261111/`.
+Le [rapport Molière](../report/moliere_tuning.md) décrit le protocole et
+les générations. Il reste à vérifier si des échanges autonomes du train
+peuvent servir à un autre pilote et à clarifier le cadre des données
+supplémentaires pour le bloc 1.
+
 ### Notebook Kaggle (11/11)
 
 L'export Kaggle.ipynb dans le dossier Kaggle submissions regroupe les six essais et leurs sorties. Notebook publié sur main (PR #16). Les six résultats vérifiés sont importés dans Kaggle submissions/LOG.md. Le meilleur BPB sur la validation publique est de 1,330424896 pour la variante dédupliquée avec filtre qualité. Les archives de résultats ne contiennent pas les checkpoints.
