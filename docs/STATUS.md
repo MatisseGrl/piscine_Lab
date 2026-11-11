@@ -24,6 +24,12 @@ Résolution des conflits de la PR #21 le 11/11 : conservation des deux archives 
 
 ## Étape en cours
 
+### Démo locale Molière (11/11)
+
+La démo multi-tour du bloc 1 suit la décision de la PR #20. Le pas 1 000 du SFT v2 avec rappel Molière à 30 % est retenu sur le développement : scénario JB **3/3**, pertinence **16/20**, contexte **7/9**. Sur les discussions inédites : **13/24** pertinentes, **7/13** en contexte et **12/24** avec couleur théâtrale. BPB de ce checkpoint : **1,854847**. Le cosinus reste le meilleur BPB Molière à **1,770614**.
+
+La page localhost a été relancée avec ces poids et testée dans Chrome sur trois tours. Les 135 tests passent. Les générateurs de données, mesures, échecs, commande et PPTX sont décrits dans le [rapport de démo](../report/chat_demo.md). Les poids originaux et nouveaux restent locaux. Limites : noms inédits, reformulations et échanges longs. Le bloc 3 n'est pas modifié par cette démo.
+
 ### Mini-GPT Molière (11/11)
 
 Meilleur BPB Molière **1,770614**, après 1 000 pas supplémentaires avec un taux

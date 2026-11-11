@@ -45,3 +45,10 @@ Mini-GPT codé from scratch, sans boîte noire, entraîné sur le corpus Molièr
 | Entraînement | `train.py` | courbe de loss, BPB validation, 5 échantillons |
 
 Ce code est écrit à la main : chaque ligne doit pouvoir être expliquée à la soutenance.
+
+## Démo de soutenance multi-tour
+
+`conversation.py` définit le format commun à l'apprentissage et à la génération.
+`chat_sft.py` supervise les réponses du corpus dédié et peut garder un rappel du train Molière.
+`evaluate_chat.py` rejoue des discussions entières avec les réponses réellement générées.
+`web_chat.py` charge les poids sur CPU et sert la page locale. Voir le [rapport de la démo](../report/chat_demo.md) pour les commandes et les résultats.

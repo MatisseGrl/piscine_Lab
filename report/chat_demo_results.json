@@ -1,0 +1,1437 @@
+{
+  "checkpoint": "runs/chat-main-v2-r30/step-1000.pt",
+  "development_scores": {
+    "jb": 3,
+    "pertinence": 16,
+    "pertinence_total": 20,
+    "contexte": 7,
+    "contexte_total": 9
+  },
+  "development": [
+    [
+      {
+        "question": "Bonjour, comment ça va ?",
+        "text": "Bonjour ! Je vais bien, merci. Et vous, mon ami ?",
+        "raw": "Bonjour ! Je vais bien, merci. Et vous, mon ami ?\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 24
+      },
+      {
+        "question": "Moi je suis fatigué.",
+        "text": "Prenez un peu de repos, mon ami.",
+        "raw": "Prenez un peu de repos, mon ami.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 15
+      },
+      {
+        "question": "Que me conseilles-tu ?",
+        "text": "Prenez quelque repos, je vous en prie.",
+        "raw": "Prenez quelque repos, je vous en prie.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 15
+      }
+    ],
+    [
+      {
+        "question": "Salut, tu te portes bien ?",
+        "text": "Je vous salue ! Je me porte bien. Et vous ?",
+        "raw": "Je vous salue ! Je me porte bien. Et vous ?\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 19
+      },
+      {
+        "question": "Qui es-tu au juste ?",
+        "text": "Je suis votre compagnon de théâtre, un petit modèle qui parle à la manière de Molière.",
+        "raw": "Je suis votre compagnon de théâtre, un petit modèle qui parle à la manière de Molière.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 36
+      },
+      {
+        "question": "Merci pour ta réponse.",
+        "text": "Je vous salue de bon cœur !",
+        "raw": "Je vous salue de bon cœur !\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 11
+      }
+    ],
+    [
+      {
+        "question": "Mon prénom est Hugo.",
+        "text": "Enchanté, Hugo !",
+        "raw": "Enchanté, Hugo !\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 13
+      },
+      {
+        "question": "Peux-tu me redire mon prénom ?",
+        "text": "Vous vous appelez Hugo.",
+        "raw": "Vous vous appelez Hugo.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 13
+      },
+      {
+        "question": "Je me suis trompé, c’est Louis.",
+        "text": "Vous vous appelez Louis.",
+        "raw": "Vous vous appelez Louis.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 11
+      },
+      {
+        "question": "Quel est mon prénom maintenant ?",
+        "text": "Vous vous appelez Louis.",
+        "raw": "Vous vous appelez Louis.\n\n",
+        "dropped_tokens": 2,
+        "generated_tokens": 11
+      }
+    ],
+    [
+      {
+        "question": "Ma préférence va au vert.",
+        "text": "Vous aimez le vert, fort bien.",
+        "raw": "Vous aimez le vert, fort bien.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 12
+      },
+      {
+        "question": "Quelle est ma couleur favorite ?",
+        "text": "Vous préférez le vert.",
+        "raw": "Vous préférez le vert.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 11
+      },
+      {
+        "question": "En fait, je choisis le rouge.",
+        "text": "Vous préférez le rouge.",
+        "raw": "Vous préférez le rouge.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 12
+      },
+      {
+        "question": "Quelle couleur maintenant ?",
+        "text": "Vous préférez le rouge.",
+        "raw": "Vous préférez le rouge.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 12
+      }
+    ],
+    [
+      {
+        "question": "Pourrais-tu me raconter une plaisanterie ?",
+        "text": "J'ai appris sur les pièces de Molière. Voilà pourquoi mes mots ont un air de théâtre.",
+        "raw": "J'ai appris sur les pièces de Molière. Voilà pourquoi mes mots ont un air de théâtre.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 36
+      },
+      {
+        "question": "Répète cette plaisanterie.",
+        "text": "Voilà un goût que je partage, mon ami ! Quelle comédie aimez-vous ?",
+        "raw": "Voilà un goût que je partage, mon ami ! Quelle comédie aimez-vous ?\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 30
+      },
+      {
+        "question": "Merci, à bientôt.",
+        "text": "Au revoir, mon ami ! Portez-vous bien.",
+        "raw": "Au revoir, mon ami ! Portez-vous bien.\n\n",
+        "dropped_tokens": 4,
+        "generated_tokens": 19
+      }
+    ],
+    [
+      {
+        "question": "Je me sens triste ce matin.",
+        "text": "Courage, mon ami. Voulez-vous me conter votre chagrin ?",
+        "raw": "Courage, mon ami. Voulez-vous me conter votre chagrin ?\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 24
+      },
+      {
+        "question": "J’ai raté un examen.",
+        "text": "Prenez une chose après l'autre, mon ami. Révisez, puis accordez-vous du repos.",
+        "raw": "Prenez une chose après l'autre, mon ami. Révisez, puis accordez-vous du repos.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 34
+      },
+      {
+        "question": "Quelle action me conseilles-tu pour cet examen ?",
+        "text": "Je vous écoute, mon ami. Qu'est-ce qui vous effraie ?",
+        "raw": "Je vous écoute, mon ami. Qu'est-ce qui vous effraie ?\n\n",
+        "dropped_tokens": 2,
+        "generated_tokens": 26
+      }
+    ]
+  ],
+  "final": [
+    {
+      "checkpoint": "..\\moliere-continuation-20261111\\cosine\\best.pt",
+      "checkpoint_sha256": "b020633949de305358de44f33529b0520d15807546fe7141b9f67d6230df0a74",
+      "split": "final",
+      "roles": "demo",
+      "bpb": 1.7706137004861113,
+      "bpb_recomputed": true,
+      "discussions": [
+        [
+          {
+            "question": "Bien le bonjour, comment te sens-tu ?",
+            "text": "Seigneur, je vous prie, et vous dis-je, à vous dire,\nEt je vous prie, à vous dire, à vous dire, et je vous prie.",
+            "raw": "Seigneur, je vous prie, et vous dis-je, à vous dire,\nEt je vous prie, à vous dire, à vous dire, et je vous prie.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 41,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Je vais bien aussi.",
+            "text": "Je vous prie, monsieur, que je vous prie.",
+            "raw": "Je vous prie, monsieur, que je vous prie.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 14,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Que fais-tu ici ?",
+            "text": "Je ne sais pas, monsieur, que je vous aime,\nEt que je ne sais pas, je vous prie.",
+            "raw": "Je ne sais pas, monsieur, que je vous aime,\nEt que je ne sais pas, je vous prie.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 27,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Il faut que je parte, adieu.",
+            "text": "Je ne sais pas, monsieur, que je ne sais pas.",
+            "raw": "Je ne sais pas, monsieur, que je ne sais pas.\n\n",
+            "dropped_tokens": 32,
+            "generated_tokens": 14,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          }
+        ],
+        [
+          {
+            "question": "On me nomme Clara.",
+            "text": "Seigneur, je suis, je vous prie, et vous le voulez.",
+            "raw": "Seigneur, je suis, je vous prie, et vous le voulez.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 18,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Quel nom viens-je de te donner ?",
+            "text": "Je ne sais pas, monsieur, que je vous ai pris,\nEt que je ne puisse être à vous.",
+            "raw": "Je ne sais pas, monsieur, que je vous ai pris,\nEt que je ne puisse être à vous.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 26,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Rectification : on me nomme Anne.",
+            "text": "Je ne sais pas, monsieur, je vous prie.",
+            "raw": "Je ne sais pas, monsieur, je vous prie.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 13,
+            "annotation": {
+              "pertinence": 0,
+              "style": 1,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Rappelle mon nom corrigé.",
+            "text": "Voilà qui est bien aise.",
+            "raw": "Voilà qui est bien aise.\n\n",
+            "dropped_tokens": 18,
+            "generated_tokens": 10,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          }
+        ],
+        [
+          {
+            "question": "Le bleu est ma couleur favorite.",
+            "text": "Seigneur, je vous prie, et vous dis-je, madame,\nEt que je vous ai fait de vous, à vous dire,\nEt que je vous ai fait de vous le faire voir.",
+            "raw": "Seigneur, je vous prie, et vous dis-je, madame,\nEt que je vous ai fait de vous, à vous dire,\nEt que je vous ai fait de vous le faire voir.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 45,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Tu te souviens de ma couleur ?",
+            "text": "Je ne sais pas, monsieur, que je suis votre serviteur.",
+            "raw": "Je ne sais pas, monsieur, que je suis votre serviteur.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 16,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Je change pour le jaune.",
+            "text": "Je ne sais pas que de la sorte.",
+            "raw": "Je ne sais pas que de la sorte.\n\n",
+            "dropped_tokens": 1,
+            "generated_tokens": 11,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Et quelle est-elle à présent ?",
+            "text": "Allons, mon frère, et le pauvre M.",
+            "raw": "Allons, mon frère, et le pauvre M.\n\n",
+            "dropped_tokens": 33,
+            "generated_tokens": 15,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          }
+        ],
+        [
+          {
+            "question": "J’aimerais manger du fromage.",
+            "text": "Seigneur, je vous prie, et vous dis-je, madame,\nEt que je vous ai fait de vous, à vous dire,\nEt que je vous ai fait de vous le faire voir.",
+            "raw": "Seigneur, je vous prie, et vous dis-je, madame,\nEt que je vous ai fait de vous, à vous dire,\nEt que je vous ai fait de vous le faire voir.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 45,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Que souhaitais-je manger ?",
+            "text": "Je ne sais pas, monsieur, que je vous prie.",
+            "raw": "Je ne sais pas, monsieur, que je vous prie.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 14,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Je change d’avis, je veux du pain.",
+            "text": "Je ne sais pas, monsieur, je vous prie.",
+            "raw": "Je ne sais pas, monsieur, je vous prie.\n\n",
+            "dropped_tokens": 4,
+            "generated_tokens": 13,
+            "annotation": {
+              "pertinence": 0,
+              "style": 1,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Rappelle mon dernier choix.",
+            "text": "Je ne sais pas, monsieur, je vous prie.",
+            "raw": "Je ne sais pas, monsieur, je vous prie.\n\n",
+            "dropped_tokens": 39,
+            "generated_tokens": 13,
+            "annotation": {
+              "pertinence": 0,
+              "style": 1,
+              "contexte": 0
+            }
+          }
+        ],
+        [
+          {
+            "question": "Aurais-tu une idée pour me distraire ?",
+            "text": "Je vous ai fait, monsieur, que je vous ai dit.",
+            "raw": "Je vous ai fait, monsieur, que je vous ai dit.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 14,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Une autre idée ?",
+            "text": "DUISSELME.",
+            "raw": "DUISSELME.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 8,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Peux-tu me dire un vers ?",
+            "text": "MMÈS.",
+            "raw": "MMÈS.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 5,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Je te remercie.",
+            "text": "MMÈS.",
+            "raw": "MMÈS.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 5,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          }
+        ],
+        [
+          {
+            "question": "J’ai une grande peine.",
+            "text": "Seigneur, je vous prie, à vous dire, et vous avez raison.",
+            "raw": "Seigneur, je vous prie, à vous dire, et vous avez raison.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 19,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Écoute-moi, je me sens seul.",
+            "text": "Sans doute, et vous ne vous moquez pas.",
+            "raw": "Sans doute, et vous ne vous moquez pas.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 15,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Peux-tu m’encourager ?",
+            "text": "Je ne sais pas, monsieur, que je vous aime,\nEt que je ne sais pas, je vous prie.",
+            "raw": "Je ne sais pas, monsieur, que je vous aime,\nEt que je ne sais pas, je vous prie.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 27,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Merci, je me sens mieux.",
+            "text": "Je ne sais pas, monsieur, je vous prie.",
+            "raw": "Je ne sais pas, monsieur, je vous prie.\n\n",
+            "dropped_tokens": 20,
+            "generated_tokens": 13,
+            "annotation": {
+              "pertinence": 0,
+              "style": 1,
+              "contexte": 0
+            }
+          }
+        ]
+      ],
+      "scores": {
+        "pertinence": 0,
+        "contexte": 0,
+        "style": 4
+      }
+    },
+    {
+      "checkpoint": "..\\moliere-dialogue-20261111\\dialogue.pt",
+      "checkpoint_sha256": "9b2c90a4c4aea8fa3c916ab2bd265c4111f03285fb25cff3ea1e534fd33cf220",
+      "split": "final",
+      "roles": "demo",
+      "bpb": 1.8890770155174144,
+      "bpb_recomputed": true,
+      "discussions": [
+        [
+          {
+            "question": "Bien le bonjour, comment te sens-tu ?",
+            "text": "Je ne sais pas que de la fin, et que je ne sais.",
+            "raw": "Je ne sais pas que de la fin, et que je ne sais.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 17,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Je vais bien aussi.",
+            "text": "Je ne sais pas que de la fin, et que je ne sais pas.",
+            "raw": "Je ne sais pas que de la fin, et que je ne sais pas.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 18,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Que fais-tu ici ?",
+            "text": "D'où vient donc?",
+            "raw": "D'où vient donc?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 8,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Il faut que je parte, adieu.",
+            "text": "Comment?",
+            "raw": "Comment?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 5,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          }
+        ],
+        [
+          {
+            "question": "On me nomme Clara.",
+            "text": "Cela est vrai.",
+            "raw": "Cela est vrai.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 6,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Quel nom viens-je de te donner ?",
+            "text": "Assurément.",
+            "raw": "Assurément.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 8,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Rectification : on me nomme Anne.",
+            "text": "Et, sans doute, N'est pas un peu de bonne heure.",
+            "raw": "Et, sans doute, N'est pas un peu de bonne heure.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 19,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Rappelle mon nom corrigé.",
+            "text": "Voilà qui est vrai.",
+            "raw": "Voilà qui est vrai.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 7,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          }
+        ],
+        [
+          {
+            "question": "Le bleu est ma couleur favorite.",
+            "text": "Voilà qui est bien, et que je ne sais pas.",
+            "raw": "Voilà qui est bien, et que je ne sais pas.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 14,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Tu te souviens de ma couleur ?",
+            "text": "Me dire vrai.",
+            "raw": "Me dire vrai.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 6,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Je change pour le jaune.",
+            "text": "MORON.",
+            "raw": "MORON.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 4,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Et quelle est-elle à présent ?",
+            "text": "D'un tel moyen de l'heure.",
+            "raw": "D'un tel moyen de l'heure.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 15,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          }
+        ],
+        [
+          {
+            "question": "J’aimerais manger du fromage.",
+            "text": "Je ne sais pas que de la fin, et je ne sais pas que de la sorte.",
+            "raw": "Je ne sais pas que de la fin, et je ne sais pas que de la sorte.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 22,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Que souhaitais-je manger ?",
+            "text": "Je ne sais pas.",
+            "raw": "Je ne sais pas.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 6,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Je change d’avis, je veux du pain.",
+            "text": "Comment?",
+            "raw": "Comment?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 5,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Rappelle mon dernier choix.",
+            "text": "Comment?",
+            "raw": "Comment?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 5,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          }
+        ],
+        [
+          {
+            "question": "Aurais-tu une idée pour me distraire ?",
+            "text": "Je ne sais pas que de la fin, et je ne sais pas que de la fin, et que je ne suis pas de la fin.",
+            "raw": "Je ne sais pas que de la fin, et je ne sais pas que de la fin, et que je ne suis pas de la fin.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 33,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Une autre idée ?",
+            "text": "MORON.",
+            "raw": "MORON.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 4,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Peux-tu me dire un vers ?",
+            "text": "MORON.",
+            "raw": "MORON.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 4,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Je te remercie.",
+            "text": "MORON.",
+            "raw": "MORON.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 4,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          }
+        ],
+        [
+          {
+            "question": "J’ai une grande peine.",
+            "text": "Je ne sais pas que de la fin, et je ne sais pas que de la sorte.",
+            "raw": "Je ne sais pas que de la fin, et je ne sais pas que de la sorte.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 22,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Écoute-moi, je me sens seul.",
+            "text": "Je ne saispuis pas que je ne sais.",
+            "raw": "Je ne saispuis pas que je ne sais.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 12,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Peux-tu m’encourager ?",
+            "text": "Comment?",
+            "raw": "Comment?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 5,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Merci, je me sens mieux.",
+            "text": "Comment?",
+            "raw": "Comment?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 5,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          }
+        ]
+      ],
+      "scores": {
+        "pertinence": 0,
+        "contexte": 0,
+        "style": 0
+      }
+    },
+    {
+      "checkpoint": "runs\\chat-main-v2-r30\\step-1000.pt",
+      "checkpoint_sha256": "623e1677e8ceec169763204e864458fc1e6088fd5e79d9785e09ac4b517a0506",
+      "split": "final",
+      "roles": "demo",
+      "bpb": 1.8548465598125023,
+      "bpb_recomputed": true,
+      "discussions": [
+        [
+          {
+            "question": "Bien le bonjour, comment te sens-tu ?",
+            "text": "Je ne mange point, mon ami. Je suis un modèle de langage.",
+            "raw": "Je ne mange point, mon ami. Je suis un modèle de langage.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 24,
+            "annotation": {
+              "pertinence": 0,
+              "style": 1,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Je vais bien aussi.",
+            "text": "Je m'en réjouis, mon ami ! Voilà une heureuse nouvelle.",
+            "raw": "Je m'en réjouis, mon ami ! Voilà une heureuse nouvelle.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 26,
+            "annotation": {
+              "pertinence": 1,
+              "style": 1,
+              "contexte": 1
+            }
+          },
+          {
+            "question": "Que fais-tu ici ?",
+            "text": "Je suis un petit modèle de langage, mon ami. Je compose des phrases avec ce que j'ai appris.",
+            "raw": "Je suis un petit modèle de langage, mon ami. Je compose des phrases avec ce que j'ai appris.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 39,
+            "annotation": {
+              "pertinence": 1,
+              "style": 1,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Il faut que je parte, adieu.",
+            "text": "Avec plaisir, mon ami !",
+            "raw": "Avec plaisir, mon ami !\n\n",
+            "dropped_tokens": 39,
+            "generated_tokens": 12,
+            "annotation": {
+              "pertinence": 0,
+              "style": 1,
+              "contexte": null
+            }
+          }
+        ],
+        [
+          {
+            "question": "On me nomme Clara.",
+            "text": "Enchanté, Clara !",
+            "raw": "Enchanté, Clara !\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 12,
+            "annotation": {
+              "pertinence": 1,
+              "style": 0,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Quel nom viens-je de te donner ?",
+            "text": "Vous vous appelez Clara.",
+            "raw": "Vous vous appelez Clara.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 12,
+            "annotation": {
+              "pertinence": 1,
+              "style": 0,
+              "contexte": 1
+            }
+          },
+          {
+            "question": "Rectification : on me nomme Anne.",
+            "text": "Vous vous appelez Anne.",
+            "raw": "Vous vous appelez Anne.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 11,
+            "annotation": {
+              "pertinence": 1,
+              "style": 0,
+              "contexte": 1
+            }
+          },
+          {
+            "question": "Rappelle mon nom corrigé.",
+            "text": "Vous vous appelez Anne.",
+            "raw": "Vous vous appelez Anne.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 11,
+            "annotation": {
+              "pertinence": 1,
+              "style": 0,
+              "contexte": 1
+            }
+          }
+        ],
+        [
+          {
+            "question": "Le bleu est ma couleur favorite.",
+            "text": "Vous aimez le bleu, fort bien.",
+            "raw": "Vous aimez le bleu, fort bien.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 13,
+            "annotation": {
+              "pertinence": 1,
+              "style": 1,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Tu te souviens de ma couleur ?",
+            "text": "Vous préférez le bleu.",
+            "raw": "Vous préférez le bleu.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 12,
+            "annotation": {
+              "pertinence": 1,
+              "style": 0,
+              "contexte": 1
+            }
+          },
+          {
+            "question": "Je change pour le jaune.",
+            "text": "Vous préférez le jaune.",
+            "raw": "Vous préférez le jaune.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 12,
+            "annotation": {
+              "pertinence": 1,
+              "style": 0,
+              "contexte": 1
+            }
+          },
+          {
+            "question": "Et quelle est-elle à présent ?",
+            "text": "Vous voulez des légumes.",
+            "raw": "Vous voulez des légumes.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 10,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          }
+        ],
+        [
+          {
+            "question": "J’aimerais manger du fromage.",
+            "text": "Vous voulez du fromage, fort bien.",
+            "raw": "Vous voulez du fromage, fort bien.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 11,
+            "annotation": {
+              "pertinence": 1,
+              "style": 1,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Que souhaitais-je manger ?",
+            "text": "Vous voulez du fromage.",
+            "raw": "Vous voulez du fromage.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 8,
+            "annotation": {
+              "pertinence": 1,
+              "style": 0,
+              "contexte": 1
+            }
+          },
+          {
+            "question": "Je change d’avis, je veux du pain.",
+            "text": "Vous vous appelez Jean.",
+            "raw": "Vous vous appelez Jean.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 10,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Rappelle mon dernier choix.",
+            "text": "Vous voulez du fromage.",
+            "raw": "Vous voulez du fromage.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 8,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          }
+        ],
+        [
+          {
+            "question": "Aurais-tu une idée pour me distraire ?",
+            "text": "Je vous écoute, mon ami. Qu'est-ce qui vous effraie ?",
+            "raw": "Je vous écoute, mon ami. Qu'est-ce qui vous effraie ?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 26,
+            "annotation": {
+              "pertinence": 0,
+              "style": 1,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Une autre idée ?",
+            "text": "Deux et deux font quatre, mon ami.",
+            "raw": "Deux et deux font quatre, mon ami.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 15,
+            "annotation": {
+              "pertinence": 0,
+              "style": 1,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Peux-tu me dire un vers ?",
+            "text": "Dites-moi ce que vous souhaitez entendre de nouveau, mon ami.",
+            "raw": "Dites-moi ce que vous souhaitez entendre de nouveau, mon ami.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 25,
+            "annotation": {
+              "pertinence": 0,
+              "style": 1,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Je te remercie.",
+            "text": "Avec plaisir, mon ami !",
+            "raw": "Avec plaisir, mon ami !\n\n",
+            "dropped_tokens": 20,
+            "generated_tokens": 12,
+            "annotation": {
+              "pertinence": 1,
+              "style": 1,
+              "contexte": null
+            }
+          }
+        ],
+        [
+          {
+            "question": "J’ai une grande peine.",
+            "text": "Courage, mon ami. Voulez-vous me conter votre chagrin ?",
+            "raw": "Courage, mon ami. Voulez-vous me conter votre chagrin ?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 24,
+            "annotation": {
+              "pertinence": 1,
+              "style": 1,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Écoute-moi, je me sens seul.",
+            "text": "Je vous salue de bon cœur !",
+            "raw": "Je vous salue de bon cœur !\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 11,
+            "annotation": {
+              "pertinence": 0,
+              "style": 1,
+              "contexte": null
+            }
+          },
+          {
+            "question": "Peux-tu m’encourager ?",
+            "text": "Je vous écoute. Quelle aide souhaitez-vous ?",
+            "raw": "Je vous écoute. Quelle aide souhaitez-vous ?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 22,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          },
+          {
+            "question": "Merci, je me sens mieux.",
+            "text": "Vous vous appelez Anne.",
+            "raw": "Vous vous appelez Anne.\n\n",
+            "dropped_tokens": 16,
+            "generated_tokens": 11,
+            "annotation": {
+              "pertinence": 0,
+              "style": 0,
+              "contexte": 0
+            }
+          }
+        ]
+      ],
+      "scores": {
+        "pertinence": 13,
+        "contexte": 7,
+        "style": 12
+      }
+    }
+  ],
+  "legacy_dev": [
+    {
+      "checkpoint": "..\\moliere-continuation-20261111\\cosine\\best.pt",
+      "checkpoint_sha256": "b020633949de305358de44f33529b0520d15807546fe7141b9f67d6230df0a74",
+      "split": "dev",
+      "roles": "legacy",
+      "bpb": 1.7706137004861113,
+      "bpb_recomputed": true,
+      "discussions": [
+        [
+          {
+            "question": "Bonjour, comment ça va ?",
+            "text": "Je ne sais pas, monsieur, à la tête.",
+            "raw": "Je ne sais pas, monsieur, à la tête.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 13
+          },
+          {
+            "question": "Moi je suis fatigué.",
+            "text": "Je ne sais pas, monsieur, que je suis votre serviteur.",
+            "raw": "Je ne sais pas, monsieur, que je suis votre serviteur.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 16
+          },
+          {
+            "question": "Que me conseilles-tu ?",
+            "text": "Tu ne m'as pas dites-vous?",
+            "raw": "Tu ne m'as pas dites-vous?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 13
+          }
+        ],
+        [
+          {
+            "question": "Salut, tu te portes bien ?",
+            "text": "Tu ne m'as ainsi.",
+            "raw": "Tu ne m'as ainsi.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 11
+          },
+          {
+            "question": "Qui es-tu au juste ?",
+            "text": "Tu as-tu bien?",
+            "raw": "Tu as-tu bien?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 8
+          },
+          {
+            "question": "Merci pour ta réponse.",
+            "text": "Point de pareille!",
+            "raw": "Point de pareille!\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 8
+          }
+        ],
+        [
+          {
+            "question": "Mon prénom est Hugo.",
+            "text": "Sganarelle, habit debout.",
+            "raw": "Sganarelle, habit debout.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 14
+          },
+          {
+            "question": "Peux-tu me redire mon prénom ?",
+            "text": "Tu m'as ainsi que je ne puis m'en faire?",
+            "raw": "Tu m'as ainsi que je ne puis m'en faire?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 18
+          },
+          {
+            "question": "Je me suis trompé, c’est Louis.",
+            "text": "Tu m'as ainsi.",
+            "raw": "Tu m'as ainsi.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 10
+          },
+          {
+            "question": "Quel est mon prénom maintenant ?",
+            "text": "Allons, à Valère.",
+            "raw": "Allons, à Valère.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 9
+          }
+        ],
+        [
+          {
+            "question": "Ma préférence va au vert.",
+            "text": "Je vous prie, à vous dire, et je vous prie.",
+            "raw": "Je vous prie, à vous dire, et je vous prie.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 16
+          },
+          {
+            "question": "Quelle est ma couleur favorite ?",
+            "text": "Je vous prie, à la fenêtre.",
+            "raw": "Je vous prie, à la fenêtre.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 12
+          },
+          {
+            "question": "En fait, je choisis le rouge.",
+            "text": "Tu ne veux pas, monsieur, de Pourceaugnac.",
+            "raw": "Tu ne veux pas, monsieur, de Pourceaugnac.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 17
+          },
+          {
+            "question": "Quelle couleur maintenant ?",
+            "text": "Allons, à Sganarelle.",
+            "raw": "Allons, à Sganarelle.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 11
+          }
+        ],
+        [
+          {
+            "question": "Pourrais-tu me raconter une plaisanterie ?",
+            "text": "Et je ne sais pas, monsieur, de grâce, de grâce,\nAdieu.",
+            "raw": "Et je ne sais pas, monsieur, de grâce, de grâce,\nAdieu.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 20
+          },
+          {
+            "question": "Répète cette plaisanterie.",
+            "text": "Allons, à part.",
+            "raw": "Allons, à part.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 7
+          },
+          {
+            "question": "Merci, à bientôt.",
+            "text": "Allons, bas, à Sganarelle.",
+            "raw": "Allons, bas, à Sganarelle.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 14
+          }
+        ],
+        [
+          {
+            "question": "Je me sens triste ce matin.",
+            "text": "Je ne sais pas, monsieur, que je suis votre serviteur.",
+            "raw": "Je ne sais pas, monsieur, que je suis votre serviteur.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 16
+          },
+          {
+            "question": "J’ai raté un examen.",
+            "text": "Je ne sais pas, monsieur, à la fenêtre.",
+            "raw": "Je ne sais pas, monsieur, à la fenêtre.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 14
+          },
+          {
+            "question": "Quelle action me conseilles-tu pour cet examen ?",
+            "text": "Et moi, je ne sais pas, je vous prie.",
+            "raw": "Et moi, je ne sais pas, je vous prie.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 14
+          }
+        ]
+      ]
+    },
+    {
+      "checkpoint": "..\\moliere-dialogue-20261111\\dialogue.pt",
+      "checkpoint_sha256": "9b2c90a4c4aea8fa3c916ab2bd265c4111f03285fb25cff3ea1e534fd33cf220",
+      "split": "dev",
+      "roles": "legacy",
+      "bpb": 1.8890770155174144,
+      "bpb_recomputed": true,
+      "discussions": [
+        [
+          {
+            "question": "Bonjour, comment ça va ?",
+            "text": "Je ne sais pas que de la fenêtre.",
+            "raw": "Je ne sais pas que de la fenêtre.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 12
+          },
+          {
+            "question": "Moi je suis fatigué.",
+            "text": "Assurément.",
+            "raw": "Assurément.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 8
+          },
+          {
+            "question": "Que me conseilles-tu ?",
+            "text": "C'est un peu.",
+            "raw": "C'est un peu.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 7
+          }
+        ],
+        [
+          {
+            "question": "Salut, tu te portes bien ?",
+            "text": "Je ne sais pas.",
+            "raw": "Je ne sais pas.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 6
+          },
+          {
+            "question": "Qui es-tu au juste ?",
+            "text": "C'est un peu, et je ne sais pas que je ne sais.",
+            "raw": "C'est un peu, et je ne sais pas que je ne sais.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 17
+          },
+          {
+            "question": "Merci pour ta réponse.",
+            "text": "C'est un peu, et je ne sais pas.",
+            "raw": "C'est un peu, et je ne sais pas.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 13
+          }
+        ],
+        [
+          {
+            "question": "Mon prénom est Hugo.",
+            "text": "Assurément.",
+            "raw": "Assurément.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 8
+          },
+          {
+            "question": "Peux-tu me redire mon prénom ?",
+            "text": "Je ne sais pas.",
+            "raw": "Je ne sais pas.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 6
+          },
+          {
+            "question": "Je me suis trompé, c’est Louis.",
+            "text": "Adieu.",
+            "raw": "Adieu.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 5
+          },
+          {
+            "question": "Quel est mon prénom maintenant ?",
+            "text": "Adieu.",
+            "raw": "Adieu.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 5
+          }
+        ],
+        [
+          {
+            "question": "Ma préférence va au vert.",
+            "text": "C'est un peu, je ne sais pas que je ne sais.",
+            "raw": "C'est un peu, je ne sais pas que je ne sais.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 16
+          },
+          {
+            "question": "Quelle est ma couleur favorite ?",
+            "text": "C'est un peu, monsieur.",
+            "raw": "C'est un peu, monsieur.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 9
+          },
+          {
+            "question": "En fait, je choisis le rouge.",
+            "text": "C'est un peu.",
+            "raw": "C'est un peu.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 7
+          },
+          {
+            "question": "Quelle couleur maintenant ?",
+            "text": "Adieu.",
+            "raw": "Adieu.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 5
+          }
+        ],
+        [
+          {
+            "question": "Pourrais-tu me raconter une plaisanterie ?",
+            "text": "Et, pourquoi?",
+            "raw": "Et, pourquoi?\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 7
+          },
+          {
+            "question": "Répète cette plaisanterie.",
+            "text": "C'est un peu, Et je ne sais pas que de l'heure.",
+            "raw": "C'est un peu, Et je ne sais pas que de l'heure.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 20
+          },
+          {
+            "question": "Merci, à bientôt.",
+            "text": "C'est un peu, Feignorée.",
+            "raw": "C'est un peu, Feignorée.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 14
+          }
+        ],
+        [
+          {
+            "question": "Je me sens triste ce matin.",
+            "text": "C'est un peu, et je ne sais pas que je ne sais.",
+            "raw": "C'est un peu, et je ne sais pas que je ne sais.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 17
+          },
+          {
+            "question": "J’ai raté un examen.",
+            "text": "C'est un peu, je ne sais pas.",
+            "raw": "C'est un peu, je ne sais pas.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 12
+          },
+          {
+            "question": "Quelle action me conseilles-tu pour cet examen ?",
+            "text": "C'est un peu de pareille.",
+            "raw": "C'est un peu de pareille.\n\n",
+            "dropped_tokens": 0,
+            "generated_tokens": 11
+          }
+        ]
+      ]
+    }
+  ]
+}
