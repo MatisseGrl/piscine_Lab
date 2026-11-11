@@ -1,0 +1,94 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Feed the Beast — ECE IA Lab</title>
+<style>
+:root{--ink:#29251f;--paper:#f6f1e6;--red:#782e36;--gold:#aa8a52}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px Georgia,serif}header{border-bottom:1px solid #d5c9b5;padding:22px 6vw;display:flex;justify-content:space-between;align-items:center}.brand{font:12px Arial,sans-serif;letter-spacing:.17em;text-transform:uppercase}.seal{color:var(--red);font-size:26px}main{max-width:1000px;margin:auto;padding:40px 28px 20px}.eyebrow{font:11px Arial,sans-serif;letter-spacing:.2em;color:var(--red)}h1{font-weight:400;font-size:clamp(34px,5vw,58px);margin:15px 0} .intro{color:#706756;line-height:1.6;max-width:650px}.stage{margin-top:28px;border-top:3px double var(--gold);border-bottom:1px solid #d5c9b5;min-height:280px;max-height:45vh;overflow:auto;padding:24px 0}.empty{color:#8e806b;font-style:italic;padding:55px 0;text-align:center}.message{padding:15px 20px;margin:8px 0;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.message.user{border-left:2px solid #c5bba9;background:#eee7da}.message.assistant{border-left:2px solid var(--red)}.role{display:block;font:10px Arial,sans-serif;letter-spacing:.17em;text-transform:uppercase;margin-bottom:8px;color:var(--red)}form{display:flex;gap:12px;margin-top:20px}textarea{resize:vertical;min-height:65px;flex:1;font:17px Georgia,serif;background:#fffaf1;border:1px solid #c5bba9;padding:16px;color:var(--ink)}button{cursor:pointer;border:1px solid var(--red);background:var(--red);color:white;padding:13px 22px;font:13px Arial,sans-serif}button.secondary{background:transparent;color:var(--red)}button:disabled{opacity:.45;cursor:wait}.foot{display:flex;justify-content:space-between;gap:18px;margin-top:18px;font:12px Arial,sans-serif;color:#776c5c}.status{min-height:24px;color:var(--red);font:13px Arial,sans-serif;margin-top:12px}footer{padding:25px 0;font:11px Arial,sans-serif;color:#8b806e}textarea:focus,button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}@media(max-width:600px){main{padding:25px 16px}header{padding:18px}form{flex-direction:column}.foot{flex-direction:column}.stage{max-height:45vh}}
+</style>
+<header><span class="brand">Feed the Beast — ECE IA Lab</span><span class="seal" aria-hidden="true">❧</span></header>
+<main><div class="eyebrow">LE PETIT THÉÂTRE DU LANGAGE</div><h1>À vous la réplique.</h1><p class="intro">Une conversation libre avec un mini-GPT entraîné à parler dans l’esprit de Molière. Entrez en scène, puis poursuivez l’échange.</p>
+<section id="messages" class="stage" aria-live="polite" aria-label="Discussion"><div class="empty">Le rideau est levé. Votre première réplique ?</div></section>
+<form id="form"><textarea id="input" aria-label="Votre réplique" placeholder="Bonjour, comment ça va ?" maxlength="2000" required></textarea><button id="send">Envoyer →</button></form>
+<div id="status" class="status" role="status"></div><div class="foot"><span>Mémoire récente : 128 tokens. Le modèle peut se tromper ou perdre le fil.</span><button id="reset" class="secondary">Nouvelle discussion</button></div><footer id="model">Mini-GPT local · Chargement des informations…</footer></main>
+<script>
+const messages = document.querySelector('#messages');
+const input = document.querySelector('#input');
+const status = document.querySelector('#status');
+const form = document.querySelector('#form');
+const send = document.querySelector('#send');
+const reset = document.querySelector('#reset');
+let history = [];
+
+// Un texte généré est affiché tel quel, sans interpréter son contenu comme du HTML.
+function add(role, text) {
+  if (!history.length) messages.replaceChildren();
+  const el = document.createElement('div');
+  el.className = 'message ' + role;
+  const label = document.createElement('span');
+  label.className = 'role';
+  label.textContent = role === 'user' ? 'Vous' : 'Le mini-GPT';
+  el.append(label, document.createTextNode(text));
+  messages.append(el);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+// Le serveur reçoit un seul tour à la fois pour cette discussion.
+function busy(value) {
+  send.disabled = reset.disabled = input.disabled = value;
+  form.setAttribute('aria-busy', String(value));
+}
+
+form.onsubmit = async event => {
+  event.preventDefault();
+  const text = input.value.trim();
+  if (!text || send.disabled) return;
+  add('user', text);
+  history.push(['user', text]);
+  input.value = '';
+  busy(true);
+  status.textContent = 'Le mini-GPT compose sa réplique…';
+  try {
+    // La page conserve tout l’affichage ; la requête n’envoie que les tours récents.
+    const response = await fetch('/api/chat', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({history: history.slice(-11)}),
+    });
+    const result = await response.json();
+    if (!response.ok) throw Error(result.error);
+    if (!result.text) throw Error('le modèle a terminé sans texte');
+    add('assistant', result.text);
+    history.push(['assistant', result.text]);
+    status.textContent = result.dropped_tokens || history.length > 12
+      ? 'Une partie des premières répliques est hors contexte.' : '';
+  } catch (error) {
+    // En cas d’échec, remettre le texte en saisie pour pouvoir le réessayer.
+    status.textContent = 'La génération a échoué : ' + error.message;
+    history.pop();
+    messages.lastElementChild?.remove();
+    input.value = text;
+  } finally {
+    busy(false);
+    input.focus({preventScroll: true});
+  }
+};
+
+// Entrée envoie ; Maj+Entrée insère un retour à la ligne.
+input.onkeydown = event => {
+  if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+    event.preventDefault();
+    form.requestSubmit();
+  }
+};
+reset.onclick = () => {
+  history = [];
+  input.value = '';
+  const empty = document.createElement('div');
+  empty.className = 'empty';
+  empty.textContent = 'Nouvelle scène. À vous la parole.';
+  messages.replaceChildren(empty);
+  status.textContent = '';
+  input.focus({preventScroll: true});
+};
+fetch('/api/info').then(response => response.json()).then(info => {
+  document.querySelector('#model').textContent = 'Mini-GPT local · ' + info.checkpoint + ' · CPU';
+}).catch(() => {
+  document.querySelector('#model').textContent = 'Informations du modèle indisponibles.';
+});
+</script></html>
