@@ -24,6 +24,16 @@ Résolution des conflits de la PR #21 le 11/11 : conservation des deux archives 
 
 ## Étape en cours
 
+### Comparaison des modèles Molière (12/11)
+
+Meilleur mini-GPT seul à **1,766015 BPB** après moyenne de trois checkpoints. L'ensemble de six checkpoints atteint **1,748069**, puis **1,696002** avec les fréquences du train et des cinq pièces Wikisource contrôlées. Cette dernière mesure exploratoire combine plusieurs modèles et des données supplémentaires. La cible reste **1,500**.
+
+Le SFT avec paraphrases monte à **5/8** sur les réparations de développement, mais la moyenne retenue ne réussit qu'**1/8** sur les relances inédites, comme l'essai de nuit. La démo de la PR #23 reste chargée. Les [commandes et résultats](../report/moliere_model_comparison.md) sont archivés. Les autres continuations de nuit peuvent encore produire des paliers.
+
+### Entraînements de nuit relancés (11/11, 23 h 13)
+
+Les quatre essais tournent en série, dans `runs/night-20261111-231345/` : réparation du chat, continuation sur le kit, dropout et supplément Wikisource. Le premier entraînement est démarré ; aucun score nouveau au lancement. Le lanceur séparé (PID 53688) écrit ses journaux et son statut de fin dans `runs/night-launch-20261111-231342/`. Le meilleur BPB connu reste **1,770614**. Le chat localhost n'a pas été remplacé.
+
 ### Reprise Molière mise en pause (11/11)
 
 Matisse vise **1,500 BPB Molière** et a signalé que le chat déraille lorsqu'il lui demande de s'expliquer. Les quatre essais de reprise sont arrêtés sur sa demande. Paliers conservés : continuation du kit au pas 400, **1,790130** ; SFT réparation au pas 250, **1,853007** et **0/8** réparations sur le développement. Le cosinus reste à **1,770614** et la page sert toujours le pas 1 000 de la PR #23. Voir la [reprise de nuit](../report/moliere_restart.md) pour les commandes, les audits et les mesures à terminer.

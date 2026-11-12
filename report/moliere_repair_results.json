@@ -1,0 +1,299 @@
+[
+  {
+    "checkpoint": "runs\\chat-main-v2-r30\\step-1000.pt",
+    "checkpoint_sha256": "623e1677e8ceec169763204e864458fc1e6088fd5e79d9785e09ac4b517a0506",
+    "split": "final",
+    "roles": "demo",
+    "bpb": 1.8548465598336297,
+    "bpb_recomputed": false,
+    "repairs": [
+      {
+        "question": "Salutations, comment vous portez-vous ce soir ?",
+        "previous_reply": "Je compose une soupe, monsieur.",
+        "followup": "Attends, tu m’expliques le lien ?",
+        "expected": "saluer et dire comment il va",
+        "text": "Vous voulez une pomme.",
+        "raw": "Vous voulez une pomme.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 7,
+        "pertinent": false
+      },
+      {
+        "question": "Propose-moi une promenade tranquille.",
+        "previous_reply": "Vous vous nommez Paul.",
+        "followup": "Laissons mon prénom, réponds à ma demande.",
+        "expected": "suggérer une promenade",
+        "text": "Vous vous appelez Thomas.",
+        "raw": "Vous vous appelez Thomas.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 12,
+        "pertinent": false
+      },
+      {
+        "question": "On dîne dans dix minutes et rien n’est prêt.",
+        "previous_reply": "Je puis réciter une comédie.",
+        "followup": "Ce n’était pas le sens de ma remarque.",
+        "expected": "proposer un repas rapide",
+        "text": "Vous aimez le rose, fort bien.",
+        "raw": "Vous aimez le rose, fort bien.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 12,
+        "pertinent": false
+      },
+      {
+        "question": "Je n’arrive plus à rester éveillé.",
+        "previous_reply": "Vous préférez le rose.",
+        "followup": "Ta réponse n’a aucun rapport.",
+        "expected": "réagir à la fatigue",
+        "text": "Vous vous appelez Léa.",
+        "raw": "Vous vous appelez Léa.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 11,
+        "pertinent": false
+      },
+      {
+        "question": "Peux-tu me faire rire un instant ?",
+        "previous_reply": "Je ne connais pas l’heure.",
+        "followup": "Je n’ai pas posé de question sur l’heure.",
+        "expected": "raconter une plaisanterie",
+        "text": "Je ne connais pas l'heure exacte, mon ami. Regardez votre horloge.",
+        "raw": "Je ne connais pas l'heure exacte, mon ami. Regardez votre horloge.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 31,
+        "pertinent": false
+      },
+      {
+        "question": "As-tu vu où j’ai laissé mon cahier ?",
+        "previous_reply": "Vous voulez des pommes.",
+        "followup": "Qu’essayais-tu de me dire au juste ?",
+        "expected": "expliquer qu’il ne voit pas le cahier ou aider à le chercher",
+        "text": "Vous voulez des légumes.",
+        "raw": "Vous voulez des légumes.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 10,
+        "pertinent": false
+      },
+      {
+        "question": "Dites-moi à qui j’ai affaire.",
+        "previous_reply": "Le soleil est fort chaud.",
+        "followup": "Je te demandais autre chose, non ?",
+        "expected": "se présenter",
+        "text": "Vous vous appelez Jean.",
+        "raw": "Vous vous appelez Jean.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 10,
+        "pertinent": false
+      },
+      {
+        "question": "Il se fait tard, on se reparle demain.",
+        "previous_reply": "Qu’est-ce qui vous fâche ?",
+        "followup": "Je ne suis pas fâché, relis ma dernière phrase.",
+        "expected": "prendre congé sans supposer de colère",
+        "text": "C’est Molière, mon ami.",
+        "raw": "C’est Molière, mon ami.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 14,
+        "pertinent": false
+      }
+    ],
+    "pertinent_repairs": 0
+  },
+  {
+    "checkpoint": "runs\\night-20261111-231345\\chat\\step-1600.pt",
+    "checkpoint_sha256": "10e2967b2b00f45d83615f38304309ce4353b55418481f179ac0e8a774c0b71b",
+    "split": "final",
+    "roles": "demo",
+    "bpb": 1.826807146401163,
+    "bpb_recomputed": false,
+    "repairs": [
+      {
+        "question": "Salutations, comment vous portez-vous ce soir ?",
+        "previous_reply": "Je compose une soupe, monsieur.",
+        "followup": "Attends, tu m’expliques le lien ?",
+        "expected": "saluer et dire comment il va",
+        "text": "Courage, mon ami. Quel passage voulez-vous que je reprenne ?",
+        "raw": "Courage, mon ami. Quel passage voulez-vous que je reprenne ?\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 26,
+        "pertinent": false
+      },
+      {
+        "question": "Propose-moi une promenade tranquille.",
+        "previous_reply": "Vous vous nommez Paul.",
+        "followup": "Laissons mon prénom, réponds à ma demande.",
+        "expected": "suggérer une promenade",
+        "text": "Vous vous appelez Léa.",
+        "raw": "Vous vous appelez Léa.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 11,
+        "pertinent": false
+      },
+      {
+        "question": "On dîne dans dix minutes et rien n’est prêt.",
+        "previous_reply": "Je puis réciter une comédie.",
+        "followup": "Ce n’était pas le sens de ma remarque.",
+        "expected": "proposer un repas rapide",
+        "text": "Pardonnez-moi. Préparez une soupe et prenez un morceau de pain. Voilà un repas simple, mon ami.",
+        "raw": "Pardonnez-moi. Préparez une soupe et prenez un morceau de pain. Voilà un repas simple, mon ami.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 42,
+        "pertinent": true
+      },
+      {
+        "question": "Je n’arrive plus à rester éveillé.",
+        "previous_reply": "Vous préférez le rose.",
+        "followup": "Ta réponse n’a aucun rapport.",
+        "expected": "réagir à la fatigue",
+        "text": "Pardonnez-moi. Bravo, mon ami ! Je me réjouis de votre réussite.",
+        "raw": "Pardonnez-moi. Bravo, mon ami ! Je me réjouis de votre réussite.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 30,
+        "pertinent": false
+      },
+      {
+        "question": "Peux-tu me faire rire un instant ?",
+        "previous_reply": "Je ne connais pas l’heure.",
+        "followup": "Je n’ai pas posé de question sur l’heure.",
+        "expected": "raconter une plaisanterie",
+        "text": "Je ne connais pas l’heure exacte, mon ami. Regardez votre horloge.",
+        "raw": "Je ne connais pas l’heure exacte, mon ami. Regardez votre horloge.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 33,
+        "pertinent": false
+      },
+      {
+        "question": "As-tu vu où j’ai laissé mon cahier ?",
+        "previous_reply": "Vous voulez des pommes.",
+        "followup": "Qu’essayais-tu de me dire au juste ?",
+        "expected": "expliquer qu’il ne voit pas le cahier ou aider à le chercher",
+        "text": "Je ne connais pas, mon ami. Regardez votre horloge.",
+        "raw": "Je ne connais pas, mon ami. Regardez votre horloge.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 24,
+        "pertinent": false
+      },
+      {
+        "question": "Dites-moi à qui j’ai affaire.",
+        "previous_reply": "Le soleil est fort chaud.",
+        "followup": "Je te demandais autre chose, non ?",
+        "expected": "se présenter",
+        "text": "Je ne connais pas la date, mon ami. Avez-vous une invitation ou un agenda à consulter ?",
+        "raw": "Je ne connais pas la date, mon ami. Avez-vous une invitation ou un agenda à consulter ?\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 38,
+        "pertinent": false
+      },
+      {
+        "question": "Il se fait tard, on se reparle demain.",
+        "previous_reply": "Qu’est-ce qui vous fâche ?",
+        "followup": "Je ne suis pas fâché, relis ma dernière phrase.",
+        "expected": "prendre congé sans supposer de colère",
+        "text": "Courage, mon ami. Voulez-vous me conter votre chagrin ?",
+        "raw": "Courage, mon ami. Voulez-vous me conter votre chagrin ?\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 24,
+        "pertinent": false
+      }
+    ],
+    "pertinent_repairs": 1
+  },
+  {
+    "checkpoint": "runs\\chat-paraphrases-average-verified\\average.pt",
+    "checkpoint_sha256": "a4a306319ca8afc3a38bb782936529a389f694a05ee82d54b5906834ee9ee5b1",
+    "split": "final",
+    "roles": "demo",
+    "bpb": 1.8566285693869304,
+    "bpb_recomputed": false,
+    "repairs": [
+      {
+        "question": "Salutations, comment vous portez-vous ce soir ?",
+        "previous_reply": "Je compose une soupe, monsieur.",
+        "followup": "Attends, tu m’expliques le lien ?",
+        "expected": "saluer et dire comment il va",
+        "text": "Je ne connais pas la date, mon ami. Avez-vous une invitation ou un agenda à consulter ?",
+        "raw": "Je ne connais pas la date, mon ami. Avez-vous une invitation ou un agenda à consulter ?\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 38,
+        "pertinent": false
+      },
+      {
+        "question": "Propose-moi une promenade tranquille.",
+        "previous_reply": "Vous vous nommez Paul.",
+        "followup": "Laissons mon prénom, réponds à ma demande.",
+        "expected": "suggérer une promenade",
+        "text": "Vous préférez le rose.",
+        "raw": "Vous préférez le rose.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 11,
+        "pertinent": false
+      },
+      {
+        "question": "On dîne dans dix minutes et rien n’est prêt.",
+        "previous_reply": "Je puis réciter une comédie.",
+        "followup": "Ce n’était pas le sens de ma remarque.",
+        "expected": "proposer un repas rapide",
+        "text": "Reprenons. Un échec ne vous définit point. Reprenez une erreur à la fois et reposez-vous entre deux exercices.",
+        "raw": "Reprenons. Un échec ne vous définit point. Reprenez une erreur à la fois et reposez-vous entre deux exercices.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 47,
+        "pertinent": false
+      },
+      {
+        "question": "Je n’arrive plus à rester éveillé.",
+        "previous_reply": "Vous préférez le rose.",
+        "followup": "Ta réponse n’a aucun rapport.",
+        "expected": "réagir à la fatigue",
+        "text": "Reprenons. Un échec ne vous définit point. Reprenez une erreur à la fois et reposez-vous entre deux exercices.",
+        "raw": "Reprenons. Un échec ne vous définit point. Reprenez une erreur à la fois et reposez-vous entre deux exercices.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 47,
+        "pertinent": false
+      },
+      {
+        "question": "Peux-tu me faire rire un instant ?",
+        "previous_reply": "Je ne connais pas l’heure.",
+        "followup": "Je n’ai pas posé de question sur l’heure.",
+        "expected": "raconter une plaisanterie",
+        "text": "Je ne connais pas la date, mon ami. Avez-vous une invitation ou un agenda à consulter ?",
+        "raw": "Je ne connais pas la date, mon ami. Avez-vous une invitation ou un agenda à consulter ?\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 38,
+        "pertinent": false
+      },
+      {
+        "question": "As-tu vu où j’ai laissé mon cahier ?",
+        "previous_reply": "Vous voulez des pommes.",
+        "followup": "Qu’essayais-tu de me dire au juste ?",
+        "expected": "expliquer qu’il ne voit pas le cahier ou aider à le chercher",
+        "text": "Je ne connais pas la date, mon ami. Avez-vous une invitation ou un agenda à consulter ?",
+        "raw": "Je ne connais pas la date, mon ami. Avez-vous une invitation ou un agenda à consulter ?\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 38,
+        "pertinent": false
+      },
+      {
+        "question": "Dites-moi à qui j’ai affaire.",
+        "previous_reply": "Le soleil est fort chaud.",
+        "followup": "Je te demandais autre chose, non ?",
+        "expected": "se présenter",
+        "text": "Je suis un petit modèle de langage. Je puis converser avec vous à la manière de Molière.",
+        "raw": "Je suis un petit modèle de langage. Je puis converser avec vous à la manière de Molière.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 33,
+        "pertinent": true
+      },
+      {
+        "question": "Il se fait tard, on se reparle demain.",
+        "previous_reply": "Qu’est-ce qui vous fâche ?",
+        "followup": "Je ne suis pas fâché, relis ma dernière phrase.",
+        "expected": "prendre congé sans supposer de colère",
+        "text": "Reprenons. Un verre d’eau vous fera du bien, mon ami.",
+        "raw": "Reprenons. Un verre d’eau vous fera du bien, mon ami.\n\n",
+        "dropped_tokens": 0,
+        "generated_tokens": 26,
+        "pertinent": false
+      }
+    ],
+    "pertinent_repairs": 1
+  }
+]
