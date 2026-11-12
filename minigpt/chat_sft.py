@@ -10,6 +10,7 @@ from minigpt.bigram import load_utf8
 from minigpt.finetune import restore_model, write_json
 from minigpt.conversation import HEADERS, supervised_examples, reply
 from minigpt.chat_bench import DEV, FINAL
+from minigpt.repair_bench import REPAIR_DEV, REPAIR_FINAL, evaluate_repairs
 from minigpt.model import evaluate_bpb
 from minigpt.train import sample_batch
 
@@ -33,6 +34,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ['checkpoint', 'tokenizer', 'data', 'corpus', 'out']:
         parser.add_argument('--' + name, type=Path, required=True)
+    parser.add_argument('--repair-bench', action='store_true')
+    parser.add_argument('--threads', type=int, default=4)
     parser.add_argument('--steps', type=int, default=600)
     parser.add_argument('--lr', type=float, default=3e-4)
     parser.add_argument('--replay', type=float, default=0.1)
@@ -41,7 +44,7 @@ def main():
     if args.steps < 1 or args.every < 1 or args.lr <= 0 or not 0 <= args.replay < 1:
         parser.error('Pas, fréquence et taux positifs ; rappel entre 0 inclus et 1 exclu.')
     args.out.mkdir(parents=True, exist_ok=False)
-    torch.set_num_threads(4)
+    torch.set_num_threads(args.threads)
     torch.manual_seed(20261111)
     generator = torch.Generator().manual_seed(20261111)
     saved = torch.load(args.checkpoint, map_location='cpu', weights_only=True)
@@ -56,11 +59,13 @@ def main():
             raise ValueError('Corpus différent de la référence : ' + name)
     normalized = ' '.join((train_text + json.dumps(records, ensure_ascii=False)).casefold().split())
     # Aucun prompt des lots réservés ne doit se trouver dans les textes appris.
-    for discussion in DEV + FINAL:
+    for discussion in DEV + FINAL + [[case[2]] for case in REPAIR_DEV + REPAIR_FINAL]:
         for question in discussion:
             if ' '.join(question.casefold().split()) in normalized:
                 raise ValueError(f'Question réservée présente au train : {question}')
-    examples = [example for record in records for example in supervised_examples(tokenizer, record['messages'])]
+    # Un mauvais tour présent dans un scénario de réparation reste une simple entrée.
+    examples = [example for record in records for example in supervised_examples(
+        tokenizer, record['messages'], model.cfg.block_size, last_only=record.get('last_only', False))]
     x, y = [torch.stack([example[i] for example in examples]) for i in range(2)]
     train_ids = torch.tensor(tokenizer.encode(train_text), dtype=torch.long)
     val_ids = tokenizer.encode(val_text)
@@ -98,6 +103,8 @@ def main():
                         'chat_sft': metadata, 'step': step, 'optimizer': optimizer.state_dict(),
                         'rng_state': torch.get_rng_state(), 'batch_rng_state': generator.get_state()}, args.out / f'step-{step}.pt')
             write_json(args.out / f'dev-{step}.json', evaluate_dialogues(model, tokenizer, DEV))
+            if args.repair_bench:
+                write_json(args.out / f'repair-{step}.json', evaluate_repairs(model, tokenizer, REPAIR_DEV))
             measures.append({'step': step, 'bpb': bpb, 'response_loss': sum(losses[-100:])/len(losses[-100:]), 'response_tokens_seen': response_tokens_seen, 'replay_tokens_seen': replay_tokens_seen, 'seconds': time.monotonic()-started})
             write_json(args.out / 'measures.json', measures)
             write_json(args.out / 'losses.json', losses)

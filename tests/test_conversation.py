@@ -45,3 +45,13 @@ def test_second_response_uses_first_exchange():
     assert tok.decode(x[:offset + 1].tolist()) == expected
     assert y[y != -100].tolist() == tok.encode('Bien.\n\n')
     assert first[1][first[1] != -100].tolist() == tok.encode('Bonjour.\n\n')
+
+
+def test_repair_does_not_supervise_the_wrong_reply():
+    """La réplique erronée informe la correction sans devenir une cible de loss."""
+    tok = BPETokenizer()
+    history = [('user', 'Salut.'), ('assistant', 'Faux sujet.'), ('user', 'Pardon ?'), ('assistant', 'Bonjour !')]
+    [(x, y)] = supervised_examples(tok, history, last_only=True)
+    first = (y != -100).nonzero()[0].item()
+    assert 'Faux sujet.' in tok.decode(x[:first + 1].tolist())
+    assert tok.decode(y[y != -100].tolist()) == 'Bonjour !\n\n'
