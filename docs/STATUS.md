@@ -30,9 +30,11 @@ Meilleur mini-GPT seul à **1,766015 BPB** après moyenne de trois checkpoints. 
 
 Le SFT avec paraphrases monte à **5/8** sur les réparations de développement, mais la moyenne retenue ne réussit qu'**1/8** sur les relances inédites, comme l'essai de nuit. La démo de la PR #23 reste chargée. Les [commandes et résultats](../report/moliere_model_comparison.md) sont archivés. Les autres continuations de nuit peuvent encore produire des paliers.
 
-### Entraînements de nuit relancés (11/11, 23 h 13)
+### Bilan des entraînements de nuit (vérifié le 14/11)
 
-Les quatre essais tournent en série, dans `runs/night-20261111-231345/` : réparation du chat, continuation sur le kit, dropout et supplément Wikisource. Le premier entraînement est démarré ; aucun score nouveau au lancement. Le lanceur séparé (PID 53688) écrit ses journaux et son statut de fin dans `runs/night-launch-20261111-231342/`. Le meilleur BPB connu reste **1,770614**. Le chat localhost n'a pas été remplacé.
+Les quatre essais ont terminé le 12/11. Le meilleur mini-GPT seul atteint **1,743370 BPB** avec le train du kit et cinq pièces Wikisource contrôlées, à raison de 8 fenêtres sur 32 par lot. Le résultat a été recalculé depuis `runs/night-20261111-231345/wikisource/best.pt` sur la validation officielle Molière. Avec le seul corpus du kit, la moyenne de trois checkpoints de la PR #24 reste à **1,766015 BPB**. Le modèle hybride exploratoire de cette PR reste à **1,696002 BPB**. L'objectif de **1,500** reste ouvert.
+
+La reprise longue sur le kit termine à 1,889637 (meilleur palier à 1,790130). Le dropout atteint 1,773912 à son meilleur palier. Le SFT réparation atteint 1,826807 et 1/8 sur les relances inédites. Les journaux sont sous `runs/night-20261111-231345/`. La démo n'a pas répondu sur le port 8765 lors du contrôle du 14/11. Sa commande de lancement est dans le [rapport de démo](../report/chat_demo.md).
 
 ### Reprise Molière mise en pause (11/11)
 
