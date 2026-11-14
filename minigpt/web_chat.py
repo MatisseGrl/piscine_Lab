@@ -6,7 +6,7 @@ import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import torch
-from minigpt.bpe import BPETokenizer
+from minigpt.hf_tokenizer import load_tokenizer
 from minigpt.finetune import restore_model
 from minigpt.conversation import reply
 
@@ -21,7 +21,8 @@ def main():
     torch.set_num_threads(4)
     saved = torch.load(args.checkpoint, map_location='cpu', weights_only=True)
     model = restore_model(saved)
-    tokenizer = BPETokenizer.load(args.tokenizer)
+    # Détecte le format du tokenizer (BPE maison ou 8 192 de la compétition).
+    tokenizer = load_tokenizer(args.tokenizer)
     # Un tokenizer de même taille peut avoir des merges différents.
     metadata = saved.get('chat_sft', saved.get('interpolation', {}))
     expected_hash = metadata.get('tokenizer_sha256')
@@ -49,7 +50,7 @@ def main():
             if self.path == '/':
                 self.respond(200, page, 'text/html; charset=utf-8')
             elif self.path == '/api/info':
-                self.respond(200, {'checkpoint': args.checkpoint.name})
+                self.respond(200, {'checkpoint': args.checkpoint.name, 'context': model.cfg.block_size})
             else:
                 self.respond(404, {'error': 'Page inconnue'})
 
