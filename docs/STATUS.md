@@ -35,6 +35,11 @@ Le nettoyage donne le gros du gain (−0,020). Les écarts suivants sont petits 
 - Mélange validé : Wikipédia FR 80 %, Common Crawl 12 %, Assemblée nationale 8 %. Tokenizer 8 192 commun, SHA-256 `b2554a8221a55c19b4008f5b605b1b6e84b6a7f84058507c15aba34eca3b2379`.
 - Règle du sujet : interdit d'initialiser à partir de poids pré-entraînés pour la **compétition**. Ne concerne pas la démo.
 
+## En cours (14/11, soir)
+
+- **Pré-entraînement du mini-GPT du bloc 1 sur Kaggle** (config compétition, flux dédup + qualité 80/12/8, `minigpt/pretrain.py`, PR #27, branche `feat/chat-pretrain`). Matisse l'a lancé. Résultat attendu : `runs/chat-pretrain/pretrained.pt` + BPB indicatif. Ensuite : SFT chat puis page HTML.
+- **Répartition des fichiers entre conversations.** Conversation « code » (chat, SFT, démo) : `minigpt/`, `demo/`, `scripts/` du chat, `tests/`. Conversation « docs et soutenance » : `report/`, `sources/`, `docs/`, `experiments/LOG.md`. Ne pas toucher aux fichiers de l'autre. Pas de `data/` ni de `runs/` dans git.
+
 ## Plan jusqu'au rendu
 
 1. **Ordre** : sync `main`, STATUS/AGENTS à jour. *(fait le 14/11)*
