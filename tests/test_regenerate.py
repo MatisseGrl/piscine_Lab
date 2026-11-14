@@ -5,7 +5,6 @@ import json
 import pytest
 
 from pipeline import regenerate
-from pipeline.mixes import MIXES
 
 
 def test_steps_are_in_dependency_order():
@@ -19,7 +18,7 @@ def test_steps_are_in_dependency_order():
 def test_every_mix_has_an_expected_sha_or_is_known():
     """Les SHA de référence ne concernent que des mélanges qui existent, et font 64 caractères hex."""
     for mix, digest in regenerate.EXPECTED_SHA256.items():
-        assert mix in MIXES or mix in regenerate.ORDER_PARENTS
+        assert mix in regenerate.RECIPES
         assert len(digest) == 64 and int(digest, 16) >= 0
 
 

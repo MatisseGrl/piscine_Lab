@@ -36,10 +36,16 @@ EXPECTED_SHA256 = {
     "M4BPE": "f46b43751889b02033ab738416a114668cdb821ea3d1c3589dbd8de1fc49b34e",
     "M4ORDER": "792bb7027196ca2f0c1aa95a989421baf886a0f0e4e3a269b1f14e8dedf4f9b6",
     "M4BPEORDER": "0726cdbf03137a169c6a98aa865714cfc53284f4ace277322aba3cbee4d4427a",
+    "M4WIKI": "1293fb61d1d4e9dec6570b95ea8798119f7b333c4ea97bc06d2740f819c0fa23",
+    "M4WIKIBPE": "52c962826e3b482f87f837fce5bb380161351ce5ae672ccb7ddd73ecbc4e9ae6",
+    "M4WIKIBPEORDER": "2259cefe6d00fa02bfe41878d518d680a4f2cd726f4dd978a77e131a704af71c",
+    "M4REPEAT": "f164e06648f066c60fe01e34d5ecee252a5208d8ad72b6cc399a2231bda63980",
+    "M4CLASS": "d6f84f7e27150d1acae9b73293209399c73955b4219883d3666edaee9eaefb47",
 }
 
 # Ces recettes réordonnent le flux parent sans changer ses tokens ni son tokenizer.
 ORDER_PARENTS = {f"{mix}ORDER": mix for mix in ("M4", "M4BPE", "M4WIKI", "M4WIKIBPE")}
+RECIPES = MIXES.keys() | ORDER_PARENTS.keys() | {"M4CLASS"}
 
 PY = sys.executable
 # Plafond d'octets compressés des archives WET retenues (10 archives), voir pipeline/README.md.
@@ -59,6 +65,10 @@ def build_steps(mix, kit=KIT_DIR):
     """Liste ordonnée des étapes pour produire le flux du mélange `mix` (chemins relatifs à ROOT)."""
     kit = str(kit)
     parent = ORDER_PARENTS.get(mix, mix)
+    # La recette avec classifieur prépare le même format à partir de son propre filtre.
+    command = ["-m", "pipeline.mix_quality"] if parent == "M4CLASS" else [
+        "-m", "pipeline.mixes", "--mixes", parent,
+    ]
     steps = [
         Step("kit", ["git", "clone", KIT_URL, kit], Path(kit) / "data/validation.jsonl"),
         Step("kit-rev", ["git", "-C", kit, "checkout", "--detach", KIT_REV],
@@ -81,8 +91,7 @@ def build_steps(mix, kit=KIT_DIR):
              Path("data/interim/wikinews/stats.json")),
         Step("gutenberg", [PY, "-m", "pipeline.gutenberg", "--kit", kit],
              Path("data/interim/gutenberg/stats.json")),
-        Step(f"mix-{parent}", [PY, "-m", "pipeline.mixes", "--kit", kit, "--mixes", parent,
-                               "--out", str(final_dir(parent))],
+        Step(f"mix-{parent}", [PY, *command, "--kit", kit, "--out", str(final_dir(parent))],
              final_dir(parent) / parent / "data_meta.json"),
     ]
     if parent != mix:
@@ -146,7 +155,7 @@ def run(mix, dry_run=False, only=None, start=None, root=ROOT):
 def main():
     """Lit les options et lance la régénération."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mix", default="M4", choices=sorted(MIXES.keys() | ORDER_PARENTS.keys()),
+    parser.add_argument("--mix", default="M4", choices=sorted(RECIPES),
                         help="Mélange final à produire (défaut : M4).")
     parser.add_argument("--dry-run", action="store_true", help="Affiche les étapes sans rien lancer.")
     parser.add_argument("--only", help="Ne lance que cette étape.")
