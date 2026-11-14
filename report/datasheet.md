@@ -1,8 +1,21 @@
 # Datasheet — corpus français de Feed the Beast
 
-État documentaire au **10 novembre 2026**, préparé par Matisse Garlot pour la piscine I Lab de l’ECE. Organisation selon les rubriques de *Datasheets for Datasets* (Gebru et al., 2018).
+État documentaire au **14 novembre 2026**, préparé par Matisse Garlot pour la piscine I Lab de l’ECE. Organisation selon les rubriques de *Datasheets for Datasets* (Gebru et al., 2018).
 
-**Statut : variantes préparées, dataset final non choisi.** Aucun BPB public mesuré n’est disponible dans l’état de référence de cette fiche. Le choix final attend la comparaison à configuration identique ; aucun gain de qualité prédictive n’est établi par les seuls volumes ou contrôles ci-dessous. Les entraînements Kaggle et le rapport d’ablation sont suivis séparément.
+**Statut : dataset final retenu = dédupliqué + qualité, mélange 80/12/8** (à confirmer par Matisse). Il obtient le meilleur BPB sur la validation publique du kit (**1,3304**), à configuration identique pour les 8 variantes testées. Détail et limites dans [report/ablation.md](ablation.md) ; le masquage PII n’a pas amélioré le meilleur score et n’est donc **pas** dans le dataset final.
+
+| | Valeur |
+|---|---|
+| Composition | 80 % Wikipédia FR, 12 % Common Crawl, 8 % Assemblée nationale, comptés en tokens |
+| Traitements | nettoyage (ftfy, fastText ≥ 0,80, boilerplate) → exact + MinHash 0,97, Wikipédia plafonnée à 300 000 articles → filtre qualité |
+| Stock textuel | 320 098 documents, 1 053 824 598 octets UTF-8 (`data/interim/quality/final/`) |
+| Flux d’entraînement | 100 007 937 tokens, SHA-256 `f6ad793c15f01cfbcc297e30048061b8619c769bb100e9d9a9b2bc4ffa94c9cf` |
+| Tokenizer | BPE 8 192 entrées, SHA-256 `b2554a8221a55c19b4008f5b605b1b6e84b6a7f84058507c15aba34eca3b2379` |
+| BPB validation publique | 1,3304 (brut : 1,3538 ; nettoyé : 1,3340 ; dédupliqué : 1,3330) |
+| Test caché, classement | à compléter (soumission officielle pas encore faite) |
+| Lien public du dataset | à compléter (publication Hugging Face non décidée) |
+
+Les sections 2 à 7 décrivent l’ensemble des variantes préparées ; seules les lignes « qualité » concernent le dataset final. Les entraînements Kaggle sont suivis dans `Kaggle submissions/LOG.md`.
 
 ## 1. Motivations et responsabilité
 
@@ -48,9 +61,9 @@ Le brut d’ablation est dans `clean/raw/` : il s’agit de texte extrait avec g
 
 ### Flux tokenisés déjà préparés
 
-Six flux existent : `raw`, `clean`, `dedup` dans `data/processed/ablation/`, puis `quality`, `pii`, `quality_pii` dans `data/processed/ablation-extra/`. Chaque flux contient 100 007 937 tokens, dont un token de contexte supplémentaire ; le protocole officiel prévoit 100 007 936 tokens vus. Ces nombres décrivent les flux préparés et le budget prévu, pas un entraînement achevé.
+Six flux existent : `raw`, `clean`, `dedup` dans `data/processed/ablation/`, puis `quality`, `pii`, `quality_pii` dans `data/processed/ablation-extra/`. Chaque flux contient 100 007 937 tokens, dont un token de contexte supplémentaire ; le protocole officiel prévoit 100 007 936 tokens vus. Les entraînements correspondants sont achevés (BPB dans `Kaggle submissions/LOG.md`).
 
-Le mélange validé est **80 % Wikipédia FR, 12 % Common Crawl, 8 % Assemblée nationale en tokens cibles**, séparateurs compris. Ce ne sont ni les proportions des documents ni celles des octets des stocks textuels. Le BPE commun de 8 192 entrées a été appris sur 10 000 000 octets du nettoyé, avec ces proportions en octets. Tirages et mélange : graine 42 ; entraînement prévu : graine officielle 1337. Les documents sont tirés sans remise par source ; les quotas peuvent couper au milieu d’un document.
+Le mélange validé est **80 % Wikipédia FR, 12 % Common Crawl, 8 % Assemblée nationale en tokens cibles**, séparateurs compris. Ce ne sont ni les proportions des documents ni celles des octets des stocks textuels. Le BPE commun de 8 192 entrées a été appris sur 10 000 000 octets du nettoyé, avec ces proportions en octets. Tirages et mélange : graine 42 ; entraînement : graine officielle 1337. Les documents sont tirés sans remise par source ; les quotas peuvent couper au milieu d’un document.
 
 La validation publique du kit reste extérieure aux données d’entraînement : 230 documents, 813 051 octets UTF-8 pour l’évaluation. Il n’existe pas ici de nouveau découpage train/validation/test propre au corpus. Le test caché est géré par l’organisation.
 
@@ -70,7 +83,7 @@ Aucune procédure de consentement, notification ou rémunération des auteurs et
 
 `pipeline.clean` répare les défauts d’encodage avec ftfy et utilise fastText `lid.176.bin` : le français doit être la première langue prédite avec un score d’au moins **0,80**. Sur les WET, des motifs ciblent menus, cookies et pieds de page. Une ligne normalisée de 25 caractères maximum, répétée au moins trois fois, est retirée aux bords parmi les cinq premières ou dernières lignes non vides.
 
-Les rejets du nettoyé atteignent 96,03 % des documents Common Crawl, 2,21 % de Wikipédia et 19,36 % de l’Assemblée. Ils combinent langue, texte vide et garde-fou de validation : ce ne sont pas des taux de textes de mauvaise qualité. La précision du filtre de langue sur un échantillon annoté manuellement **reste à mesurer**. Le protocole local prévoit un tirage uniforme sans remise, graine 42, annoté `fr`, `autre` ou `mixte`.
+Les rejets du nettoyé atteignent 96,03 % des documents Common Crawl, 2,21 % de Wikipédia et 19,36 % de l’Assemblée. Ils combinent langue, texte vide et garde-fou de validation : ce ne sont pas des taux de textes de mauvaise qualité. Un contrôle manuel du filtre de langue donne **99 documents français sur 100** (tirage uniforme sans remise, graine 42, annoté `fr`, `autre` ou `mixte`), mais l’échantillon est surtout Wikipédia : la précision sur Common Crawl reste **mal mesurée**.
 
 ### Protection contre le recouvrement de validation
 
@@ -108,7 +121,7 @@ Les noms, adresses postales, informations biographiques et opinions politiques p
 
 ## 5. Biais, limites et usages
 
-L’usage prévu est l’étude pédagogique du préentraînement français et des traitements de données, avec mesure du BPB dans le protocole du kit. Aucun résultat établi ne justifie encore de préférer une variante. Le tokenizer appris sur le nettoyé peut avantager cette variante dans la comparaison ; une seule graine d’entraînement est prévue.
+L’usage prévu est l’étude pédagogique du préentraînement français et des traitements de données, avec mesure du BPB dans le protocole du kit. Le meilleur BPB (1,3304) est obtenu par dédup + qualité en 80/12/8 ; les écarts entre variantes fines (0,001 à 0,003) sont proches du bruit d’une seule graine. Le tokenizer appris sur le nettoyé peut avantager cette variante dans la comparaison ; une seule graine d’entraînement (1337) a été utilisée, sans barre d’erreur.
 
 Le mélange privilégie l’encyclopédie et ajoute des discours institutionnels et des pages web. Il peut sous-représenter les échanges ordinaires, le français oral, les variétés régionales et les pays francophones moins présents dans ces sources. Ces déséquilibres sont des risques liés au choix des sources ; aucune répartition démographique ou géographique n’a été mesurée. Le préfixe WET, le filtre de langue et les heuristiques peuvent exclure des textes courts, mixtes ou atypiques. Le masquage retire aussi des informations techniques utiles.
 
@@ -132,7 +145,7 @@ Les données sont conservées localement hors Git. Des archives ont été prépa
 
 ### Empreintes des flux candidats
 
-Ces SHA-256 identifient les `train.bin` préparés, **pas un dataset final sélectionné**. Les empreintes par source et la filiation des traitements sont conservées dans les `stats.json` et les deux `manifest.json` des dossiers `data/processed/ablation/` et `data/processed/ablation-extra/`.
+Ces SHA-256 identifient les `train.bin` préparés ; **le dataset final est la ligne « Qualité »**. Les empreintes par source et la filiation des traitements sont conservées dans les `stats.json` et les deux `manifest.json` des dossiers `data/processed/ablation/` et `data/processed/ablation-extra/`.
 
 | Flux | SHA-256 |
 |---|---|
@@ -151,4 +164,4 @@ Matisse maintient cette fiche et le pipeline dans le dépôt du projet. Aucun ca
 
 Les commandes existantes et paramètres sont décrits dans [pipeline/README.md](../pipeline/README.md) : collecte, nettoyage plafonné, déduplication, qualité, PII, puis préparation des flux de base et supplémentaires. La reconstruction actuelle passe par plusieurs commandes ; une commande globale allant de la collecte à toutes les variantes n’est pas documentée. Les graines et révisions sont consignées ; les sorties existantes ne doivent pas être écrasées lors d’une régénération.
 
-Pour clôturer la datasheet du **dataset final**, il reste à renseigner la variante choisie avec ses BPB réels et son empreinte, la précision annotée du filtre français, les décisions de droits et de distribution, puis les modalités de maintenance et de retrait si une publication est décidée. Le détail des comparaisons appartient à [report/ablation.md](ablation.md).
+Il reste à compléter : le score de compétition (test caché), la décision de publication et le lien du dataset, les décisions de droits et de distribution, et les modalités de maintenance et de retrait si une publication est décidée. Le détail des comparaisons est dans [report/ablation.md](ablation.md).

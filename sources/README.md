@@ -6,6 +6,12 @@ Sources de la collecte du bloc 2 :
 - [Wikipédia FR](wikipedia-fr.md)
 - [Débats de la 16e législature](assemblee-nationale-16.md)
 
+Sources de la démo de chat et du bloc 1 (hors compétition) :
+
+- [Molière du kit (Projet Gutenberg) et dialogues du projet](chat-demo.md)
+- [Wikisource : théâtre de Molière](wikisource-moliere.md) (collecté, non utilisé pour l'entraînement)
+- [OpenAssistant/oasst1](oasst1.md) (examiné, écarté)
+
 Une fiche par source, nommée `<source>.md` (ex. `common-crawl.md`, `wikipedia-fr.md`). Modèle à copier :
 
 ```markdown

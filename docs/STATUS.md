@@ -41,7 +41,7 @@ Le nettoyage donne le gros du gain (−0,020). Les écarts suivants sont petits 
 2. **Paquet de soumission** : retrouver le checkpoint du run qualité sur le Kaggle de Matisse (onglet Output : `ckpt.pt`, logs, `data_meta.json`, `samples.txt`), lancer `python -m ftb.submit`, pousser. Sinon relancer le même flux (~13 min sur T4).
 3. **Chat meilleur** : mini-GPT du bloc 1 en version plus grande avec le tokenizer 8 192, pré-entraîné sur le dataset final (Kaggle), puis fine-tuné sur Molière et dialogues. Banc fixe de prompts, comparaison honnête avec l'ancien chat. Arrêt dimanche midi.
 4. **Maquette HTML** : une commande de lancement, reset de conversation, gestion des erreurs.
-5. **Docs et soutenance** : rapport d'ablation, datasheet, pptx (avec les sources externes et liens), fiche de soutenance.
+5. **Docs et soutenance** : rapport d'ablation, datasheet, fiche de soutenance, pptx (diapos sources et ablation ajoutées), fiches `sources/`. *(fait le 14/11, PR docs ; reste : relire à l'oral, compléter les « à compléter » après soumission et démo, ajouter les sources du dialogue final au pptx, vérifier le rendu du pptx dans PowerPoint)*
 
 ## Questions ouvertes
 
@@ -49,6 +49,9 @@ Le nettoyage donne le gros du gain (−0,020). Les écarts suivants sont petits 
 - Publier le dataset sur Hugging Face (bonus, et utile comme `--dataset-url`) ?
 - Dataset externe de dialogues en français : lequel, quelle licence ?
 - Commande unique de régénération du dataset à vérifier de bout en bout.
+- Dataset final = 80/12/8 dédup + qualité (1,3304) : Matisse confirme ? Le PII n'y est pas (pas de gain mesuré).
+- Le run 74/18/8 a été importé : ses étapes exactes ne sont pas dans le journal, à confirmer.
+- Score de soumission et rang, lien du dataset : « à compléter » dans datasheet et soutenance.
 - Quota GPU Kaggle hebdomadaire : toujours pas vu où il s'affiche.
 
 ## Pièges
