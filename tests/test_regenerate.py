@@ -19,8 +19,17 @@ def test_steps_are_in_dependency_order():
 def test_every_mix_has_an_expected_sha_or_is_known():
     """Les SHA de référence ne concernent que des mélanges qui existent, et font 64 caractères hex."""
     for mix, digest in regenerate.EXPECTED_SHA256.items():
-        assert mix in MIXES
+        assert mix in MIXES or mix in regenerate.ORDER_PARENTS
         assert len(digest) == 64 and int(digest, 16) >= 0
+
+
+def test_order_variant_uses_the_matching_parent():
+    """La variante combinée ordonne le flux qui porte déjà son mélange et son tokenizer."""
+    steps = regenerate.build_steps("M4WIKIBPEORDER")
+    parent, order = steps[-2:]
+    assert parent.name == "mix-M4WIKIBPE"
+    assert order.argv[order.argv.index("--parent") + 1] == str(parent.done.parent.parent)
+    assert order.done.name == "data_meta.json"
 
 
 def test_dry_run_launches_nothing(tmp_path, monkeypatch, capsys):
