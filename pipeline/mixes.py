@@ -38,6 +38,8 @@ MIXES = {
 DEFAULT_MIXES = tuple(MIXES)
 # Même mélange de tokens que M4, avec un BPE entraîné sur ces proportions en octets.
 MIXES["M4BPE"] = MIXES["M4"]
+# Réalloue cinq points de l'Assemblée nationale à Wikipédia pour l'ablation M4.
+MIXES["M4WIKI"] = {**MIXES["M4"], "wikipedia_fr": 45, "assemblee_nationale": 10}
 
 
 def quotas(size, shares):
