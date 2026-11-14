@@ -239,3 +239,6 @@ kaggle.json
 .huggingface/
 # Outils locaux
 .claude/
+
+# Le paquet de soumission du kit contient son checkpoint (poids en float16, ~20 Mo)
+!submissions/**/*.pt
