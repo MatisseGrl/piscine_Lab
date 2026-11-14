@@ -39,6 +39,7 @@ MIXES = {
 DEFAULT_MIXES = tuple(MIXES)
 # Même mélange de tokens que M4, avec un BPE entraîné sur ces proportions en octets.
 MIXES["M4BPE"] = MIXES["M4"]
+MIXES["M4BPE50"] = MIXES["M4"]
 # Réalloue cinq points de l'Assemblée nationale à Wikipédia pour l'ablation M4.
 MIXES["M4WIKI"] = {**MIXES["M4"], "wikipedia_fr": 45, "assemblee_nationale": 10}
 MIXES["M4WIKIBPE"] = MIXES["M4WIKI"]
@@ -47,6 +48,8 @@ MIXES["M4REPEAT"] = {
     "gutenberg_fr": 30, "wikinews_fr": 5,
 }
 REPLAY_SOURCES = {"wikipedia_fr", "gutenberg_fr"}
+# Seule la quantité de texte utilisée pour apprendre les fusions varie entre les deux BPE.
+BPE_SAMPLE_BYTES = {"M4BPE": 10_000_000, "M4WIKIBPE": 10_000_000, "M4BPE50": 50_000_000}
 
 
 def quotas(size, shares):
@@ -273,9 +276,11 @@ def prepare(kit, interim, base, out, names):
                 raise ValueError(f"{mix} : sources absentes {sorted(missing)}")
             mix_tokenizer = tokenizer
             sample = None
-            if mix in {"M4BPE", "M4WIKIBPE"}:
-                # Apprend sur 10 Mo, avec les pourcentages de M4 appliqués aux octets UTF-8.
-                trained_path, sample = train_tokenizer(kit, sources, scratch, MIXES["M4"])
+            if mix in BPE_SAMPLE_BYTES:
+                # Applique les pourcentages de M4 aux octets UTF-8 de l'échantillon.
+                trained_path, sample = train_tokenizer(
+                    kit, sources, scratch, MIXES["M4"], sample_bytes=BPE_SAMPLE_BYTES[mix],
+                )
                 mix_tokenizer = load_tokenizer(trained_path)
             replay_sources = REPLAY_SOURCES if mix == "M4REPEAT" else ()
             metas[mix] = prepare_mix(

@@ -105,12 +105,12 @@ def shuffled_texts(path, rate, scratch):
             yield json.loads(spool.readline())["text"]
 
 
-def train_tokenizer(kit, sources, scratch, shares=SHARES):
-    """Entraîne un tokenizer sur 10 Mo de textes dosés en octets UTF-8."""
+def train_tokenizer(kit, sources, scratch, shares=SHARES, sample_bytes=10_000_000):
+    """Entraîne un tokenizer sur un échantillon dosé en octets UTF-8."""
     sample = scratch / "tokenizer-sample.jsonl"
     used = {}
     with sample.open("w", encoding="utf-8", newline="\n") as stream:
-        for source, limit in quotas(10_000_000, shares).items():
+        for source, limit in quotas(sample_bytes, shares).items():
             path, size, _ = sources[source]
             remaining = limit
             # Le tirage initial contient en moyenne deux fois le volume nécessaire.

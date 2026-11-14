@@ -307,11 +307,25 @@ M4BPE garde les proportions de M4 en tokens et entraîne son BPE sur 10 Mo des m
 sources, dosés avec ces proportions en octets UTF-8. Le tokenizer de M4BPE est dans le
 dossier de la variante, et son échantillon est identifié par SHA-256 dans le manifeste.
 Les quotas, les répétitions et les empreintes sont enregistrés pour chaque flux.
+M4BPE50 répète cette expérience avec un échantillon d'environ 50 Mo. M4WIKIBPEORDER
+combine le BPE appris sur les 10 Mo de M4, le mélange 45/15/10/25/5 et le réordonnancement.
 
 ```bash
 uv run python -m pipeline.regenerate --mix M4BPE
 uv run python scripts/kaggle_mix_run.py M4BPE data/processed/final/M4BPE --keep-checkpoint --accelerator NvidiaTeslaT4
+uv run python -m pipeline.regenerate --mix M4BPE50
+uv run python -m pipeline.regenerate --mix M4WIKIBPEORDER
 ```
 
 Le deuxième argument du lanceur crée le dataset Kaggle privé. Pour relancer un
 entraînement à partir de ce dataset déjà créé, omettre cet argument.
+
+## Seconde passe partielle
+
+M4REPEAT conserve la première passe de Wikipédia et Gutenberg de M4, puis rejoue
+5 000 397 tokens de chacune. La part de Common Crawl passe de 15 % à 5 %. Les quotas
+de chaque fenêtre restent constants, et les fragments répétés arrivent vers la fin.
+
+```bash
+uv run python -m pipeline.regenerate --mix M4REPEAT
+```
