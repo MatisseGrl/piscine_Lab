@@ -107,3 +107,54 @@ uv run --frozen python -m minigpt.web_chat --checkpoint runs/chat-main-v2-r30/st
 ```
 
 Ouvrir [http://localhost:8765](http://localhost:8765). Après redémarrage depuis un terminal neuf, Chrome a affiché les trois réponses attendues du scénario de démo, dont « Prenez quelque repos, je vous en prie. » au troisième tour. **135 tests passent** avec la validation Molière disponible dans le worktree. Les sources et leurs licences figurent aussi dans le [PPTX](Feed-the-Beast-demo.pptx).
+
+## Chat v3 : pré-entraînement français, puis Molière, puis dialogues (14 novembre)
+
+**Le constat.** Le mini-GPT de 1 M de paramètres n'avait lu que 1,6 Mo de Molière. Il ne savait pas le français, et ses réponses plafonnaient quels que soient les réglages.
+
+**La piste.** On garde le même code (`minigpt/model.py`), mais en plus grand : 12,8 M de paramètres, vocab 8 192 (tokenizer de la compétition), contexte 512. Le modèle est d'abord pré-entraîné sur le dataset français du projet (100 M de tokens, flux dédup + qualité 80/12/8). On le reprend ensuite sur le train Molière, puis on le fine-tune sur des dialogues.
+
+### Contrôles du pré-entraîné (`scripts/check_pretrained.py`)
+
+- Rechargement en `strict=True`, 12 805 120 paramètres, empreinte du tokenizer conforme.
+- BPB zéro coup sur la validation Molière (260 488 octets UTF-8, CRLF normalisés) : **2,0112**.
+- Fuite : 0 document sur 200 000 documents nettoyés (788 Mo) ne contient une des 47 106 séquences de 13 mots de `moliere_val.txt`. C'est un échantillon du texte nettoyé, pas sa totalité.
+
+### Continuation sur Molière (`minigpt/continue_pretrained.py`, Kaggle T4)
+
+Train officiel seul (25 pièces). AdamW, cosinus de 1e-4 à 1e-5, 1 500 pas, batch 16 × 512, graine 1337. **Le palier se choisit sur les 5 % finaux du train, mis de côté ; la validation est seulement mesurée.**
+
+| Pas | Loss held-out (train) | BPB validation Molière |
+|---:|---:|---:|
+| 0 | 4,2031 | 2,0112 |
+| 200 | 3,1918 | 1,4565 |
+| 400 | 3,1215 | 1,4182 |
+| **600 (retenu sur le held-out)** | **3,1055** | **1,4111** |
+| 800 | 3,1108 | 1,4098 |
+| 1 500 | 3,1332 | 1,4205 |
+
+**Résultat « un seul mini-GPT » : 1,4111 BPB**, contre 1,8237 pour le mini-GPT de base et 1,7434 pour l'ancien meilleur modèle seul. Une seule graine, donc pas de barre d'erreur. Le minimum de validation (1,4098, pas 800) n'est pas retenu : le choisir sur la validation serait une fuite.
+
+### Fine-tuning du chat, données v4
+
+- Données : corpus v2 plus 40 conversations multi-tours écrites à la main (`scripts/build_chat_data_v4.py`, répétées 8 fois), soit 7 939 conversations. Audit : aucune question DEV/FINAL dans les textes appris.
+- `minigpt.chat_sft` part du palier Molière retenu : loss = 0,7 chat + 0,3 Molière, lr 1e-4, batch 32 + 8 fenêtres Molière, 2 000 pas, palier tous les 250 pas.
+- La loss des réponses tombe à 0,03 : le modèle apprend par cœur un corpus très répétitif. Le BPB Molière remonte de 1,425 (pas 750) à 1,465 (pas 1 750).
+
+Notation sur le **DEV** (20 tours, dont 9 qui dépendent du contexte), mêmes critères qu'en tête de ce rapport. Annotation par l'agent sur les sorties brutes, pas une évaluation à l'aveugle.
+
+| Checkpoint | Pertinence /20 | Contexte /9 | Couleur /20 | BPB Molière |
+|---|---:|---:|---:|---:|
+| Ancienne démo v2, pas 1 000 (1 M param.) | 16 | 7 | — | 1,8548 |
+| v3, pas 500 | 14 | 4 | — | 1,4279 |
+| **v3, pas 750** | **16** | **5** | **13** | **1,4251** |
+| v3, pas 1 000 | 14 | 4 | — | 1,4305 |
+
+**Lecture honnête.** La v3 parle mieux le français et a un bien meilleur BPB Molière (1,43 contre 1,85). En revanche, elle **ne bat pas** l'ancienne démo sur le DEV : pertinence égale, contexte moins bon (5/9 contre 7/9). Sur le scénario du mentor, au pas 750 :
+1. « Bonjour, comment ça va ? » → « Je vous salue ! Je me porte bien. Et vous ? »
+2. « Moi je suis fatigué. » → « Reposez-vous un peu, mon ami. Le repos vous fera du bien. »
+3. « Que me conseilles-tu ? » → « Je vous conseille un peu de lecture. Je vous écoute, mon ami. »
+
+Le troisième tour est un conseil, mais il ne tient pas compte de la fatigue. Échecs typiques : la blague (« Je suis un petit modèle de langage… ») et « Peux-tu me redire mon prénom ? » (→ salutation). Le FINAL n'a pas encore été lu : il le sera une seule fois, après le choix entre v4 et v5.
+
+Un second run (v5 : v4 + 8 000 paires de théâtre Claire/TheatreGratuit, mêmes réglages) est en cours sur Kaggle.
