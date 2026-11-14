@@ -21,6 +21,26 @@ uv run python -m pipeline.regenerate --mix M4 --from quality   # reprend à une 
 
 Étapes, dans l'ordre : kit officiel (révision `3709c85`), collect, clean, dedup, quality, tokenizer 8 192 commun (`pipeline.ablation`), Wikinews, Gutenberg, mélange (`pipeline.mixes`). Une étape dont le fichier témoin existe est sautée (relance après interruption) ; une étape qui échoue arrête tout. À la fin, le SHA-256 du flux obtenu est comparé à celui du run de référence (`EXPECTED_SHA256` dans `pipeline/regenerate.py`, repris du LOG) : identique = reproductible.
 
+### Ordre des données de M4
+
+M4ORDER réutilise le flux M4 et son tokenizer, contrôlés par leurs SHA-256. Il
+répartit les mêmes 100 007 936 tokens sur deux phases. Les 1 500 premiers pas
+comptent 50,0 % de Wikipédia et Gutenberg en tokens. Leur part atteint 79,5 %
+ensuite. Le basculement suit une frontière de fenêtre du mélangeur officiel.
+Le flux conserve les quotas globaux et l'ordre des tokens au sein de chaque source.
+
+```bash
+uv run python -m pipeline.regenerate --mix M4
+uv run python -m pipeline.mix_order --parent data/processed/final/M4 --out data/processed/final/M4ORDER
+```
+
+Le dossier de sortie contient le tokenizer partagé et `M4ORDER/train.bin`
+(SHA-256 `792bb7027196ca2f0c1aa95a989421baf886a0f0e4e3a269b1f14e8dedf4f9b6`). Les
+effectifs exacts des deux phases sont dans `M4ORDER/data_meta.json`.
+Pour combiner le changement d'ordre avec un autre flux de la famille M4, passe
+son nom via `--source-mix`. Le dossier du flux de sortie ajoute `ORDER` à ce
+nom. Le tokenizer du flux de départ est copié à la racine de la sortie.
+
 Temps d'une reconstruction complète : plusieurs heures (collecte de dizaines de Gio, dédup ~36 min, qualité ~10 min, Gutenberg et mélange). Prévoir 100 Go libres. Le mélange final s'écrit dans `data/processed/final/<mélange>/` (dossier neuf obligatoire).
 
 ## Lancer la collecte
