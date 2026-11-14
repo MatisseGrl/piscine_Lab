@@ -232,3 +232,12 @@ uv run --no-sync python -m pipeline.ablation_runs log --results runs/ablation-ex
 ```
 
 Le journal refuse la comparaison si le tokenizer, le protocole ou l'environnement GPU diffèrent. Sans `--reference`, la conclusion indique « Comparaison en attente ». Aucun entraînement n'a été lancé pour ces variantes : leur BPB reste à mesurer.
+
+## Wikinews FR (14 novembre 2026)
+
+`pipeline/wikinews.py` collecte le dump officiel Wikimedia du 1er novembre 2026 et le fait passer par les mêmes étapes que les autres sources (ftfy, contamination 13-grammes, langue ≥ 0,80, dédup exacte normalisée, MinHash 0,97, qualité), sans PII. Il ne modifie aucune étape existante. Résultat : 19 309 documents, 20 768 387 octets UTF-8, 5 483 404 tokens estimés. Détail dans `sources/wikinews-fr.md`.
+
+```bash
+uv run python -m pipeline.wikinews --download   # dump + vérification de taille
+uv run python -m pipeline.wikinews              # -> data/interim/wikinews/ (JSONL gzip, stats.json, titles.json)
+```
