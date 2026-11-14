@@ -18,7 +18,7 @@ Il reste peu de temps : on avance vite. Matisse (ING4 Data & IA) vise à compren
 
 ## Périmètre
 
-Ce que demande le sujet, rien de plus. Pas de fine-tuning, pas d'interface de chat, pas de RLHF, pas d'architecture « améliorée » pour la compétition (elle est figée). Si Matisse en parle, rappelle que le classement se joue sur les données.
+Ce que demande le sujet, plus la démo demandée par le mentor (JB, appel du 14/11) : un chat « façon Molière » avec le mini-GPT du bloc 1, fine-tuné sur des dialogues, servi par une page HTML locale. Datasets externes autorisés pour cette démo, à citer avec les liens dans le pptx. Pas de RLHF. Pour la **compétition**, l'architecture et les hyperparamètres restent figés (le classement se joue sur les données) et aucune initialisation depuis des poids pré-entraînés n'est permise. La soumission officielle se fait par `python -m ftb.submit` et le mentor teste le paquet sur sa machine.
 
 ## Règles du sujet (non négociables)
 
