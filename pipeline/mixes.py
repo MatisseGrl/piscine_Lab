@@ -4,6 +4,7 @@ Même protocole que `pipeline.ablation` : 8 192 entrées BPE, proportions consta
 fenêtre, graine 42 et 100 007 937 tokens au format kit. Les mélanges partagent
 le tokenizer de référence par défaut. M4BPE entraîne le sien sur les sources de M4.
 Une source trop petite pour son quota peut être répétée, au plus `MAX_PASSES` passes.
+M4REPEAT rejoue aussi une partie exacte des extraits Wikipédia et Gutenberg vus dans M4.
 """
 
 import argparse
@@ -40,6 +41,11 @@ DEFAULT_MIXES = tuple(MIXES)
 MIXES["M4BPE"] = MIXES["M4"]
 # Réalloue cinq points de l'Assemblée nationale à Wikipédia pour l'ablation M4.
 MIXES["M4WIKI"] = {**MIXES["M4"], "wikipedia_fr": 45, "assemblee_nationale": 10}
+MIXES["M4REPEAT"] = {
+    "wikipedia_fr": 45, "common_crawl": 5, "assemblee_nationale": 15,
+    "gutenberg_fr": 30, "wikinews_fr": 5,
+}
+REPLAY_SOURCES = {"wikipedia_fr", "gutenberg_fr"}
 
 
 def quotas(size, shares):
@@ -72,7 +78,7 @@ def shuffled_texts(path, rate, seed, scratch):
             yield json.loads(spool.readline())["text"]
 
 
-def encode_repeating(entry, target, tokenizer, stream, scratch, max_passes=MAX_PASSES):
+def encode_repeating(entry, target, tokenizer, stream, scratch, max_passes=MAX_PASSES, spans=None):
     """Écrit `target` tokens d'une source ; refait une passe mélangée si le stock ne suffit pas.
 
     Renvoie le nombre de passes (1,0 = aucune répétition ; 1,8 = 80 % du stock vu deux fois).
@@ -93,6 +99,9 @@ def encode_repeating(entry, target, tokenizer, stream, scratch, max_passes=MAX_P
             for ids in tokenizer.encode_batch(batch):
                 ids.append(tokenizer.eot_id)
                 tokens = ids[:remaining]
+                if spans is not None:
+                    # Mémorise l'extrait réellement écrit, y compris le dernier document tronqué.
+                    spans.append((stream.tell(), len(tokens)))
                 stream.write(np.asarray(tokens, dtype="<u2").tobytes())
                 remaining -= len(tokens)
                 written += len(tokens)
@@ -106,7 +115,26 @@ def encode_repeating(entry, target, tokenizer, stream, scratch, max_passes=MAX_P
     raise ValueError(f"{path} : {remaining} tokens manquants après {max_passes} passes")
 
 
-def prepare_mix(folder, sources, shares, tokenizer, config, scratch):
+def replay_selection(stream, spans, target):
+    """Ajoute des documents tirés sans remise parmi les extraits de la première passe."""
+    random.Random(SEED + 1).shuffle(spans)
+    end = stream.tell()
+    for offset, length in spans:
+        count = min(length, target)
+        stream.seek(offset)
+        chunk = stream.read(2 * count)
+        if len(chunk) != 2 * count:
+            raise ValueError("Extrait à rejouer incomplet")
+        stream.seek(end)
+        stream.write(chunk)
+        end += len(chunk)
+        target -= count
+        if not target:
+            return
+    raise ValueError(f"Répétition incomplète : {target} tokens manquants")
+
+
+def prepare_mix(folder, sources, shares, tokenizer, config, scratch, replay_sources=()):
     """Assemble un flux au format du kit, avec le même mélange dans chaque fenêtre."""
     import numpy as np
     import tokenizers
@@ -115,6 +143,8 @@ def prepare_mix(folder, sources, shares, tokenizer, config, scratch):
     seen = train["max_steps"] * train["tokens_per_step"]
     window = train["shuffle_window_steps"] * train["tokens_per_step"]
     counts = quotas(seen, shares)
+    baseline = quotas(seen, MIXES["M4"]) if replay_sources else {}
+    repeated = {}
     folder.mkdir()
     passes = {}
     with ExitStack() as stack:
@@ -122,7 +152,17 @@ def prepare_mix(folder, sources, shares, tokenizer, config, scratch):
         for source, count in counts.items():
             print(f"{folder.name}/{source} : {count:,} tokens", flush=True)
             stream = stack.enter_context(TemporaryFile(dir=scratch))
-            passes[source] = encode_repeating(sources[source], count, tokenizer, stream, scratch)
+            if source in replay_sources:
+                # Conserve exactement la sélection initiale de M4, puis rejoue son sous-ensemble.
+                first_pass = baseline[source]
+                spans = []
+                passes[source] = encode_repeating(sources[source], first_pass, tokenizer, stream, scratch,
+                                                  max_passes=1, spans=spans)
+                repeated[source] = count - first_pass
+                replay_selection(stream, spans, repeated[source])
+                passes[source] += repeated[source] / first_pass
+            else:
+                passes[source] = encode_repeating(sources[source], count, tokenizer, stream, scratch)
             stream.seek(0)
             inputs[source] = stream
         rng = random.Random(SEED)
@@ -151,6 +191,8 @@ def prepare_mix(folder, sources, shares, tokenizer, config, scratch):
         "passes_started_by_source": passes,
         "input_sha256_by_source": {source: sources[source][2] for source in shares},
     }
+    if repeated:
+        metadata["replayed_tokens_by_source"] = repeated
     write_json(folder / "data_meta.json", metadata)
     return metadata
 
@@ -234,7 +276,11 @@ def prepare(kit, interim, base, out, names):
                 # Apprend sur 10 Mo, avec les pourcentages de M4 appliqués aux octets UTF-8.
                 trained_path, sample = train_tokenizer(kit, sources, scratch, MIXES[mix])
                 mix_tokenizer = load_tokenizer(trained_path)
-            metas[mix] = prepare_mix(staged / mix, sources, MIXES[mix], mix_tokenizer, config, scratch)
+            replay_sources = REPLAY_SOURCES if mix == "M4REPEAT" else ()
+            metas[mix] = prepare_mix(
+                staged / mix, sources, MIXES[mix], mix_tokenizer, config, scratch,
+                replay_sources=replay_sources,
+            )
             if sample is not None:
                 # Le flux embarque le tokenizer spécifique. Le manifeste décrit son échantillon.
                 shutil.copyfile(trained_path, staged / mix / "tokenizer.json")
