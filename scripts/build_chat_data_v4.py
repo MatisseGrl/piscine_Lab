@@ -96,8 +96,14 @@ def main():
     parser.add_argument('--v2', type=Path, required=True)  # runs/chat-data-v2/train.json
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--repeat', type=int, default=8)
+    # Variante v5 : ajoute N paires de théâtre extraites de Claire (scripts/build_chat_claire.py).
+    parser.add_argument('--claire', type=Path)
+    parser.add_argument('--claire-count', type=int, default=8000)
     args = parser.parse_args()
     records = json.loads(args.v2.read_text(encoding='utf-8'))
+    if args.claire:
+        # Les paires sont déjà mélangées avec une graine fixe : on prend les premières.
+        records += json.loads(args.claire.read_text(encoding='utf-8'))[:args.claire_count]
     manual = []
     for turns in HANDWRITTEN:
         # Les rôles alternent strictement : un tour sur deux est la réponse.

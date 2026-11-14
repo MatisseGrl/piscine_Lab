@@ -19,6 +19,10 @@ def main():
     parser.add_argument('--port', type=int, default=8765)
     args = parser.parse_args()
     torch.set_num_threads(4)
+    # Messages clairs plutôt qu'une trace Python si un fichier manque.
+    for name in ('checkpoint', 'tokenizer'):
+        if not getattr(args, name).exists():
+            parser.error(f'{name} introuvable : {getattr(args, name)}')
     saved = torch.load(args.checkpoint, map_location='cpu', weights_only=True)
     model = restore_model(saved)
     # Détecte le format du tokenizer (BPE maison ou 8 192 de la compétition).
