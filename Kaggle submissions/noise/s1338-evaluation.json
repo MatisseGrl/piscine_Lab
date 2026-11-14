@@ -1,0 +1,17 @@
+{
+  "bpb": 1.327029082383581,
+  "bpb_par_genre": {
+    "dialogue": 1.1234569550858544,
+    "encyclopedique": 1.308931755976872,
+    "litteraire": 1.6692212070693149,
+    "presse": 1.2051308566627896
+  },
+  "loss_par_token": 3.4397445890224785,
+  "n_documents": 230,
+  "n_tokens": 217419,
+  "n_octets": 813051,
+  "octets_par_token": 3.7395581802878315,
+  "ckpt": "/kaggle/working/run-noise/ckpt.pt",
+  "data": "data/validation.jsonl",
+  "tokenizer_sha256": "b2554a8221a55c19b4008f5b605b1b6e84b6a7f84058507c15aba34eca3b2379"
+}
