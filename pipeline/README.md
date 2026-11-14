@@ -182,6 +182,33 @@ Contrôles : SHA-256 des trois sorties relus et conformes à leurs `stats.json`,
 
 Limites : regex seulement, donc pas de noms ni d'adresses ; une version logicielle du type `3.10.2.1` est masquée comme une IP ; les IPv6 très courtes (moins de 5 caractères) ne le sont pas ; un numéro suivi de lettres ou chiffres collés n'est pas masqué par prudence. Aucun BPB n'est mesuré ici : l'effet de la qualité et du PII reste à mesurer à configuration identique après les trois runs Kaggle de l'ablation.
 
+### Classifieur de bruit web pour M4
+
+M4CLASS applique une régression logistique aux passages de Common Crawl. Elle
+utilise des caractéristiques de structure, notamment les répétitions, les liens,
+le balisage et la ponctuation. Les pseudo-labels comparent des passages de
+Wikipédia, Gutenberg et Common Crawl à des copies auxquelles sont ajoutés
+menus, liens ou répétitions. Les passages de contrôle proviennent d'autres
+documents de ces mêmes archives d'entraînement. Ces corruptions servent
+uniquement au classifieur.
+
+Le quartile bas des scores par passage classe chaque document. On garde les
+documents entiers les mieux classés jusqu'à couvrir 110 % du quota Common Crawl
+de M4. Le tokenizer, les quotas et le traitement des autres sources viennent de
+M4. L'empreinte des archives est vérifiée avant le classement. Le fichier
+`quality_classification.json` détaille les pseudo-labels, les coefficients,
+le seuil retenu et le stock disponible.
+
+```bash
+uv run python -m pipeline.mix_quality --out data/processed/final/M4CLASS
+```
+
+Le classement conserve 7 354 des 12 520 documents de Common Crawl (58,7 %).
+Ces documents fournissent 16 502 295 tokens avec leurs séparateurs. Le quota
+de 15 001 190 tokens de M4 tient donc en une passe. Les 360 paires de contrôle
+sont toutes correctement ordonnées sur les corruptions simulées. L'effet sur le
+BPB reste à mesurer avec un entraînement officiel.
+
 ## Ablation sur la validation publique du kit
 
 Mélange validé par Matisse le 10/11/2026. Wikipédia FR 80 %, Common Crawl 12 %, Assemblée nationale 8 %. Pour le tokenizer BPE commun de 8 192 entrées, ces proportions s’appliquent à un échantillon fixe de 10 Mo du nettoyé, en octets UTF-8. Pour l’entraînement, elles s’appliquent aux tokens cibles, y compris les séparateurs de document. Le tirage et le mélange des blocs par fenêtre utilisent la graine 42. Le kit entraîne avec la graine 1337.
