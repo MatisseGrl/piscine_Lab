@@ -8,7 +8,8 @@ from pathlib import Path
 
 # Retrouve le dossier d'entrée qui contient le flux « qualité ».
 train_bin = next(Path("/kaggle/input").rglob("quality/train.bin"))
-tokenizer = next(Path("/kaggle/input").rglob("ablation/tokenizer.json"))
+# Le tokenizer est dans le dossier parent de `quality/`, quel que soit le préfixe ajouté par Kaggle.
+tokenizer = train_bin.parent.parent / "tokenizer.json"
 print("train.bin :", train_bin, "| tokenizer :", tokenizer)
 
 # Code du dépôt (public), branche du chat.
