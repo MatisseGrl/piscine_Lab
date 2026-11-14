@@ -1,0 +1,133 @@
+{
+  "average_three": {
+    "bpb_ensemble": 1.7596493533764992,
+    "validation_sha256": "e5dde8f5782f15943443cddb056bf9fd19efd67822b9e36a875e2c2970ede12c",
+    "tokenizer_sha256": "9c7ba507e0b0bc27ad602faf40282e03a4d89d4ce58b67a258af10fbc8b5e6f4",
+    "checkpoints": [
+      {
+        "path": "..\\moliere-continuation-20261111\\cosine\\best.pt",
+        "sha256": "b020633949de305358de44f33529b0520d15807546fe7141b9f67d6230df0a74",
+        "bpb": 1.770613699084989
+      },
+      {
+        "path": "..\\moliere-continuation-20261111\\constant\\best.pt",
+        "sha256": "29f272ce59cc0d8c1bcf0964dba95fd903a53bc0709315094f401b2b2b61ac87",
+        "bpb": 1.778538711795449
+      },
+      {
+        "path": "runs\\night-20261111-231345\\kit\\step-400.pt",
+        "sha256": "f1a9df0af3bb988d5bf9d403d5e46eeb3f9f35f4a8c69eb5c8843434b6f3eb9a",
+        "bpb": 1.7901298914585482
+      }
+    ],
+    "bpb_average": 1.7660147606163636
+  },
+  "hybrid_one": {
+    "bpb_ensemble": 1.7660147593354518,
+    "validation_sha256": "e5dde8f5782f15943443cddb056bf9fd19efd67822b9e36a875e2c2970ede12c",
+    "tokenizer_sha256": "9c7ba507e0b0bc27ad602faf40282e03a4d89d4ce58b67a258af10fbc8b5e6f4",
+    "checkpoints": [
+      {
+        "path": "runs\\moliere-combination-three\\average.pt",
+        "sha256": "98d0a8b6ace2986a84e003d415307f03076dc9d5d5dbfa3107d740a021ee0f6d",
+        "bpb": 1.7660147593354518
+      }
+    ],
+    "ngram": {
+      "fraction": 0.5,
+      "prior": 12,
+      "strength": 10,
+      "train_sha256": "a140c09cd253ba891e081ef246afeae6bbc99870fdaff3763d62ddd95973862e",
+      "bpb": 1.7131323285075837
+    }
+  },
+  "hybrid_kit": {
+    "bpb_ensemble": 1.7480689137330623,
+    "validation_sha256": "e5dde8f5782f15943443cddb056bf9fd19efd67822b9e36a875e2c2970ede12c",
+    "tokenizer_sha256": "9c7ba507e0b0bc27ad602faf40282e03a4d89d4ce58b67a258af10fbc8b5e6f4",
+    "checkpoints": [
+      {
+        "path": "..\\moliere-continuation-20261111\\cosine\\best.pt",
+        "sha256": "b020633949de305358de44f33529b0520d15807546fe7141b9f67d6230df0a74",
+        "bpb": 1.770613699084989
+      },
+      {
+        "path": "..\\moliere-continuation-20261111\\constant\\best.pt",
+        "sha256": "29f272ce59cc0d8c1bcf0964dba95fd903a53bc0709315094f401b2b2b61ac87",
+        "bpb": 1.778538711795449
+      },
+      {
+        "path": "..\\..\\checkpoints\\moliere_gpt.pt",
+        "sha256": "28047e8b438d17d218b1b82fc8100e9bc9f471083815616f9c9b5de357ab3f75",
+        "bpb": 1.8236777905673127
+      },
+      {
+        "path": "runs\\night-20261111-231345\\kit\\step-400.pt",
+        "sha256": "f1a9df0af3bb988d5bf9d403d5e46eeb3f9f35f4a8c69eb5c8843434b6f3eb9a",
+        "bpb": 1.7901298914585482
+      },
+      {
+        "path": "runs\\chat-main-v2-r30\\step-4000.pt",
+        "sha256": "175ba0454d2402171f573492dfc8ed049d52298318ca66e27bb0ea7c62ef5b75",
+        "bpb": 1.8198828346354348
+      },
+      {
+        "path": "runs\\night-20261111-231345\\dropout\\step-400.pt",
+        "sha256": "04e3a209cf079a6ac4135493d4a02c47f5f7f106c5daa7c1e52d41296a207bb8",
+        "bpb": 1.82048879883581
+      }
+    ],
+    "ngram": {
+      "fraction": 0.5,
+      "prior": 12,
+      "strength": 10,
+      "train_sha256": "a140c09cd253ba891e081ef246afeae6bbc99870fdaff3763d62ddd95973862e",
+      "bpb": 1.7042664004306236
+    }
+  },
+  "hybrid_extra": {
+    "bpb_ensemble": 1.7480689137330623,
+    "validation_sha256": "e5dde8f5782f15943443cddb056bf9fd19efd67822b9e36a875e2c2970ede12c",
+    "tokenizer_sha256": "9c7ba507e0b0bc27ad602faf40282e03a4d89d4ce58b67a258af10fbc8b5e6f4",
+    "checkpoints": [
+      {
+        "path": "..\\moliere-continuation-20261111\\cosine\\best.pt",
+        "sha256": "b020633949de305358de44f33529b0520d15807546fe7141b9f67d6230df0a74",
+        "bpb": 1.770613699084989
+      },
+      {
+        "path": "..\\moliere-continuation-20261111\\constant\\best.pt",
+        "sha256": "29f272ce59cc0d8c1bcf0964dba95fd903a53bc0709315094f401b2b2b61ac87",
+        "bpb": 1.778538711795449
+      },
+      {
+        "path": "..\\..\\checkpoints\\moliere_gpt.pt",
+        "sha256": "28047e8b438d17d218b1b82fc8100e9bc9f471083815616f9c9b5de357ab3f75",
+        "bpb": 1.8236777905673127
+      },
+      {
+        "path": "runs\\night-20261111-231345\\kit\\step-400.pt",
+        "sha256": "f1a9df0af3bb988d5bf9d403d5e46eeb3f9f35f4a8c69eb5c8843434b6f3eb9a",
+        "bpb": 1.7901298914585482
+      },
+      {
+        "path": "runs\\chat-main-v2-r30\\step-4000.pt",
+        "sha256": "175ba0454d2402171f573492dfc8ed049d52298318ca66e27bb0ea7c62ef5b75",
+        "bpb": 1.8198828346354348
+      },
+      {
+        "path": "runs\\night-20261111-231345\\dropout\\step-400.pt",
+        "sha256": "04e3a209cf079a6ac4135493d4a02c47f5f7f106c5daa7c1e52d41296a207bb8",
+        "bpb": 1.82048879883581
+      }
+    ],
+    "ngram": {
+      "fraction": 0.6,
+      "prior": 12,
+      "strength": 10,
+      "train_sha256": "a140c09cd253ba891e081ef246afeae6bbc99870fdaff3763d62ddd95973862e",
+      "extra_sha256": "c4e30f6df669089fbc2cb013cdb45dd76588efb408e310167c5d8b46cb7a4f26",
+      "bpb": 1.6960016276784518
+    }
+  }
+}

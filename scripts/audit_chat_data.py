@@ -7,6 +7,7 @@ from collections import Counter
 from pathlib import Path
 from minigpt.bpe import BPETokenizer
 from minigpt.chat_bench import DEV, FINAL
+from minigpt.repair_bench import REPAIR_DEV, REPAIR_FINAL
 from minigpt.bigram import load_utf8
 from minigpt.conversation import prompt_ids
 
@@ -56,7 +57,9 @@ def main():
             samples.append(record)
     # Le lot final sert seulement à vérifier l'absence de contamination, jamais à optimiser.
     reserved = [question for discussion in DEV + FINAL for question in discussion]
-    leaks = [q for q in reserved if tuple(words(q)) in questions or ' '.join(words(q)) in ' '.join(words(source))]
+    reserved.extend(followup for _, _, followup, _ in REPAIR_DEV + REPAIR_FINAL)
+    normalized_source = ' '.join(words(source))
+    leaks = [q for q in reserved if tuple(words(q)) in questions or ' '.join(words(q)) in normalized_source]
     assert not leaks, f'Questions réservées présentes : {leaks}'
     assert not overlaps, f'Recouvrements avec les pièces de validation : {overlaps[:10]}'
     result = {'sha256': hashlib.sha256(args.data.read_bytes()).hexdigest(), 'conversations': len(records),

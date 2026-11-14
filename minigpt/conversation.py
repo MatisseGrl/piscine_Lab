@@ -16,11 +16,12 @@ def prompt_ids(tokenizer, history, size=128, headers=HEADERS):
     return ids[-size:], max(0, len(ids) - size)
 
 
-def supervised_examples(tokenizer, history, size=128):
+def supervised_examples(tokenizer, history, size=128, *, last_only=False):
     """Supervise chaque réponse avec son historique et découpe les réponses longues."""
     examples = []
     for index, (role, text) in enumerate(history):
-        if role != 'assistant':
+        # Pour une réparation, les anciennes réponses peuvent être des erreurs à corriger.
+        if role != 'assistant' or (last_only and index != len(history) - 1):
             continue
         prefix, _ = prompt_ids(tokenizer, history[:index], size)
         answer = tokenizer.encode(text.strip() + '\n\n')

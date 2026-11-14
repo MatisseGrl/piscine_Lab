@@ -52,3 +52,5 @@ Ce code est écrit à la main : chaque ligne doit pouvoir être expliquée à la
 `chat_sft.py` supervise les réponses du corpus dédié et peut garder un rappel du train Molière.
 `evaluate_chat.py` rejoue des discussions entières avec les réponses réellement générées.
 `web_chat.py` charge les poids sur CPU et sert la page locale. Voir le [rapport de la démo](../report/chat_demo.md) pour les commandes et les résultats.
+
+`combine_checkpoints.py` compare un modèle seul, une moyenne de poids et un ensemble sur les fenêtres de validation habituelles. La commande et le coût des variantes sont dans le [rapport de comparaison](../report/moliere_model_comparison.md).

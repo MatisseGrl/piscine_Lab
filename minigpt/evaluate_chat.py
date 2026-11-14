@@ -10,6 +10,7 @@ from minigpt.chat_sft import evaluate_dialogues
 from minigpt.chat_bench import DEV, FINAL
 from minigpt.conversation import HEADERS
 from minigpt.model import evaluate_bpb
+from minigpt.repair_bench import REPAIR_DEV, REPAIR_FINAL, evaluate_repairs
 
 
 def main():
@@ -19,6 +20,7 @@ def main():
     parser.add_argument('--tokenizer', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--split', choices=['dev', 'final'], default='dev')
+    parser.add_argument('--repair', action='store_true')
     parser.add_argument('--validation', type=Path)
     parser.add_argument('--roles', choices=['demo', 'legacy'], default='demo')
     args = parser.parse_args()
@@ -44,6 +46,7 @@ def main():
             'checkpoint': str(checkpoint), 'checkpoint_sha256': hashlib.sha256(checkpoint.read_bytes()).hexdigest(),
             'split': args.split, 'roles': args.roles, 'bpb': bpb, 'bpb_recomputed': bool(validation),
             'discussions': results,
+            'repairs': evaluate_repairs(model, tokenizer, REPAIR_DEV if args.split == 'dev' else REPAIR_FINAL) if args.repair else [],
         })
         print(str(checkpoint), flush=True)
 
