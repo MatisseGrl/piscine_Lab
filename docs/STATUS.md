@@ -2,7 +2,13 @@
 
 À lire au début de chaque session, à mettre à jour à la fin. Réécrit le 14 novembre 2026 (l'historique détaillé est dans git). **Rendu le 16 novembre 2026.**
 
-## Où on en est
+## Audit du 15 novembre
+
+- Les 189 tests passent avec le corpus Molière et le tokenizer 8 192. Le test de la démo v5 reproduit la boucle signalée, sans troncature de l’historique. Le [rapport d’audit](../report/audit_20261115.md) détaille les variantes, la répétition et les indices de mémorisation.
+- **Meilleur BPB public compétition : 1,302769 (M4, graine officielle 1337)**. Le run M4 n’a pas conservé le checkpoint. Le paquet préparé est le 80/12/8 avec filtre qualité, réévalué à **1,331469** sur CPU avec le kit officiel. Score caché et soumission effective non vérifiés.
+- À vérifier avant le rendu : aligner les chiffres du rapport et de la soutenance sur le paquet réellement remis. La commande de régénération contrôle le hash écrit dans le manifeste, donc calculer directement celui de `train.bin` pour vérifier le fichier.
+
+## État au 14 novembre
 
 | Bloc | État |
 |---|---|
