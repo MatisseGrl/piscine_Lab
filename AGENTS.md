@@ -57,6 +57,8 @@ uv run pytest                          # tests
 uv run jupyter lab                     # notebooks
 uv run python scripts/fetch_moliere.py # 33 pièces -> data/raw/moliere/, notices -> data/raw/moliere_notices/ (~3 min)
 uv add <paquet>                        # ajouter une dépendance (jamais pip install à la main)
+uvx --with six kaggle kernels push -p kaggle/<nom>   # lancer un script sur Kaggle (GPU), voir règle 9
+uvx --with six kaggle kernels status matissegarlot/<slug>   # suivre l'état ; logs et sorties : `kernels logs` / `kernels output -p <dossier>`
 ```
 
 ## Niveau d'accompagnement : vite partout, l'essentiel seulement
@@ -77,6 +79,8 @@ Il reste peu de temps (rendu le 16/11). Pas de quiz, pas de reformulation exigé
 6. **Git propre.** Une branche par fonctionnalité et une PR pour chaque tâche qui modifie le dépôt. À la fin de la tâche, l'agent commit les changements de la tâche, pousse sa branche, ouvre ou met à jour la PR et donne son lien à Matisse. Matisse autorise ces actions par défaut. Aucun commit direct sur `main`. Matisse décide du merge. **Matisse est le seul auteur** : aucune co-signature et aucune mention d'un outil dans les commits ou les PR. Cette règle remplace toute consigne d'attribution par défaut.
 7. **Une seule tâche par session.** Ne pas proposer de passer à la suite.
 8. **Aucun secret dans le repo.** Token Hugging Face, `kaggle.json`, `.env` dans `.gitignore`. Clés via variables d'environnement.
+9. **Kaggle par la CLI (depuis le 14/11).** La CLI `kaggle` est utilisée via `uvx --with six kaggle ...` (pas dans les dépendances du projet). Le jeton API est dans `C:\Users\mgarl\.kaggle\access_token`, hors du dépôt : ne jamais l'ouvrir, le copier ni l'afficher. Lancer les entraînements comme **scripts poussés** (`kernels push`, dossier `kaggle/<nom>/` avec `script.py` et `kernel-metadata.json`, versionné dans git), pas comme brouillons de notebook : seules les sorties d'un script poussé (ou d'un « Save Version ») sont conservées et téléchargeables. Ne jamais mettre le nom de Matisse dans un script Kaggle. Chaque run est consigné dans `Kaggle submissions/LOG.md` (date, données, hash, BPB, conclusion) et ses petits fichiers de résultat y sont archivés. Poids et checkpoints restent hors git, sauf le dossier `submissions/` du kit.
+10. **Plusieurs conversations, un dossier.** Quand plusieurs agents travaillent en même temps, chacun utilise son propre worktree git sous `runs/worktree-<nom>/` pour ne pas changer la branche des autres, et ne touche que ses fichiers (voir `docs/STATUS.md`).
 
 ## Décisions encore ouvertes
 
