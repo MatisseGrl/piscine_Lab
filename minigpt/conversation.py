@@ -43,7 +43,9 @@ def supervised_examples(tokenizer, history, size=128, *, last_only=False):
 def reply(model, tokenizer, history, max_tokens=80, temperature=0.0, seed=42, *, headers=HEADERS):
     """Produit uniquement des tokens du modèle et s'arrête à la fin de réplique."""
     ids, dropped = prompt_ids(tokenizer, history, model.cfg.block_size, headers)
-    context = torch.tensor([ids], dtype=torch.long)
+    # Le contexte suit l'appareil du modèle (CPU en démo, GPU sur Kaggle).
+    device = next(model.parameters()).device
+    context = torch.tensor([ids], dtype=torch.long, device=device)
     generated = []
     generator = torch.Generator().manual_seed(seed)
     model.eval()

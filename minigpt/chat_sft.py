@@ -5,7 +5,7 @@ import json
 import time
 from pathlib import Path
 import torch
-from minigpt.bpe import BPETokenizer
+from minigpt.hf_tokenizer import load_tokenizer
 from minigpt.bigram import load_utf8
 from minigpt.finetune import restore_model, write_json
 from minigpt.conversation import HEADERS, supervised_examples, reply
@@ -40,6 +40,9 @@ def main():
     parser.add_argument('--lr', type=float, default=3e-4)
     parser.add_argument('--replay', type=float, default=0.1)
     parser.add_argument('--every', type=int, default=300)
+    # Tailles de lot réglables : avec un contexte de 512, 32 + 8 fenêtres est lent sur CPU.
+    parser.add_argument('--batch-size', type=int, default=32)
+    parser.add_argument('--replay-batch', type=int, default=8)
     args = parser.parse_args()
     if args.steps < 1 or args.every < 1 or args.lr <= 0 or not 0 <= args.replay < 1:
         parser.error('Pas, fréquence et taux positifs ; rappel entre 0 inclus et 1 exclu.')
@@ -48,14 +51,20 @@ def main():
     torch.manual_seed(20261111)
     generator = torch.Generator().manual_seed(20261111)
     saved = torch.load(args.checkpoint, map_location='cpu', weights_only=True)
-    model = restore_model(saved)
-    tokenizer = BPETokenizer.load(args.tokenizer)
+    # GPU si disponible (Kaggle), sinon CPU ; les lots sont déplacés au moment du calcul.
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model = restore_model(saved).to(device)
+    # BPE maison (vocab 1 024) ou tokenizer 8 192 de la compétition, détecté par le format.
+    tokenizer = load_tokenizer(args.tokenizer)
+    if len(tokenizer.vocab) != model.cfg.vocab_size:
+        raise ValueError('Tokenizer incompatible avec le checkpoint.')
     records = json.loads(args.data.read_text(encoding='utf-8'))
     train_text = load_utf8(args.corpus / 'moliere_train.txt').decode('utf-8')
     val_text = load_utf8(args.corpus / 'moliere_val.txt').decode('utf-8')
     # Les corpus sont liés aux poids par leurs octets UTF-8 normalisés.
     for name, text in [('train', train_text), ('val', val_text)]:
-        if hashlib.sha256(text.encode('utf-8')).hexdigest() != saved[name + '_sha256']:
+        # Le checkpoint pré-entraîné n'a pas d'empreinte Molière : contrôle seulement si elle existe.
+        if name + '_sha256' in saved and hashlib.sha256(text.encode('utf-8')).hexdigest() != saved[name + '_sha256']:
             raise ValueError('Corpus différent de la référence : ' + name)
     normalized = ' '.join((train_text + json.dumps(records, ensure_ascii=False)).casefold().split())
     # Aucun prompt des lots réservés ne doit se trouver dans les textes appris.
@@ -70,7 +79,7 @@ def main():
     train_ids = torch.tensor(tokenizer.encode(train_text), dtype=torch.long)
     val_ids = tokenizer.encode(val_text)
     metadata = {key: str(value) if isinstance(value, Path) else value for key, value in vars(args).items()}
-    metadata.update({'seed': 20261111, 'batch_size': 32, 'examples': len(examples),
+    metadata.update({'seed': 20261111, 'examples': len(examples),
                      'data_sha256': hashlib.sha256(args.data.read_bytes()).hexdigest(),
                      'parent_sha256': hashlib.sha256(args.checkpoint.read_bytes()).hexdigest(),
                      'tokenizer_sha256': hashlib.sha256(args.tokenizer.read_bytes()).hexdigest()})
@@ -82,14 +91,14 @@ def main():
     for step in range(1, args.steps + 1):
         model.train()
         # Un rappel de langue réduit l'oubli ; sa proportion est explicite et mesurable.
-        indices = torch.randint(len(examples), (32,), generator=generator)
+        indices = torch.randint(len(examples), (args.batch_size,), generator=generator)
         response_tokens_seen += int((y[indices] != -100).sum())
-        replay_tokens_seen += 8 * model.cfg.block_size if args.replay else 0
+        replay_tokens_seen += args.replay_batch * model.cfg.block_size if args.replay else 0
         optimizer.zero_grad(set_to_none=True)
-        _, chat_loss = model(x[indices], y[indices])
+        _, chat_loss = model(x[indices].to(device), y[indices].to(device))
         loss = chat_loss
         if args.replay:
-            _, replay_loss = model(*sample_batch(train_ids, 8, model.cfg.block_size, generator))
+            _, replay_loss = model(*(t.to(device) for t in sample_batch(train_ids, args.replay_batch, model.cfg.block_size, generator)))
             loss = (1 - args.replay) * chat_loss + args.replay * replay_loss
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
