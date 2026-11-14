@@ -10,7 +10,8 @@ MIX = "__MIX__"
 
 # Flux du mélange (train.bin + data_meta.json) et tokenizer 8 192 commun du dataset Kaggle.
 data = next(Path("/kaggle/input").rglob(f"{MIX}/train.bin")).parent
-tokenizer = data.parent / "tokenizer.json"
+# Recherche dans tout le dataset : Kaggle peut ajouter un niveau de dossier en décompressant.
+tokenizer = next(Path("/kaggle/input").rglob("tokenizer.json"))
 print("données :", data, "| tokenizer :", tokenizer, flush=True)
 
 # Même version du kit que pour toutes les mesures de l'ablation.

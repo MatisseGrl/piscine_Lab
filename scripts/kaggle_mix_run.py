@@ -11,13 +11,26 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-# Dataset Kaggle privé qui contient data/processed/mixes (tokenizer + un dossier par mélange).
-DATASET = "matissegarlot/piscine-mixes"
+
+
+def upload_dataset(mix, source):
+    """Crée le dataset Kaggle privé `piscine-mix-<id>` à partir du dossier local du flux.
+
+    `source` est le dossier de sortie de pipeline.mixes (tokenizer.json + <ID>/train.bin).
+    """
+    slug = f"piscine-mix-{mix.lower()}"
+    meta = {"title": slug, "id": f"matissegarlot/{slug}", "licenses": [{"name": "other"}]}
+    (Path(source) / "dataset-metadata.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+    # --dir-mode zip : le sous-dossier du mélange est envoyé compressé et décompressé par Kaggle.
+    subprocess.run(["uvx", "--with", "six", "kaggle", "datasets", "create", "-p", str(source),
+                    "--dir-mode", "zip"], check=True)
 
 
 def main():
-    """Écrit le dossier du kernel pour le mélange demandé et le pousse."""
+    """Usage : `kaggle_mix_run.py M3 [dossier_du_flux]`. Avec un dossier, crée d'abord le dataset."""
     mix = sys.argv[1]
+    if len(sys.argv) > 2:
+        upload_dataset(mix, sys.argv[2])
     folder = ROOT / "kaggle" / f"mix-{mix.lower()}"
     folder.mkdir(exist_ok=True)
     template = (ROOT / "kaggle/mix-template/script.py").read_text(encoding="utf-8")
@@ -26,7 +39,8 @@ def main():
     metadata = {
         "id": f"matissegarlot/{slug}", "title": slug, "code_file": "script.py",
         "language": "python", "kernel_type": "script", "is_private": True,
-        "enable_gpu": True, "enable_internet": True, "dataset_sources": [DATASET],
+        # Un dataset privé par mélange (même nom que le kernel), créé par upload_dataset().
+        "enable_gpu": True, "enable_internet": True, "dataset_sources": [f"matissegarlot/{slug}"],
         "competition_sources": [], "kernel_sources": [], "model_sources": [],
     }
     (folder / "kernel-metadata.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
