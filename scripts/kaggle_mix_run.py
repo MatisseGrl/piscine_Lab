@@ -1,6 +1,6 @@
 """Pousse sur Kaggle un run d'ablation pour un mélange (M1 à M5) à partir du modèle kaggle/mix-template.
 
-Usage : uv run python scripts/kaggle_mix_run.py M3
+Usage : uv run python scripts/kaggle_mix_run.py M3 [--seed 1338]
 Crée kaggle/mix-<id>/ (script + metadata, versionnés) puis lance `kaggle kernels push`.
 Le jeton Kaggle reste dans le profil utilisateur, jamais dans le dépôt.
 """
@@ -28,16 +28,24 @@ def upload_dataset(mix, source):
 
 
 def main():
-    """Usage : `kaggle_mix_run.py M3 [dossier_du_flux]`. Avec un dossier, crée d'abord le dataset."""
-    mix = sys.argv[1]
-    if len(sys.argv) > 2:
-        upload_dataset(mix, sys.argv[2])
-    folder = ROOT / "kaggle" / f"mix-{mix.lower()}"
+    """Usage : `kaggle_mix_run.py M3 [dossier_du_flux] [--seed N]`. Avec un dossier, crée d'abord le dataset."""
+    args = sys.argv[1:]
+    # Option --seed N : relance de bruit du même mélange avec une autre graine (non soumissible).
+    seed = 1337
+    if "--seed" in args:
+        i = args.index("--seed")
+        seed = int(args[i + 1])
+        del args[i:i + 2]
+    mix = args[0]
+    if len(args) > 1:
+        upload_dataset(mix, args[1])
+    suffix = "" if seed == 1337 else f"-s{seed}"
+    folder = ROOT / "kaggle" / f"mix-{mix.lower()}{suffix}"
     folder.mkdir(exist_ok=True)
     template = (ROOT / "kaggle/mix-template/script.py").read_text(encoding="utf-8")
-    (folder / "script.py").write_text(template.replace("__MIX__", mix), encoding="utf-8")
+    (folder / "script.py").write_text(template.replace("__MIX__", mix).replace("__SEED__", str(seed)), encoding="utf-8")
     # Le kernel ne doit PAS avoir le même slug que son dataset : Kaggle répond alors « 409 Conflict ».
-    slug = f"piscine-run-{mix.lower()}"
+    slug = f"piscine-run-{mix.lower()}{suffix}"
     metadata = {
         "id": f"matissegarlot/{slug}", "title": slug, "code_file": "script.py",
         "language": "python", "kernel_type": "script", "is_private": True,
