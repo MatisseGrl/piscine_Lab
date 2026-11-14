@@ -41,6 +41,7 @@ DEFAULT_MIXES = tuple(MIXES)
 MIXES["M4BPE"] = MIXES["M4"]
 # Réalloue cinq points de l'Assemblée nationale à Wikipédia pour l'ablation M4.
 MIXES["M4WIKI"] = {**MIXES["M4"], "wikipedia_fr": 45, "assemblee_nationale": 10}
+MIXES["M4WIKIBPE"] = MIXES["M4WIKI"]
 MIXES["M4REPEAT"] = {
     "wikipedia_fr": 45, "common_crawl": 5, "assemblee_nationale": 15,
     "gutenberg_fr": 30, "wikinews_fr": 5,
@@ -272,9 +273,9 @@ def prepare(kit, interim, base, out, names):
                 raise ValueError(f"{mix} : sources absentes {sorted(missing)}")
             mix_tokenizer = tokenizer
             sample = None
-            if mix == "M4BPE":
+            if mix in {"M4BPE", "M4WIKIBPE"}:
                 # Apprend sur 10 Mo, avec les pourcentages de M4 appliqués aux octets UTF-8.
-                trained_path, sample = train_tokenizer(kit, sources, scratch, MIXES[mix])
+                trained_path, sample = train_tokenizer(kit, sources, scratch, MIXES["M4"])
                 mix_tokenizer = load_tokenizer(trained_path)
             replay_sources = REPLAY_SOURCES if mix == "M4REPEAT" else ()
             metas[mix] = prepare_mix(

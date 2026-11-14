@@ -2,6 +2,19 @@
 
 À lire au début de chaque session, à mettre à jour à la fin. Réécrit le 14 novembre 2026 (l'historique détaillé est dans git). **Rendu le 16 novembre 2026.**
 
+## Compétition, essais du 15 novembre
+
+La relance officielle de M4 (graine 1337, Kaggle T4) atteint **1,3012 BPB**
+sur les 230 documents publics. Le checkpoint a été conservé et un paquet local
+a passé les contrôles de `ftb.submit`. Le flux a la même empreinte que le M4 initial.
+Le résultat et les logs figurent dans [le journal](../Kaggle%20submissions/LOG.md).
+
+Les essais isolent trois changements autour de M4 : tokenizer appris sur le mélange,
+plus de Wikipédia et Gutenberg en fin d'entraînement, et réallocation de cinq points
+de l'Assemblée à Wikipédia. Chaque entraînement officiel conserve le kit 3709c85,
+la graine 1337 et le budget de 100 007 936 tokens. Les tests à graine 1338 servent
+à estimer la stabilité des finalistes.
+
 ## Où on en est
 
 | Bloc | État |
