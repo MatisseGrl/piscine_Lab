@@ -139,6 +139,9 @@ def prepare_mix(folder, sources, shares, tokenizer, config, scratch):
         "kit_version": config["kit_version"], "tokenizers_version": tokenizers.__version__,
         "dataset_sha256": sha256(folder / "train.bin"), "tokenizer_sha256": tokenizer.sha256,
         "n_tokens": seen + 1, "budget_tokens": train["budget_tokens"],
+        # Clé lue par ftb.train : passes sur le FICHIER, calculée comme le kit (ftb/data.py).
+        # Les répétitions internes d'une source sont dans passes_started_by_source.
+        "passes_over_data": round(train["budget_tokens"] / max(seen + 1, 1), 3),
         "source_percent": shares, "tokens_seen_by_source": counts,
         "passes_started_by_source": passes,
         "input_sha256_by_source": {source: sources[source][2] for source in shares},
