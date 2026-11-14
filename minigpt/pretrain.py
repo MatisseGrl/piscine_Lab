@@ -131,6 +131,8 @@ def main() -> None:
     args = p.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     cfg = COMPETITION_CONFIG
+    # Message de départ : confirme le périphérique avant le premier affichage de perte.
+    print(f"démarrage | périphérique : {args.device} | pas : {args.steps}", flush=True)
     result = pretrain(args.data, cfg, steps=args.steps, batch_size=args.batch_size,
                       micro_batch=args.micro_batch, lr=args.lr, min_lr=args.min_lr,
                       warmup=args.warmup, seed=args.seed, device=args.device)

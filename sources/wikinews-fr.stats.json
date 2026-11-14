@@ -1,0 +1,71 @@
+{
+  "pages_main_namespace": 24220,
+  "wikitext_bytes": 90936113,
+  "revision_timestamp_min": "2007-04-04T18:47:53Z",
+  "revision_timestamp_max": "2026-05-06T12:44:21Z",
+  "clean": {
+    "docs_before": 24220,
+    "docs_after": 23633,
+    "bytes_before": 21424695,
+    "bytes_after": 21181517,
+    "docs_raw_safe": 24080,
+    "encoding_changed": 0,
+    "boilerplate_lines_removed": 0,
+    "docs_rejected_percent": 2.4236168455821634,
+    "input_bytes_rejected_percent": 1.135035994678104,
+    "rejected_docs_by_reason": {
+      "empty_after_cleaning": 29,
+      "validation_overlap": 111,
+      "non_french": 191,
+      "low_confidence": 256
+    },
+    "rejected_input_bytes_by_reason": {
+      "empty_after_cleaning": 0,
+      "validation_overlap": 190027,
+      "non_french": 4662,
+      "low_confidence": 48489
+    }
+  },
+  "too_short_rejected": 4101,
+  "after_short": {
+    "docs": 19532,
+    "bytes": 20864073
+  },
+  "exact_rejected": 222,
+  "after_exact": {
+    "docs": 19310,
+    "bytes": 20768599
+  },
+  "minhash_rejected": 1,
+  "after_minhash": {
+    "docs": 19309,
+    "bytes": 20768387
+  },
+  "quality_rejected_by_reason": {},
+  "final": {
+    "docs": 19309,
+    "bytes": 20768387,
+    "sha256": "0735341f9c1308303ccd30e31a5375617d61a48b15475f298a637ffba12a0bdc",
+    "overlap_with_validation_docs": 0
+  },
+  "tokens_estimated": 5483404,
+  "tokenizer_path": "C:\\Users\\mgarl\\Documents\\piscine_Lab\\.claude\\worktrees\\sources-wikinews-ae77b4\\data\\processed\\ablation\\tokenizer.json",
+  "repetitions_needed": {
+    "5%": 0.91,
+    "10%": 1.82,
+    "25%": 4.56
+  },
+  "seed": 42,
+  "language_threshold": 0.8,
+  "minhash_threshold": 0.97,
+  "dump": {
+    "url": "https://dumps.wikimedia.org/frwikinews/20261101/frwikinews-20261101-pages-articles.xml.bz2",
+    "date": "20261101",
+    "md5": "06ca2a718c9f281d14a94f0df234744a",
+    "bytes": 25346880,
+    "sha256": "7ae2fe2cf8857df30e33b2ee2030a39509dba588aacfc49dff4a136314af4d5f"
+  },
+  "validation_sha256": "0cf0d7f6a67499529f744d1f87558e41c8a0387c5917b214edd7ee85715217f5",
+  "moliere_validation_sha256": "c838b1836498ff0dfdc621cb0b45f5349c889ff5e1b81a1409197e5d2b420377",
+  "tokenizer_sha256": "b2554a8221a55c19b4008f5b605b1b6e84b6a7f84058507c15aba34eca3b2379"
+}
