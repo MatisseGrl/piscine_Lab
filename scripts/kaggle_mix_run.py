@@ -36,12 +36,13 @@ def main():
     folder.mkdir(exist_ok=True)
     template = (ROOT / "kaggle/mix-template/script.py").read_text(encoding="utf-8")
     (folder / "script.py").write_text(template.replace("__MIX__", mix), encoding="utf-8")
-    slug = f"piscine-mix-{mix.lower()}"
+    # Le kernel ne doit PAS avoir le même slug que son dataset : Kaggle répond alors « 409 Conflict ».
+    slug = f"piscine-run-{mix.lower()}"
     metadata = {
         "id": f"matissegarlot/{slug}", "title": slug, "code_file": "script.py",
         "language": "python", "kernel_type": "script", "is_private": True,
-        # Un dataset privé par mélange (même nom que le kernel), créé par upload_dataset().
-        "enable_gpu": True, "enable_internet": True, "dataset_sources": [f"matissegarlot/{slug}"],
+        # Un dataset privé par mélange (piscine-mix-<id>), créé par upload_dataset().
+        "enable_gpu": True, "enable_internet": True, "dataset_sources": [f"matissegarlot/piscine-mix-{mix.lower()}"],
         "competition_sources": [], "kernel_sources": [], "model_sources": [],
     }
     (folder / "kernel-metadata.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")

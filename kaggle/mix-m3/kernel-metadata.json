@@ -1,6 +1,6 @@
 {
-  "id": "matissegarlot/piscine-mix-m3",
-  "title": "piscine-mix-m3",
+  "id": "matissegarlot/piscine-run-m3",
+  "title": "piscine-run-m3",
   "code_file": "script.py",
   "language": "python",
   "kernel_type": "script",
