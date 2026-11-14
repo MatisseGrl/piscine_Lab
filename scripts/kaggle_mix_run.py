@@ -1,0 +1,38 @@
+"""Pousse sur Kaggle un run d'ablation pour un mélange (M1 à M5) à partir du modèle kaggle/mix-template.
+
+Usage : uv run python scripts/kaggle_mix_run.py M3
+Crée kaggle/mix-<id>/ (script + metadata, versionnés) puis lance `kaggle kernels push`.
+Le jeton Kaggle reste dans le profil utilisateur, jamais dans le dépôt.
+"""
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+# Dataset Kaggle privé qui contient data/processed/mixes (tokenizer + un dossier par mélange).
+DATASET = "matissegarlot/piscine-mixes"
+
+
+def main():
+    """Écrit le dossier du kernel pour le mélange demandé et le pousse."""
+    mix = sys.argv[1]
+    folder = ROOT / "kaggle" / f"mix-{mix.lower()}"
+    folder.mkdir(exist_ok=True)
+    template = (ROOT / "kaggle/mix-template/script.py").read_text(encoding="utf-8")
+    (folder / "script.py").write_text(template.replace("__MIX__", mix), encoding="utf-8")
+    slug = f"piscine-mix-{mix.lower()}"
+    metadata = {
+        "id": f"matissegarlot/{slug}", "title": slug, "code_file": "script.py",
+        "language": "python", "kernel_type": "script", "is_private": True,
+        "enable_gpu": True, "enable_internet": True, "dataset_sources": [DATASET],
+        "competition_sources": [], "kernel_sources": [], "model_sources": [],
+    }
+    (folder / "kernel-metadata.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+    # Même CLI que le reste du projet (règle 9 d'AGENTS.md).
+    subprocess.run(["uvx", "--with", "six", "kaggle", "kernels", "push", "-p", str(folder)], check=True)
+
+
+if __name__ == "__main__":
+    main()
