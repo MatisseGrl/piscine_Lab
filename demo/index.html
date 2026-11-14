@@ -6,7 +6,7 @@
 <main><div class="eyebrow">LE PETIT THÉÂTRE DU LANGAGE</div><h1>À vous la réplique.</h1><p class="intro">Une conversation libre avec un mini-GPT entraîné à parler dans l’esprit de Molière. Entrez en scène, puis poursuivez l’échange.</p>
 <section id="messages" class="stage" aria-live="polite" aria-label="Discussion"><div class="empty">Le rideau est levé. Votre première réplique ?</div></section>
 <form id="form"><textarea id="input" aria-label="Votre réplique" placeholder="Bonjour, comment ça va ?" maxlength="2000" required></textarea><button id="send">Envoyer →</button></form>
-<div id="status" class="status" role="status"></div><div class="foot"><span>Mémoire récente : 128 tokens. Le modèle peut se tromper ou perdre le fil.</span><button id="reset" class="secondary">Nouvelle discussion</button></div><footer id="model">Mini-GPT local · Chargement des informations…</footer></main>
+<div id="status" class="status" role="status"></div><div class="foot"><span>Mémoire récente : <span id="context">…</span> tokens. Le modèle peut se tromper ou perdre le fil.</span><button id="reset" class="secondary">Nouvelle discussion</button></div><footer id="model">Mini-GPT local · Chargement des informations…</footer></main>
 <script>
 const messages = document.querySelector('#messages');
 const input = document.querySelector('#input');
@@ -59,7 +59,9 @@ form.onsubmit = async event => {
       ? 'Une partie des premières répliques est hors contexte.' : '';
   } catch (error) {
     // En cas d’échec, remettre le texte en saisie pour pouvoir le réessayer.
-    status.textContent = 'La génération a échoué : ' + error.message;
+    // « Failed to fetch » : le serveur local est arrêté, on le dit clairement.
+    const reason = error instanceof TypeError ? 'serveur local injoignable (relancez scripts/run_demo.ps1)' : error.message;
+    status.textContent = 'La génération a échoué : ' + reason;
     history.pop();
     messages.lastElementChild?.remove();
     input.value = text;
@@ -88,6 +90,8 @@ reset.onclick = () => {
 };
 fetch('/api/info').then(response => response.json()).then(info => {
   document.querySelector('#model').textContent = 'Mini-GPT local · ' + info.checkpoint + ' · CPU';
+  // Taille réelle de la fenêtre du modèle chargé (128 ou 512 tokens).
+  document.querySelector('#context').textContent = String(info.context || '?');
 }).catch(() => {
   document.querySelector('#model').textContent = 'Informations du modèle indisponibles.';
 });
