@@ -24,7 +24,8 @@ $server = Start-Process -NoNewWindow -PassThru -WorkingDirectory $repo -FilePath
     'run', 'python', '-m', 'minigpt.web_chat', '--checkpoint', (Resolve-Path $Checkpoint), '--tokenizer', (Resolve-Path $Tokenizer), '--port', $Port)
 
 # Attend que la page réponde (chargement du modèle : quelques secondes), puis ouvre le navigateur.
-$url = "http://localhost:$Port"
+# 127.0.0.1 et pas localhost : sous Windows, localhost tente d'abord IPv6 (::1), où le serveur n'écoute pas.
+$url = "http://127.0.0.1:$Port"
 for ($i = 0; $i -lt 60; $i++) {
     try { Invoke-WebRequest "$url/api/info" -UseBasicParsing -TimeoutSec 2 | Out-Null; break }
     catch {
