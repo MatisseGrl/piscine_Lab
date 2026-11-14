@@ -152,3 +152,21 @@ Matisse maintient cette fiche et le pipeline dans le dépôt du projet. Aucun ca
 Les commandes existantes et paramètres sont décrits dans [pipeline/README.md](../pipeline/README.md) : collecte, nettoyage plafonné, déduplication, qualité, PII, puis préparation des flux de base et supplémentaires. La reconstruction actuelle passe par plusieurs commandes ; une commande globale allant de la collecte à toutes les variantes n’est pas documentée. Les graines et révisions sont consignées ; les sorties existantes ne doivent pas être écrasées lors d’une régénération.
 
 Pour clôturer la datasheet du **dataset final**, il reste à renseigner la variante choisie avec ses BPB réels et son empreinte, la précision annotée du filtre français, les décisions de droits et de distribution, puis les modalités de maintenance et de retrait si une publication est décidée. Le détail des comparaisons appartient à [report/ablation.md](ablation.md).
+
+## 8. Ajout du 15/11 : mélange soumis M4 (cinq sources)
+
+Le flux soumis le 15/11 (`submissions/2026-11-15_002554`) n'est plus le 80/12/8 décrit plus haut, mais le mélange **M4**, choisi par l'ablation des sources (`report/ablation.md`).
+
+| Source | Part en tokens | Tokens vus | Passes | Fiche |
+|---|---:|---:|---:|---|
+| Wikipédia FR | 40 % | 40 003 174 | 1,0 | `sources/wikipedia-fr.md` |
+| Common Crawl | 15 % | 15 001 190 | 1,0 | `sources/common-crawl.md` |
+| Assemblée nationale (16e lég.) | 15 % | 15 001 191 | 1,08 (répétée) | `sources/assemblee-nationale-16.md` |
+| Project Gutenberg FR | 25 % | 25 001 984 | 1,0 | `sources/gutenberg-fr.md` |
+| Wikinews FR (dump du 01/11/2026) | 5 % | 5 000 397 | 1,0 | `sources/wikinews-fr.md` |
+
+- Traitements : dédup + qualité, sans masquage PII, même tokenizer 8 192 (SHA-256 `b2554a82…2379`). Construction : `pipeline/mixes.py`.
+- Flux : 100 007 937 tokens, SHA-256 `c6c628a6b44640db55654c68878a35d02748a860f7aad1ab4c9b9597349738a9` (`data/processed/mixes-rest/M4/`, hors git). Empreintes d'entrée par source dans `Kaggle submissions/mixes/M4/data_meta.json`.
+- Composition nouvelle : textes littéraires anciens (XVIIIe–début XXe siècle, domaine public aux États-Unis), avec leurs biais d'époque (vocabulaire, représentations sociales) ; dépêches de presse collaborative 2005-2026.
+- Licences : Gutenberg, statut hors États-Unis à compléter ; Wikinews, CC BY 2.5 ou CC BY-SA 4.0 selon l'article (voir la fiche). Usage pour l'entraînement : à confirmer par l'organisateur.
+- Distribution : dataset Kaggle `matissegarlot/piscine-mix-m4`, privé à ce jour (visibilité à décider).
