@@ -38,6 +38,18 @@ if not kit.exists():
     subprocess.run(["git", "checkout", "-q", "--detach", "3709c85ddaabfcd688d6eea80a5c5ed90605b549"], cwd=kit, check=True)
 subprocess.run([sys.executable, "-m", "pip", "install", "-q", "tokenizers==0.23.3"], check=True)
 
+# Graine optionnelle (fichier /content/data/SEED) : relance de bruit, non soumissible.
+# Seule la graine de la config du kit change ; absent = config officielle (1337).
+seed_file = Path("/content/data/SEED")
+if seed_file.exists():
+    seed = int(seed_file.read_text().strip())
+    cfg_path = kit / "config" / "official.json"
+    cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+    assert cfg["train"]["seed"] in (1337, seed)
+    cfg["train"]["seed"] = seed
+    cfg_path.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
+    print("graine d'entraînement :", seed)
+
 # Entraînement puis évaluation, détachés : `colab exec` rend la main tout de suite.
 out = f"/content/run-{MIX}"
 tokenizer = "/content/data/tokenizer.json"
