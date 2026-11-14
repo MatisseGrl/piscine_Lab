@@ -40,6 +40,10 @@ Le nettoyage donne le gros du gain (−0,020). Les écarts suivants sont petits 
 - **Pré-entraînement du mini-GPT du bloc 1 sur Kaggle** (config compétition, flux dédup + qualité 80/12/8, `minigpt/pretrain.py`, PR #27, branche `feat/chat-pretrain`). Matisse l'a lancé. Résultat attendu : `runs/chat-pretrain/pretrained.pt` + BPB indicatif. Ensuite : SFT chat puis page HTML.
 - **Répartition des fichiers entre conversations.** Conversation « code » (chat, SFT, démo) : `minigpt/`, `demo/`, `scripts/` du chat, `tests/`. Conversation « docs et soutenance » : `report/`, `sources/`, `docs/`, `experiments/LOG.md`. Ne pas toucher aux fichiers de l'autre. Pas de `data/` ni de `runs/` dans git.
 
+## Ablation des sources (14/11, soir)
+
+Gutenberg et Wikinews collectés, bruit mesuré (σ 0,0023 sur 3 runs, seuil de décision ~0,005), flux M1 à M5 construits. **M1 = 1,3262** (dans le bruit ; littéraire −0,10, encyclopédique +0,085). Reste M3, M4, M2, M5 puis le choix final. Passation détaillée : [docs/HANDOFF_MIXES.md](HANDOFF_MIXES.md).
+
 ## Plan jusqu'au rendu
 
 1. **Ordre** : sync `main`, STATUS/AGENTS à jour. *(fait le 14/11)*
