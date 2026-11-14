@@ -57,7 +57,7 @@ Gutenberg et Wikinews collectés, bruit mesuré (σ 0,0023 sur 3 runs, seuil de 
 - Le dossier de run Kaggle du run qualité contient-il `ckpt.pt` ? (seuls les `result.json` sont en local)
 - Publier le dataset sur Hugging Face (bonus, et utile comme `--dataset-url`) ?
 - Dataset externe de dialogues en français : lequel, quelle licence ?
-- Commande unique de régénération du dataset à vérifier de bout en bout.
+- Commande unique de régénération : `uv run python -m pipeline.regenerate --mix M4` (15/11). Dernière étape (mélange M4 depuis `data/interim`) **vérifiée : SHA-256 identique** au run Kaggle (`c6c628a6…`). La chaîne complète depuis la collecte (plusieurs heures, ~100 Go) n'a pas été relancée de bout en bout.
 - Quota GPU Kaggle hebdomadaire : toujours pas vu où il s'affiche.
 
 ## Pièges

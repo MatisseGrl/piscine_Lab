@@ -11,6 +11,18 @@ Transforme du web brut en données d'entraînement propres. Chaque étape lit la
 | 5 | pii | masquer e-mails, téléphones, adresses, noms | `data/interim/pii/` |
 | 6 | build | mélange des sources, tokenizer 8 192, shards, hash du dataset | `data/processed/` |
 
+## Tout regénérer d'une commande
+
+```bash
+uv run python -m pipeline.regenerate --mix M4            # du web brut au flux final du mélange M4
+uv run python -m pipeline.regenerate --mix M4 --dry-run  # affiche les étapes sans rien lancer
+uv run python -m pipeline.regenerate --mix M4 --from quality   # reprend à une étape
+```
+
+Étapes, dans l'ordre : kit officiel (révision `3709c85`), collect, clean, dedup, quality, tokenizer 8 192 commun (`pipeline.ablation`), Wikinews, Gutenberg, mélange (`pipeline.mixes`). Une étape dont le fichier témoin existe est sautée (relance après interruption) ; une étape qui échoue arrête tout. À la fin, le SHA-256 du flux obtenu est comparé à celui du run de référence (`EXPECTED_SHA256` dans `pipeline/regenerate.py`, repris du LOG) : identique = reproductible.
+
+Temps d'une reconstruction complète : plusieurs heures (collecte de dizaines de Gio, dédup ~36 min, qualité ~10 min, Gutenberg et mélange). Prévoir 100 Go libres. Le mélange final s'écrit dans `data/processed/final/<mélange>/` (dossier neuf obligatoire).
+
 ## Lancer la collecte
 
 ```bash
