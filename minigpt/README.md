@@ -1,5 +1,11 @@
 # minigpt : bloc 1
 
+## Chat v3 (14 novembre) : pré-entraîné, puis Molière, puis dialogues
+
+- `continue_pretrained.py` reprend le pré-entraîné (`pretrain.py`, 12,8 M param., vocab 8 192, contexte 512) sur le train Molière, avec un palier choisi sur un held-out du train : **1,4111 BPB** sur la validation Molière (un seul mini-GPT ; avant : 1,7434).
+- `hf_tokenizer.load_tokenizer` détecte le format (BPE maison ou tokenizer de la compétition) : `chat_sft` et `web_chat` acceptent les deux.
+- Chat retenu : SFT v5, pas 1 500 (`kaggle/chat-finetune-v5`). Détails et scores dans `report/chat_demo.md`.
+
 ## Continuation et pilote conversationnel (11 novembre)
 
 `finetune.py` recharge les poids existants et compare 1 000 pas supplémentaires
