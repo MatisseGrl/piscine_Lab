@@ -22,8 +22,9 @@ def upload_dataset(mix, source):
     meta = {"title": slug, "id": f"matissegarlot/{slug}", "licenses": [{"name": "other"}]}
     (Path(source) / "dataset-metadata.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
     # --dir-mode zip : le sous-dossier du mélange est envoyé compressé et décompressé par Kaggle.
-    subprocess.run(["uvx", "--with", "six", "kaggle", "datasets", "create", "-p", str(source),
-                    "--dir-mode", "zip"], check=True)
+    # Lancé depuis le dossier lui-même : sous Windows, la CLI casse les chemins absolus (« C_/... »).
+    subprocess.run(["uvx", "--with", "six", "kaggle", "datasets", "create", "-p", ".",
+                    "--dir-mode", "zip"], check=True, cwd=source)
 
 
 def main():
