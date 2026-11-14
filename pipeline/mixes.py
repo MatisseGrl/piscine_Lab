@@ -1,10 +1,9 @@
-"""Prépare les flux des nouveaux mélanges de sources (M1 à M5) sans lancer d'entraînement.
+"""Prépare les flux des mélanges de sources sans lancer d'entraînement.
 
-Même protocole que `pipeline.ablation` et `pipeline.ablation_extra` : tokenizer 8 192 de la
-série de base (même SHA-256), mélange compté en tokens, même proportion dans chaque fenêtre
-de mélange, graine 42, flux de 100 007 937 tokens au format du kit (uint16 + data_meta.json).
-Seule nouveauté : une source trop petite pour son quota est RÉPÉTÉE (nouvelle passe mélangée
-avec une autre graine), au plus `MAX_PASSES` fois, et le nombre de répétitions est noté.
+Même protocole que `pipeline.ablation` : 8 192 entrées BPE, proportions constantes par
+fenêtre, graine 42 et 100 007 937 tokens au format kit. Les mélanges partagent
+le tokenizer de référence par défaut. M4BPE entraîne le sien sur les sources de M4.
+Une source trop petite pour son quota peut être répétée, au plus `MAX_PASSES` passes.
 """
 
 import argparse
@@ -20,7 +19,7 @@ from itertools import islice
 from pathlib import Path
 from tempfile import TemporaryDirectory, TemporaryFile
 
-from pipeline.ablation import KIT_REV, ROOT, SEED, read_json, sha256, write_json
+from pipeline.ablation import KIT_REV, ROOT, SEED, read_json, sha256, train_tokenizer, write_json
 
 # Nombre maximal de passes sur une même source (règle du plan : au plus ~3 répétitions).
 MAX_PASSES = 3
@@ -35,6 +34,10 @@ MIXES = {
            "wikinews_fr": 5},
     "M5": {"wikipedia_fr": 60, "common_crawl": 12, "assemblee_nationale": 8, "gutenberg_fr": 20},
 }
+
+DEFAULT_MIXES = tuple(MIXES)
+# Même mélange de tokens que M4, avec un BPE entraîné sur ces proportions en octets.
+MIXES["M4BPE"] = MIXES["M4"]
 
 
 def quotas(size, shares):
@@ -204,7 +207,7 @@ def prepare(kit, interim, base, out, names):
         raise FileExistsError(f"Choisis un dossier de sortie neuf : {out}")
     manifest = read_json(base / "manifest.json")
     tokenizer_path = base / "tokenizer.json"
-    # Même tokenizer et même config que toute l'ablation, sinon la comparaison ne vaut rien.
+    # Vérifie la référence commune, même quand le run étudie un autre BPE.
     if sha256(tokenizer_path) != manifest["tokenizer_sha256"]:
         raise ValueError("Le tokenizer de la série de base diffère de son manifeste")
     config = load_config()
@@ -223,7 +226,17 @@ def prepare(kit, interim, base, out, names):
             missing = set(MIXES[mix]) - set(sources)
             if missing:
                 raise ValueError(f"{mix} : sources absentes {sorted(missing)}")
-            metas[mix] = prepare_mix(staged / mix, sources, MIXES[mix], tokenizer, config, scratch)
+            mix_tokenizer = tokenizer
+            sample = None
+            if mix == "M4BPE":
+                # Apprend sur 10 Mo, avec les pourcentages de M4 appliqués aux octets UTF-8.
+                trained_path, sample = train_tokenizer(kit, sources, scratch, MIXES[mix])
+                mix_tokenizer = load_tokenizer(trained_path)
+            metas[mix] = prepare_mix(staged / mix, sources, MIXES[mix], mix_tokenizer, config, scratch)
+            if sample is not None:
+                # Le flux embarque le tokenizer spécifique. Le manifeste décrit son échantillon.
+                shutil.copyfile(trained_path, staged / mix / "tokenizer.json")
+                metas[mix]["tokenizer_sample"] = sample
             print(mix, metas[mix]["dataset_sha256"], flush=True)
         write_json(staged / "manifest.json", dict(
             manifest, variants=metas, parent_manifest_sha256=sha256(base / "manifest.json"),
@@ -239,7 +252,7 @@ def main():
     parser.add_argument("--interim", type=Path, default=ROOT / "data/interim")
     parser.add_argument("--base", type=Path, default=ROOT / "data/processed/ablation")
     parser.add_argument("--out", type=Path, default=ROOT / "data/processed/mixes")
-    parser.add_argument("--mixes", nargs="+", default=list(MIXES), choices=list(MIXES))
+    parser.add_argument("--mixes", nargs="+", default=DEFAULT_MIXES, choices=list(MIXES))
     args = parser.parse_args()
     kit = args.kit.resolve()
     if subprocess.check_output(["git", "-C", str(kit), "rev-parse", "HEAD"], text=True).strip() != KIT_REV:

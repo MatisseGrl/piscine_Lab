@@ -253,3 +253,18 @@ Le journal refuse la comparaison si le tokenizer, le protocole ou l'environnemen
 uv run python -m pipeline.wikinews --download   # dump + vérification de taille
 uv run python -m pipeline.wikinews              # -> data/interim/wikinews/ (JSONL gzip, stats.json, titles.json)
 ```
+
+## Tokenizer adapté à M4
+
+M4BPE garde les proportions de M4 en tokens et entraîne son BPE sur 10 Mo des mêmes
+sources, dosés avec ces proportions en octets UTF-8. Le tokenizer de M4BPE est dans le
+dossier de la variante, et son échantillon est identifié par SHA-256 dans le manifeste.
+Les quotas, les répétitions et les empreintes sont enregistrés pour chaque flux.
+
+```bash
+uv run python -m pipeline.regenerate --mix M4BPE
+uv run python scripts/kaggle_mix_run.py M4BPE data/processed/final/M4BPE --keep-checkpoint --accelerator NvidiaTeslaT4
+```
+
+Le deuxième argument du lanceur crée le dataset Kaggle privé. Pour relancer un
+entraînement à partir de ce dataset déjà créé, omettre cet argument.

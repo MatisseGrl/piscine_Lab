@@ -17,6 +17,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from pipeline.mixes import MIXES
+
 ROOT = Path(__file__).resolve().parents[1]
 
 # Révision du kit officiel (même valeur que pipeline.ablation.KIT_REV).
@@ -25,7 +27,7 @@ KIT_URL = "https://github.com/Meuleur/Piscine.git"
 KIT_DIR = Path("kit/Piscine-official")
 
 # SHA-256 de `train.bin` obtenus lors des runs consignés dans le LOG (flux de 100 007 937 tokens).
-# M5 n'est pas encore figé : pas de contrôle tant que son SHA n'est pas noté ici.
+# Les mélanges sans référence enregistrée affichent le SHA plutôt que de le comparer.
 EXPECTED_SHA256 = {
     "M1": "7fafbea6078795809be9e46d98a4b8ed4c67f12c8ab86559f8bc66306dc5a6fa",
     "M2": "6d2a5128de9a6d28e923eabf65d36ecf88c0ff64ecbbbcdc803e5bece41a37ba",
@@ -129,7 +131,7 @@ def run(mix, dry_run=False, only=None, start=None, root=ROOT):
 def main():
     """Lit les options et lance la régénération."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mix", default="M4", choices=["M1", "M2", "M3", "M4", "M5"],
+    parser.add_argument("--mix", default="M4", choices=sorted(MIXES),
                         help="Mélange final à produire (défaut : M4).")
     parser.add_argument("--dry-run", action="store_true", help="Affiche les étapes sans rien lancer.")
     parser.add_argument("--only", help="Ne lance que cette étape.")
