@@ -43,3 +43,9 @@ $C new -s mix-m3 --gpu T4           # nommer la session d'après le mélange (de
 - `ftb.train` lit `data_meta["passes_over_data"]` : corrigé dans `pipeline/mixes.py`, ne pas l'enlever.
 - `kaggle datasets create -p <chemin absolu>` casse sous Windows : lancer depuis le dossier avec `-p .`.
 - Chaque changement passe par une PR, que l'agent merge lui-même après relecture (accord de Matisse). Jamais de push direct sur `main`, aucune co-signature ni mention d'outil.
+
+## Réserves
+
+- **Une seule graine par mélange** : les écarts se lisent avec le bruit de `report/noise.md` (σ 0,0023, seuil ~0,005). **M4 (1,3028) est à confirmer par une 2e graine** (à faire par mixes-cd).
+- M3 : fichiers récupérés à la main après perte de la session Colab, preuve indirecte, pas soumissible tel quel : voir `Kaggle submissions/mixes/M3/README.md`.
+- Soumission de M4 (pas faite) : prérequis, réserve sur le littéraire et décisions pour Matisse dans `docs/SUBMISSION_M4.md`.
