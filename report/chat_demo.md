@@ -157,4 +157,42 @@ Notation sur le **DEV** (20 tours, dont 9 qui dépendent du contexte), mêmes cr
 
 Le troisième tour est un conseil, mais il ne tient pas compte de la fatigue. Échecs typiques : la blague (« Je suis un petit modèle de langage… ») et « Peux-tu me redire mon prénom ? » (→ salutation). Le FINAL n'a pas encore été lu : il le sera une seule fois, après le choix entre v4 et v5.
 
-Un second run (v5 : v4 + 8 000 paires de théâtre Claire/TheatreGratuit, mêmes réglages) est en cours sur Kaggle.
+### Fine-tuning du chat, données v5 (retenu)
+
+Même run, avec la seule donnée qui change : v4 plus 8 000 paires de répliques de théâtre tirées de Claire/TheatreGratuit (CC-BY-NC-SA 4.0, Hunter et al. 2023). Ces paires sont filtrées : aucun nom de personnage de Molière, aucun 13-gramme commun avec Molière ou avec les 230 documents publics, aucune question du banc (voir `sources/chat-dialogues.md`). Avec des réponses plus variées, le modèle apprend moins par cœur : le BPB Molière reste entre 1,424 et 1,438 sur tout le run.
+
+| Checkpoint | Pertinence /20 | Contexte /9 | Couleur /20 | BPB Molière |
+|---|---:|---:|---:|---:|
+| v5, pas 500 | 13 | 5 | — | 1,4331 |
+| v5, pas 1 000 | 16 | 6 | 13 | 1,4241 |
+| **v5, pas 1 500 (retenu sur le DEV)** | **17** | **8** | 12 | 1,4291 |
+
+**Test FINAL, lu une seule fois après la sélection** (24 tours, 13 qui dépendent du contexte) :
+
+| | Pertinence /24 | Contexte /13 | Couleur /24 | BPB Molière |
+|---|---:|---:|---:|---:|
+| Ancienne démo v2 (1 M param.) | 13 | 7 | 12 | 1,8548 |
+| **Chat v3 = v5, pas 1 500** | **13** | **8** | **15** | **1,4291** |
+
+Le gain sur le chat est modeste : pertinence égale, contexte +1, style +3. En revanche, le BPB Molière est bien meilleur. Ce qui marche : les prénoms et les couleurs (avec leurs corrections), les remerciements. Ce qui échoue : « Il faut que je parte, adieu. » → « Buvez donc un peu d'eau » ; le fromage devenu une soupe ; les demandes d'idées ou de vers. Les sorties brutes sont dans `runs/kaggle-out-v5/final-1500.json` (hors git). Checkpoint retenu : `runs/chat-v3/chat.pt`, SHA-256 `e309d3d41963ebb725e7c8210cf5df6a89032ded38c4ac000eb288add463c0c9`.
+
+### Test réel dans le navigateur (14/11, Chrome, `scripts/run_demo.ps1`)
+
+- Scénario du mentor, **3/3** : « Bonjour, comment ça va ? » → « Bonjour ! Je vais bien, merci. Et vous, mon ami ? » ; « Moi je suis fatigué. » → « Prenez quelque repos, je vous en prie. » ; « Que me conseilles-tu ? » → « Reposez-vous un peu, mon ami. Le repos vous fera du bien. »
+- Conversation libre, environ 1,5/4 :
+  - « Salut ! Je m'appelle Matisse. » → « Je suis votre compagnon de théâtre… » (hors sujet) ;
+  - « J'ai une soutenance lundi et je stresse. » → « Un verre d'eau vous fera du bien, mon ami. » (faible) ;
+  - « Tu te rappelles mon prénom ? » → échec ;
+  - « Raconte-moi une blague. » → « Un avare ferme les yeux pour économiser la chandelle ! » (réussi).
+- Le bouton « Nouvelle discussion », l'indicateur de génération et l'affichage de la fenêtre (512 tokens) fonctionnent.
+- Correctif : le lanceur utilise `127.0.0.1`, car sous Windows `localhost` tente d'abord IPv6, où le serveur n'écoute pas.
+
+**Limites.** Une seule graine, et des notes attribuées par l'agent, pas à l'aveugle. Un modèle de 12,8 M paramètres ne raisonne pas : il répond au sujet sur les thèmes appris et décroche hors de ces thèmes. Les réponses ne sont jamais scriptées : elles sont toutes générées par le modèle, sans table de réponses.
+
+### Lancement
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/run_demo.ps1
+```
+
+Par défaut, le lanceur prend `runs/chat-v3/chat.pt` et le tokenizer 8 192 dans le dossier principal du dépôt. Il vérifie le port, démarre le serveur et ouvre `http://127.0.0.1:8765`.
