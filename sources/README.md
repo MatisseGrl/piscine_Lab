@@ -5,6 +5,7 @@ Sources de la collecte du bloc 2 :
 - [Common Crawl (WET)](common-crawl.md)
 - [Wikipédia FR](wikipedia-fr.md)
 - [Débats de la 16e législature](assemblee-nationale-16.md)
+- [Project Gutenberg FR](gutenberg-fr.md)
 - [Wikinews FR](wikinews-fr.md) (presse libre, dump du 1er novembre 2026, phase A de l'ablation des sources)
 
 Une fiche par source, nommée `<source>.md` (ex. `common-crawl.md`, `wikipedia-fr.md`). Modèle à copier :
