@@ -2,9 +2,36 @@
 
 À lire au début de chaque session, à mettre à jour à la fin. Réécrit le 14 novembre 2026 (l'historique détaillé est dans git). **Rendu le 16 novembre 2026.**
 
+## Récupération locale et nouveaux essais (15 novembre)
+
+Le ZIP mentor et ses 51 fichiers, le flux M4REFLOWBPE, le kit épinglé et
+Gutenberg recollé audité sont sauvegardés dans un dossier indépendant. Les
+17 archives de jeux de données privés Kaggle ont passé le contrôle d'intégrité.
+Les 29 archives brutes utilisées pour Wikipédia, Common Crawl, l'Assemblée
+et Wikinews ont été retéléchargées. L'archive Wikinews reconstruite depuis le dump
+redonne le SHA-256 attendu. Les caches des trois autres sources sont en cours de
+reconstitution. La collecte Gutenberg initiale et le reste de Common Crawl
+restent à reconstituer pour restaurer l'ensemble de l'ancien espace de travail.
+La commande de réentraînement depuis le ZIP mentor reste utilisable.
+
+Les recettes du nouveau lot sont documentées dans [le pipeline](../pipeline/README.md).
+Le meilleur résultat public est **M4FINALEXCERPTS à 1,276738 BPB** sur Colab T4
+en graine 1337. Le contrôle à graine 1338 donne **1,278586 BPB**. La moyenne
+sur deux graines passe de **1,286145** à **1,277662 BPB** (−0,008483).
+Le checkpoint exporté a donné **1,276737 BPB** sur CPU,
+et une deuxième préparation a retrouvé le SHA-256 du flux
+`aecae945fbf7545717a52d939c4c456cfd8da340aad69e8a41d561ffd53e2bc5`.
+Au même quota de 25 001 984 tokens, Gutenberg passe de 204 documents complets
+à 1 836 extraits terminés dans le flux. Le ZIP mentor privé pour la nouvelle
+recette inclut le flux, le checkpoint exporté, le contrôle 1338 et les
+commandes officielles. Le ZIP M4REFLOWBPE (1,2874 BPB) est conservé.
+Après restauration des deux fixtures locales, la suite complète passe (204 tests).
+Les cinq variantes au tokenizer d'origine ont
+passé la vérification des empreintes, des quotas et des blocs des sources préservées.
+
 ## Compétition, essais du 15 novembre
 
-Le paquet de compétition retenu est **M4REFLOWBPE à 1,2874 BPB** en graine officielle
+Le paquet de la première campagne est **M4REFLOWBPE à 1,2874 BPB** en graine officielle
 sur les 230 documents publics. Il combine le recollage des lignes de prose Gutenberg
 et le BPE entraîné sur 10 Mo du mélange M4. Les 4 031 livres modifiés repassent les
 gardes-fous de la validation publique et de Molière, avec zéro recouvrement détecté.
@@ -43,31 +70,6 @@ un dossier vide reste à vérifier.
 - **Poids** : `ckpt.pt` réévalué sur CPU avec le kit officiel : 1,287437 BPB (1,287432 annoncé, écart dû au float16). SHA du tokenizer et du dataset conformes à `submission.json`.
 - **Régénération** : `uv run python -m pipeline.regenerate --mix M4REFLOWBPE --from gutenberg-reflow` (recollage, BPE, mélange depuis `data/interim`) redonne le **SHA-256 identique** `f1730391…`. La chaîne depuis la collecte brute n'a pas été relancée.
 - **Reste** : le dataset Kaggle `piscine-mix-m4reflowbpe` est privé. Le mentor reçoit le flux exact dans l'archive privée (voir ci-dessus) ; un lien public pour `--dataset-url` reste à décider par Matisse.
-
-## Récupération locale et nouveaux essais (15 novembre)
-
-Le ZIP mentor et ses 51 fichiers, le flux M4REFLOWBPE, le kit épinglé et
-Gutenberg recollé audité sont sauvegardés dans un dossier indépendant. Les
-17 archives de jeux de données privés Kaggle ont passé le contrôle d'intégrité.
-Les 29 archives brutes utilisées pour Wikipédia, Common Crawl, l'Assemblée
-et Wikinews ont été retéléchargées. L'archive Wikinews reconstruite depuis le dump
-redonne le SHA-256 attendu. Les caches des trois autres sources sont en cours de
-reconstitution. La collecte Gutenberg initiale et le reste de Common Crawl
-restent à reconstituer pour restaurer l'ensemble de l'ancien espace de travail.
-La commande de réentraînement depuis le ZIP mentor reste utilisable.
-
-Les recettes du nouveau lot sont documentées dans [le pipeline](../pipeline/README.md).
-Candidat M4FINALEXCERPTS : **1,276738 BPB** sur Colab T4 en graine 1337
-(−0,010695 vs M4REFLOWBPE). Un contrôle en graine 1338 est prévu avant
-d'arrêter le choix. Le checkpoint exporté a donné **1,276737 BPB** sur CPU,
-et une deuxième préparation a retrouvé le SHA-256 du flux
-`aecae945fbf7545717a52d939c4c456cfd8da340aad69e8a41d561ffd53e2bc5`.
-Au même quota de 25 001 984 tokens, Gutenberg passe de 204 documents complets
-à 1 836 extraits terminés dans le flux. Le ZIP de référence M4REFLOWBPE
-(1,2874 BPB) reste prêt.
-La suite locale a donné
-199 tests réussis et 5 ignorés. Les cinq variantes au tokenizer d'origine ont
-passé la vérification des empreintes, des quotas et des blocs des sources préservées.
 
 ## Audit du 15 novembre (au matin, avant les essais ci-dessus)
 
