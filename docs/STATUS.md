@@ -4,22 +4,22 @@
 
 ## Compétition, essais du 15 novembre
 
-M4REFLOW atteint **1,2905 BPB** en graine officielle avec les mêmes quotas et le même
-tokenizer que M4. Seuls des retours à la ligne de prose Gutenberg coupée à largeur fixe
-sont remplacés par des espaces. Les blocs des autres sources sont identiques. Les 4 031
-livres modifiés repassent les gardes-fous de la validation publique et de Molière,
-avec zéro recouvrement détecté.
+Le paquet de compétition retenu est **M4REFLOWBPE à 1,2874 BPB** en graine officielle
+sur les 230 documents publics. Il combine le recollage des lignes de prose Gutenberg
+et le BPE entraîné sur 10 Mo du mélange M4. Les 4 031 livres modifiés repassent les
+gardes-fous de la validation publique et de Molière, avec zéro recouvrement détecté.
 
 | Recette | Graine 1337 | Graine 1338 | Moyenne |
 |---|---:|---:|---:|
 | M4, référence | 1,3012 | 1,3066 | 1,3039 |
 | M4, BPE adapté sur 10 Mo | 1,2992 | 1,2951 | 1,2971 |
 | M4, BPE adapté sur 50 Mo | 1,2983 | 1,3038 | 1,3011 |
-| M4REFLOW | **1,2905** | **1,2938** | **1,2922** |
+| M4REFLOW | 1,2905 | 1,2938 | 1,2922 |
+| M4REFLOWBPE | **1,2874** | **1,2849** | **1,2861** |
 
-Le recollage améliore le BPB de 0,0118 en moyenne sur les deux graines testées. En
-graine officielle, le littéraire passe de 1,5394 à 1,5070. La combinaison du recollage
-et du BPE adapté sur 10 Mo est en cours sur les deux graines.
+Le recollage seul améliore le BPB de 0,0118 en moyenne, avec un gain littéraire de
+0,0324 en graine officielle. La combinaison gagne 0,0178 sur les deux graines
+testées et descend à 1,4826 en littéraire avec la graine officielle.
 
 Le changement d'ordre vaut 1,3106, le mélange 45/15/10/25/5 vaut 1,3115, et leur
 combinaison avec le BPE adapté vaut 1,3169. La répétition partielle donne 1,3172 et
@@ -28,6 +28,8 @@ le classifieur Common Crawl 1,3044. Les scores, logs et empreintes sont dans
 
 Les entraînements utilisent le kit 3709c85 et 100 007 936 tokens vus. La graine 1337
 sert aux paquets de compétition. La graine 1338 sert au contrôle de stabilité.
+Le [paquet vérifié](../submissions/2026-11-15_020424/) contient les poids en float16,
+réévalués sur CPU à 1,2874 BPB. Son dataset est sur Kaggle en accès privé.
 
 ## Où on en est
 
@@ -35,10 +37,10 @@ sert aux paquets de compétition. La graine 1338 sert au contrôle de stabilité
 |---|---|
 | Bloc 1, mini-GPT (`minigpt/`) | Fait et mergé. BPB Molière : 1,8237 (base), **1,743** pour le meilleur modèle seul (continuation avec 5 pièces Wikisource contrôlées). Le 1,696 est un ensemble de 6 modèles avec fréquences réglées sur la validation : exploratoire, ne pas le présenter comme résultat propre. |
 | Bloc 2, pipeline (`pipeline/`) | Fait : collecte, nettoyage, dédup (exact + MinHash 0,97), qualité, PII. Filtre de langue : 99/100 (échantillon surtout Wikipédia). |
-| Bloc 3, compétition | Ablation faite (8 variantes, BPB public ci-dessous). **Soumission officielle pas encore faite.** |
+| Bloc 3, compétition | Ablations et contrôles de stabilité terminés. Résultats récents dans la section du 15 novembre. |
 | Démo chat (demandée par le mentor) | Prototype local `demo/` (PR #23) : tient 3 tours sur le scénario de JB, mais réponses médiocres en conversation libre. À refaire mieux (voir plan). |
 
-## BPB sur la validation publique du kit (même tokenizer 8 192, 100 007 936 tokens, graine 1337)
+## Ablation initiale sur la validation publique (tokenizer commun, 100 007 936 tokens, graine 1337)
 
 | Données | BPB |
 |---|---|
@@ -58,7 +60,7 @@ Le nettoyage donne le gros du gain (−0,020). Les écarts suivants sont petits 
 - **Accord du mentor (JB) pour l'IA : confirmé** par Matisse, qui dit que JB veut même qu'on l'utilise pour le mini-GPT. Garder une trace écrite si possible.
 - **Chat et fine-tuning : demandés par JB** (appel du 14/11, mail). Datasets externes autorisés, à **citer avec les liens dans le pptx**. On repart du modèle du bloc 1.
 - **Soumission : le mentor teste sur sa machine.** Matisse lui envoie le paquet produit par `ftb.submit` : `ckpt.pt`, `tokenizer.json`, `train_log.jsonl`, `data_meta.json`, `samples.txt`, `submission.json` (dans `submissions/<date>/`). Il faut un lien vers le dataset (`--dataset-url`).
-- **Dataset final retenu pour la soumission : 80/12/8 dédupliqué + qualité** (1,3304). À confirmer par Matisse.
+- **Candidat avant l'ablation des sources : 80/12/8 dédupliqué + qualité** (1,3304).
 - Mélange validé : Wikipédia FR 80 %, Common Crawl 12 %, Assemblée nationale 8 %. Tokenizer 8 192 commun, SHA-256 `b2554a8221a55c19b4008f5b605b1b6e84b6a7f84058507c15aba34eca3b2379`.
 - Règle du sujet : interdit d'initialiser à partir de poids pré-entraînés pour la **compétition**. Ne concerne pas la démo.
 
