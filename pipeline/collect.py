@@ -48,7 +48,8 @@ def download(url, target, *, size=None, checksum=None, prefix=False):
 
     target.parent.mkdir(parents=True, exist_ok=True)
     headers = {"Range": f"bytes=0-{SAMPLE_BYTES - 1}"} if prefix else {}
-    print(f"Téléchargement : {target.relative_to(RAW)}", flush=True)
+    # Le même téléchargeur sert aussi au modèle de langue sous data/interim.
+    print(f"Téléchargement : {target}", flush=True)
     with NamedTemporaryFile(dir=target.parent, suffix=".part", delete=False) as output:
         temporary = Path(output.name)
     try:

@@ -30,6 +30,13 @@ Les entraînements utilisent le kit 3709c85 et 100 007 936 tokens vus. La graine
 sert aux paquets de compétition. La graine 1338 sert au contrôle de stabilité.
 Le [paquet vérifié](../submissions/2026-11-15_020424/) contient les poids en float16,
 réévalués sur CPU à 1,2874 BPB. Son dataset est sur Kaggle en accès privé.
+Le [guide de remise au mentor](RENDU_COMPETITION.md) accompagne l'archive privée
+`Rendu-competition-M4REFLOWBPE-2026-11-15.zip`. Le ZIP contient le flux exact,
+le kit figé et la soumission. Après extraction, les 51 empreintes ont été vérifiées,
+le checkpoint a donné 1,287437 BPB sur CPU et le pilote d'entraînement a chargé
+les données et terminé son pas de contrôle. La préparation finale depuis les
+archives auditées a reproduit le SHA-256 du flux Kaggle. La collecte complète depuis
+un dossier vide reste à vérifier.
 
 ## Où on en est
 
