@@ -1,0 +1,49 @@
+{
+  "kit_version": "1.0",
+  "tokenizers_version": "0.23.3",
+  "dataset_sha256": "5a05b7daf4f45848e752db7181917791b243a38f9b6e50b930ebee034055f1b8",
+  "tokenizer_sha256": "2d7c9fe814dbd45327e7be2225259a34570b99f0090221385538e2e4fbf4e2af",
+  "n_tokens": 100007937,
+  "budget_tokens": 100000000,
+  "passes_over_data": 1.0,
+  "source_percent": {
+    "wikipedia_fr": 40,
+    "common_crawl": 15,
+    "assemblee_nationale": 15,
+    "gutenberg_fr": 25,
+    "wikinews_fr": 5
+  },
+  "tokens_seen_by_source": {
+    "wikipedia_fr": 40003174,
+    "common_crawl": 15001190,
+    "assemblee_nationale": 15001191,
+    "gutenberg_fr": 25001984,
+    "wikinews_fr": 5000397
+  },
+  "passes_started_by_source": {
+    "wikipedia_fr": 1.000191971616004,
+    "common_crawl": 1.0,
+    "assemblee_nationale": 1.001337079371691,
+    "gutenberg_fr": 1.0049129510982646,
+    "wikinews_fr": 1.0035146312858176
+  },
+  "input_sha256_by_source": {
+    "wikipedia_fr": "e0caf30fa7e9e9477e573059e3b42d9b2fbfddfee847460da87018576027c86e",
+    "common_crawl": "0fb0d345dd7892cb339620edbe061a64e7d2673ebb689ff292b1305dad90c85c",
+    "assemblee_nationale": "57153b1fc0f81040f3f4e2c41fd7a1c7bc31df9adee0b8f4f6307037e24a54a1",
+    "gutenberg_fr": "c9cbeb2e177118f576d7b7208adeff6b8b9fd76bec5a5b0dd12dac7edc82f9b9",
+    "wikinews_fr": "0735341f9c1308303ccd30e31a5375617d61a48b15475f298a637ffba12a0bdc"
+  },
+  "parent_dataset_sha256": "f1730391ce68f2cd5425618fa0168c5225af8a177cb565533e9804c57a356627",
+  "variant": "M4FINALRETOK",
+  "tokenizer_sample": {
+    "bytes_by_source": {
+      "wikipedia_fr": 4000000,
+      "common_crawl": 1500000,
+      "assemblee_nationale": 1500000,
+      "gutenberg_fr": 2500000,
+      "wikinews_fr": 500000
+    },
+    "sample_sha256": "5813f5305da05106b9862e106c7b979530cd71f54db646a581915c2c288ce0cf"
+  }
+}
