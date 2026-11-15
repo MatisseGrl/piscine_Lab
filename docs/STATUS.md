@@ -44,6 +44,21 @@ un dossier vide reste à vérifier.
 - **Régénération** : `uv run python -m pipeline.regenerate --mix M4REFLOWBPE --from gutenberg-reflow` (recollage, BPE, mélange depuis `data/interim`) redonne le **SHA-256 identique** `f1730391…`. La chaîne depuis la collecte brute n'a pas été relancée.
 - **Reste** : le dataset Kaggle `piscine-mix-m4reflowbpe` est privé. Le mentor reçoit le flux exact dans l'archive privée (voir ci-dessus) ; un lien public pour `--dataset-url` reste à décider par Matisse.
 
+## Récupération locale et nouveaux essais (15 novembre)
+
+Le ZIP mentor et ses 51 fichiers, le flux M4REFLOWBPE, le kit épinglé et
+Gutenberg recollé audité sont sauvegardés dans un dossier indépendant. Les
+17 archives de jeux de données privés Kaggle ont passé le contrôle d'intégrité.
+Les 29 archives brutes utilisées pour Wikipédia, Common Crawl, l'Assemblée
+et Wikinews ont été retéléchargées. Les caches nettoyés de ces quatre sources,
+la collecte Gutenberg initiale et le reste de Common Crawl restent à reconstituer.
+La commande de réentraînement depuis le ZIP mentor reste utilisable.
+
+Les recettes du nouveau lot sont documentées dans [le pipeline](../pipeline/README.md).
+Le meilleur résultat officiel vérifié reste **1,2874 BPB**. La suite locale a donné
+199 tests réussis et 5 ignorés. Les cinq variantes au tokenizer d'origine ont
+passé la vérification des empreintes, des quotas et des blocs des sources préservées.
+
 ## Audit du 15 novembre (au matin, avant les essais ci-dessus)
 
 - Les 189 tests passent avec le corpus Molière et le tokenizer 8 192. Le test de la démo v5 reproduit la boucle signalée, sans troncature de l’historique. Le [rapport d’audit](../report/audit_20261115.md) détaille les variantes, la répétition et les indices de mémorisation.
