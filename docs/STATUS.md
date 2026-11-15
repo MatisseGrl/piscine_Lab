@@ -65,3 +65,11 @@ Gutenberg et Wikinews collectés, bruit mesuré (σ 0,0023 sur 3 runs, seuil de 
 - Toujours lire le corpus Molière en mode texte (`load_utf8`) : sous Windows, CRLF fausse le compte d'octets et le BPB.
 - Pas de `python` système : toujours `uv run python ...` et `uv run pytest`.
 - Un seul dossier de travail : `C:\Users\mgarl\Documents\piscine_Lab`. Pas de copie OneDrive.
+
+## Ablation des sources : résultats (15/11, nuit)
+
+Tous les mélanges ont tourné (détails : `report/ablation.md`, LOG). Référence 80/12/8 = 1,3296 (σ 0,0023, seuil ~0,005).
+- M1 1,3262 (bruit), M2 1,3469 (pire), M3 1,3151 (1,3146 en relance), M5 1,3138, **M4 1,3028 / 1,3066 (2 graines)**.
+- **Soumission M4 faite** (go de Matisse) : `submissions/2026-11-15_002554`, **BPB 1,3048**, run officiel Colab T4. **Meilleur BPB actuel.** Plus que 1 soumission possible le 15/11.
+- À trancher par Matisse : visibilité du dataset Kaggle `piscine-mix-m4` (privé, cité comme `dataset_url`).
+- Reste : pptx (diapo ablation et sources avec Gutenberg et Wikinews).
