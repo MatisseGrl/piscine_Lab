@@ -1,0 +1,17 @@
+{
+  "bpb": 1.2839466208336523,
+  "bpb_par_genre": {
+    "dialogue": 1.0817926044094746,
+    "encyclopedique": 1.3680606731083789,
+    "litteraire": 1.4971278089979188,
+    "presse": 1.1902479788269147
+  },
+  "loss_par_token": 3.392833014090691,
+  "n_documents": 230,
+  "n_tokens": 213269,
+  "n_octets": 813051,
+  "octets_par_token": 3.8123262171248515,
+  "ckpt": "/content/run-M4FINALRETOK50/ckpt.pt",
+  "data": "data/validation.jsonl",
+  "tokenizer_sha256": "3a5ff70ee06f4e8a3029362e19afadb74a1d22b11a5ccb99bbe381cb02b95407"
+}

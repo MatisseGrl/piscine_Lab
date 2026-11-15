@@ -30,6 +30,11 @@ Après restauration des deux fixtures locales, la suite complète passe (204 tes
 Les cinq variantes au tokenizer d'origine ont
 passé la vérification des empreintes, des quotas et des blocs des sources préservées.
 
+Les sept variantes sont évaluées et consignées dans le journal, avec une
+relance de contrôle pour M4FINALEXCERPTS. Les deux essais qui attendaient
+sur Kaggle ont terminé sur Colab. Le meilleur autre candidat est
+M4FINALRETOK50 à 1,283947 BPB en graine 1337.
+
 ## Compétition, essais du 15 novembre
 
 Le paquet de la première campagne est **M4REFLOWBPE à 1,2874 BPB** en graine officielle
