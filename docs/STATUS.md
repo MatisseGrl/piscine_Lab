@@ -59,7 +59,12 @@ La commande de réentraînement depuis le ZIP mentor reste utilisable.
 Les recettes du nouveau lot sont documentées dans [le pipeline](../pipeline/README.md).
 Candidat M4FINALEXCERPTS : **1,276738 BPB** sur Colab T4 en graine 1337
 (−0,010695 vs M4REFLOWBPE). Un contrôle en graine 1338 est prévu avant
-d'arrêter le choix. Le ZIP de référence M4REFLOWBPE (1,2874 BPB) reste prêt.
+d'arrêter le choix. Le checkpoint exporté a donné **1,276737 BPB** sur CPU,
+et une deuxième préparation a retrouvé le SHA-256 du flux
+`aecae945fbf7545717a52d939c4c456cfd8da340aad69e8a41d561ffd53e2bc5`.
+Au même quota de 25 001 984 tokens, Gutenberg passe de 204 documents complets
+à 1 836 extraits terminés dans le flux. Le ZIP de référence M4REFLOWBPE
+(1,2874 BPB) reste prêt.
 La suite locale a donné
 199 tests réussis et 5 ignorés. Les cinq variantes au tokenizer d'origine ont
 passé la vérification des empreintes, des quotas et des blocs des sources préservées.
