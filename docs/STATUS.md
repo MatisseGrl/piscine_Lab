@@ -4,16 +4,30 @@
 
 ## Compétition, essais du 15 novembre
 
-La relance officielle de M4 (graine 1337, Kaggle T4) atteint **1,3012 BPB**
-sur les 230 documents publics. Le checkpoint a été conservé et un paquet local
-a passé les contrôles de `ftb.submit`. Le flux a la même empreinte que le M4 initial.
-Le résultat et les logs figurent dans [le journal](../Kaggle%20submissions/LOG.md).
+M4REFLOW atteint **1,2905 BPB** en graine officielle avec les mêmes quotas et le même
+tokenizer que M4. Seuls des retours à la ligne de prose Gutenberg coupée à largeur fixe
+sont remplacés par des espaces. Les blocs des autres sources sont identiques. Les 4 031
+livres modifiés repassent les gardes-fous de la validation publique et de Molière,
+avec zéro recouvrement détecté.
 
-Les essais isolent trois changements autour de M4 : tokenizer appris sur le mélange,
-plus de Wikipédia et Gutenberg en fin d'entraînement, et réallocation de cinq points
-de l'Assemblée à Wikipédia. Chaque entraînement officiel conserve le kit 3709c85,
-la graine 1337 et le budget de 100 007 936 tokens. Les tests à graine 1338 servent
-à estimer la stabilité des finalistes.
+| Recette | Graine 1337 | Graine 1338 | Moyenne |
+|---|---:|---:|---:|
+| M4, référence | 1,3012 | 1,3066 | 1,3039 |
+| M4, BPE adapté sur 10 Mo | 1,2992 | 1,2951 | 1,2971 |
+| M4, BPE adapté sur 50 Mo | 1,2983 | 1,3038 | 1,3011 |
+| M4REFLOW | **1,2905** | **1,2938** | **1,2922** |
+
+Le recollage améliore le BPB de 0,0118 en moyenne sur les deux graines testées. En
+graine officielle, le littéraire passe de 1,5394 à 1,5070. La combinaison du recollage
+et du BPE adapté sur 10 Mo est en cours sur les deux graines.
+
+Le changement d'ordre vaut 1,3106, le mélange 45/15/10/25/5 vaut 1,3115, et leur
+combinaison avec le BPE adapté vaut 1,3169. La répétition partielle donne 1,3172 et
+le classifieur Common Crawl 1,3044. Les scores, logs et empreintes sont dans
+[le journal des essais](../Kaggle%20submissions/LOG.md).
+
+Les entraînements utilisent le kit 3709c85 et 100 007 936 tokens vus. La graine 1337
+sert aux paquets de compétition. La graine 1338 sert au contrôle de stabilité.
 
 ## Où on en est
 
