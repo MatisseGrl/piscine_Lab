@@ -31,6 +31,13 @@ sert aux paquets de compétition. La graine 1338 sert au contrôle de stabilité
 Le [paquet vérifié](../submissions/2026-11-15_020424/) contient les poids en float16,
 réévalués sur CPU à 1,2874 BPB. Son dataset est sur Kaggle en accès privé.
 
+## Audit du 15 novembre (au matin, avant les essais ci-dessus)
+
+- Les 189 tests passent avec le corpus Molière et le tokenizer 8 192. Le test de la démo v5 reproduit la boucle signalée, sans troncature de l’historique. Le [rapport d’audit](../report/audit_20261115.md) détaille les variantes, la répétition et les indices de mémorisation.
+- **Meilleur BPB public compétition : 1,302769 (M4, graine officielle 1337)**. Le run M4 n’a pas conservé le checkpoint. Le paquet préparé est le 80/12/8 avec filtre qualité, réévalué à **1,331469** sur CPU avec le kit officiel. Score caché et soumission effective non vérifiés.
+- À vérifier avant le rendu : aligner les chiffres du rapport et de la soutenance sur le paquet réellement remis. La commande de régénération contrôle le hash écrit dans le manifeste, donc calculer directement celui de `train.bin` pour vérifier le fichier.
+
+
 ## Où on en est
 
 | Bloc | État |
@@ -94,3 +101,11 @@ Gutenberg et Wikinews collectés, bruit mesuré (σ 0,0023 sur 3 runs, seuil de 
 - Toujours lire le corpus Molière en mode texte (`load_utf8`) : sous Windows, CRLF fausse le compte d'octets et le BPB.
 - Pas de `python` système : toujours `uv run python ...` et `uv run pytest`.
 - Un seul dossier de travail : `C:\Users\mgarl\Documents\piscine_Lab`. Pas de copie OneDrive.
+
+## Ablation des sources : résultats (15/11, nuit)
+
+Tous les mélanges ont tourné (détails : `report/ablation.md`, LOG). Référence 80/12/8 = 1,3296 (σ 0,0023, seuil ~0,005).
+- M1 1,3262 (bruit), M2 1,3469 (pire), M3 1,3151 (1,3146 en relance), M5 1,3138, **M4 1,3028 / 1,3066 (2 graines)**.
+- **Soumission M4 faite** (go de Matisse) : `submissions/2026-11-15_002554`, **BPB 1,3048**, run officiel Colab T4. **Meilleur BPB actuel.** Plus que 1 soumission possible le 15/11.
+- À trancher par Matisse : visibilité du dataset Kaggle `piscine-mix-m4` (privé, cité comme `dataset_url`).
+- Reste : pptx (diapo ablation et sources avec Gutenberg et Wikinews).
