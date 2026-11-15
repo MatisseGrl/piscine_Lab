@@ -17,6 +17,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from pipeline.ablation import sha256
 from pipeline.mixes import MIXES, REFLOW_MIXES
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -119,16 +120,39 @@ def final_dir(mix):
 
 def verify_final(mix, root=ROOT):
     """Compare le SHA-256 du flux regénéré à celui du run de référence ; renvoie (ok, message)."""
-    meta_path = root / final_dir(mix) / mix / "data_meta.json"
-    if not meta_path.is_file():
-        return False, f"Introuvable : {meta_path}"
-    obtained = json.loads(meta_path.read_text(encoding="utf-8"))["dataset_sha256"]
+    folder = root / final_dir(mix) / mix
+    tokenizer = folder / "tokenizer.json"
+    if not tokenizer.is_file():
+        tokenizer = folder.parent / "tokenizer.json"
+    for path in (folder / "data_meta.json", folder / "train.bin", tokenizer):
+        if not path.is_file():
+            return False, f"Introuvable : {path}"
+    meta = json.loads((folder / "data_meta.json").read_text(encoding="utf-8"))
+    obtained = sha256(folder / "train.bin")
+    if obtained != meta["dataset_sha256"]:
+        return False, f"{mix} : SHA-256 du flux DIFFÉRENT de data_meta.json ({obtained})"
+    if sha256(tokenizer) != meta["tokenizer_sha256"]:
+        return False, f"{mix} : SHA-256 du tokenizer DIFFÉRENT de data_meta.json"
     expected = EXPECTED_SHA256.get(mix)
     if expected is None:
         return True, f"{mix} : SHA-256 {obtained} (pas de référence enregistrée, à noter dans le LOG)"
     if obtained != expected:
         return False, f"{mix} : SHA-256 DIFFÉRENT\n  obtenu   {obtained}\n  attendu  {expected}"
     return True, f"{mix} : SHA-256 identique au run de référence ({obtained[:12]}…)"
+
+
+def step_is_done(step, root):
+    """Vérifie la révision Git réelle du kit et le fichier témoin des autres étapes."""
+    if not (root / step.done).exists():
+        return False
+    if step.name == "kit-rev":
+        # Le fichier du corpus existe aussi après un clone à une autre révision.
+        revision = subprocess.run(
+            ["git", "-C", step.argv[2], "rev-parse", "HEAD"],
+            cwd=root, capture_output=True, text=True,
+        )
+        return revision.returncode == 0 and revision.stdout.strip() == KIT_REV
+    return True
 
 
 def run(mix, dry_run=False, only=None, start=None, root=ROOT):
@@ -143,7 +167,7 @@ def run(mix, dry_run=False, only=None, start=None, root=ROOT):
         started = started or step.name == start
         if not started or (only and step.name != only):
             continue
-        if (root / step.done).exists():
+        if step_is_done(step, root):
             print(f"[déjà fait] {step.name}  ({step.done})", flush=True)
             continue
         print(f"[à lancer ] {step.name} : {' '.join(map(str, step.argv))}", flush=True)

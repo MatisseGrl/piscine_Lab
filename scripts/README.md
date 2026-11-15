@@ -7,3 +7,6 @@ Les commandes, empreintes et limites du corpus de démo sont dans le [rapport](.
 `build_chat_paraphrases.py` produit les variantes du corpus de réparation. `build_moliere_extra.py` contrôle les cinq pièces supplémentaires pour les essais exploratoires du bloc 1.
 
 `audit_dialogue_stress.py` compare la répétition et la robustesse des checkpoints du chat. Le protocole est décrit dans le [rapport d’audit](../report/audit_20261115.md).
+
+`verify_mentor_bundle.py` est livré sous le nom `verifier.py` dans le paquet de
+compétition. Il vérifie les octets des fichiers listés dans `SHA256SUMS`.

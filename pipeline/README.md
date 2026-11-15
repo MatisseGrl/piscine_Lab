@@ -343,3 +343,6 @@ M4REFLOWBPE réutilise le BPE appris sur 10 Mo de M4 et applique le même recoll
 uv run python -m pipeline.regenerate --mix M4REFLOW
 uv run python -m pipeline.regenerate --mix M4REFLOWBPE
 ```
+
+Le [guide de rendu](../docs/RENDU_COMPETITION.md) donne les empreintes attendues et
+les commandes pour réentraîner le modèle depuis le flux fourni.

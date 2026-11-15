@@ -30,12 +30,19 @@ Les entraînements utilisent le kit 3709c85 et 100 007 936 tokens vus. La graine
 sert aux paquets de compétition. La graine 1338 sert au contrôle de stabilité.
 Le [paquet vérifié](../submissions/2026-11-15_020424/) contient les poids en float16,
 réévalués sur CPU à 1,2874 BPB. Son dataset est sur Kaggle en accès privé.
+Le [guide de remise au mentor](RENDU_COMPETITION.md) accompagne l'archive privée
+`Rendu-competition-M4REFLOWBPE-2026-11-15.zip`. Le ZIP contient le flux exact,
+le kit figé et la soumission. Après extraction, les 51 empreintes ont été vérifiées,
+le checkpoint a donné 1,287437 BPB sur CPU et le pilote d'entraînement a chargé
+les données et terminé son pas de contrôle. La préparation finale depuis les
+archives auditées a reproduit le SHA-256 du flux Kaggle. La collecte complète depuis
+un dossier vide reste à vérifier.
 
 ### Vérifications du paquet 1,2874 (15/11)
 
 - **Poids** : `ckpt.pt` réévalué sur CPU avec le kit officiel : 1,287437 BPB (1,287432 annoncé, écart dû au float16). SHA du tokenizer et du dataset conformes à `submission.json`.
 - **Régénération** : `uv run python -m pipeline.regenerate --mix M4REFLOWBPE --from gutenberg-reflow` (recollage, BPE, mélange depuis `data/interim`) redonne le **SHA-256 identique** `f1730391…`. La chaîne depuis la collecte brute n'a pas été relancée.
-- **Reste** : le dataset Kaggle `piscine-mix-m4reflowbpe` est privé ; il faut un lien accessible au mentor pour `--dataset-url`.
+- **Reste** : le dataset Kaggle `piscine-mix-m4reflowbpe` est privé. Le mentor reçoit le flux exact dans l'archive privée (voir ci-dessus) ; un lien public pour `--dataset-url` reste à décider par Matisse.
 
 ## Audit du 15 novembre (au matin, avant les essais ci-dessus)
 
