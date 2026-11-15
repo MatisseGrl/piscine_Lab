@@ -1,0 +1,16 @@
+{
+  "validation_sha256": "0cf0d7f6a67499529f744d1f87558e41c8a0387c5917b214edd7ee85715217f5",
+  "moliere_validation_sha256": "c838b1836498ff0dfdc621cb0b45f5349c889ff5e1b81a1409197e5d2b420377",
+  "parent_sha256": "b63c6472f20825cac131a679ddc262a2bac344dbd6ef4650985517b9cc9c7cf0",
+  "final": {
+    "docs": 4094,
+    "bytes": 1635329505,
+    "sha256": "c9cbeb2e177118f576d7b7208adeff6b8b9fd76bec5a5b0dd12dac7edc82f9b9",
+    "max_overlap_13_words": 0,
+    "overlap_with_validation_docs": 0
+  },
+  "reflow": {
+    "changed_documents": 4031,
+    "joined_line_breaks": 12769275
+  }
+}

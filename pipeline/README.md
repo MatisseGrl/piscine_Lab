@@ -337,7 +337,9 @@ de prose coupés à largeur fixe. Les coupures de paragraphes, les blocs indent�
 les débuts de réplique détectés sont conservés. Chaque livre modifié repasse les
 gardes-fous de contamination de la validation publique et de la validation Molière.
 Le reste du mélange suit M4, avec la même taille Gutenberg en octets et le BPE commun.
+M4REFLOWBPE réutilise le BPE appris sur 10 Mo de M4 et applique le même recollage.
 
 ```bash
 uv run python -m pipeline.regenerate --mix M4REFLOW
+uv run python -m pipeline.regenerate --mix M4REFLOWBPE
 ```

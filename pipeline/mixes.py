@@ -49,9 +49,13 @@ MIXES["M4REPEAT"] = {
 }
 REPLAY_SOURCES = {"wikipedia_fr", "gutenberg_fr"}
 # Seule la quantité de texte utilisée pour apprendre les fusions varie entre les deux BPE.
-BPE_SAMPLE_BYTES = {"M4BPE": 10_000_000, "M4WIKIBPE": 10_000_000, "M4BPE50": 50_000_000}
+BPE_SAMPLE_BYTES = {
+    "M4BPE": 10_000_000, "M4WIKIBPE": 10_000_000, "M4REFLOWBPE": 10_000_000,
+    "M4BPE50": 50_000_000,
+}
 # Mêmes quotas que M4, avec le recollage des lignes de prose Gutenberg.
-MIXES["M4REFLOW"] = MIXES["M4"]
+REFLOW_MIXES = ("M4REFLOW", "M4REFLOWBPE")
+MIXES.update(dict.fromkeys(REFLOW_MIXES, MIXES["M4"]))
 
 
 def quotas(size, shares):
@@ -265,7 +269,7 @@ def prepare(kit, interim, base, out, names):
         raise ValueError("Le kit ne correspond pas au protocole de la série de base")
     tokenizer = load_tokenizer(tokenizer_path)
     sources = load_sources(interim)
-    if "M4REFLOW" in names:
+    if set(names).intersection(REFLOW_MIXES):
         from pipeline.gutenberg_reflow import load_reflowed_source
 
         reflow_entry, reflow_audit = load_reflowed_source(interim, sources["gutenberg_fr"], kit)
@@ -282,7 +286,7 @@ def prepare(kit, interim, base, out, names):
                 raise ValueError(f"{mix} : sources absentes {sorted(missing)}")
             # La filiation du texte transformé est archivée à côté du flux.
             variant_sources = sources
-            if mix == "M4REFLOW":
+            if mix in REFLOW_MIXES:
                 variant_sources = {**sources, "gutenberg_fr": reflow_entry}
                 write_json(staged / "gutenberg_reflow.json", reflow_audit)
             mix_tokenizer = tokenizer

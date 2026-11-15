@@ -17,7 +17,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from pipeline.mixes import MIXES
+from pipeline.mixes import MIXES, REFLOW_MIXES
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -96,7 +96,7 @@ def build_steps(mix, kit=KIT_DIR):
         Step(f"mix-{parent}", [PY, *command, "--kit", kit, "--out", str(final_dir(parent))],
              final_dir(parent) / parent / "data_meta.json"),
     ]
-    if parent == "M4REFLOW":
+    if parent in REFLOW_MIXES:
         steps.insert(-1, Step(
             "gutenberg-reflow", [PY, "-m", "pipeline.gutenberg_reflow", "--kit", kit],
             Path("data/interim/gutenberg-reflow/stats.json"),
