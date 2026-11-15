@@ -346,3 +346,21 @@ uv run python -m pipeline.regenerate --mix M4REFLOWBPE
 
 Le [guide de rendu](../docs/RENDU_COMPETITION.md) donne les empreintes attendues et
 les commandes pour réentraîner le modèle depuis le flux fourni.
+
+## Variantes du flux final
+
+`pipeline.final_sweep` prend le dossier `dataset/` du rendu M4REFLOWBPE,
+le kit à la révision officielle et, pour les variantes qui relisent les livres,
+le dossier Gutenberg audité contenant `gutenberg_fr.jsonl.gz` et `stats.json`.
+
+```bash
+uv run python -m pipeline.final_sweep M4FINALBOOK30 --kit kit/Piscine-official --reference chemin/vers/dataset --gutenberg data/interim/gutenberg-reflow --out data/processed/m4finalbook30
+```
+
+| Variante | Modification |
+|---|---|
+| M4FINALBOOKSHUFFLE | Permute les livres déjà sélectionnés. Leur contenu, leurs séparateurs et la dernière coupe sont conservés. |
+| M4FINALBOOK30 / M4FINALBOOK35 | Transfère 5 ou 10 points de Common Crawl vers des livres supplémentaires, dans la même passe et avec le même préfixe Gutenberg. |
+| M4FINALITALICS | Enlève les marqueurs d'italique soulignés lorsque le contrôle de contamination le permet. |
+| M4FINALEXCERPTS | Tirage déterministe d'extraits d'environ 48 000 caractères pour diversifier les livres lus au même quota. |
+| M4FINALRETOK / M4FINALRETOK50 | Réentraîne le BPE sur 10 ou 50 Mo des textes décodés et contrôlés du flux final. Rééchantillonne ensuite ces textes par source aux quotas de référence. |

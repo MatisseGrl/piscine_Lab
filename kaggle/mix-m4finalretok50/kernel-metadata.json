@@ -1,0 +1,16 @@
+{
+  "id": "matissegarlot/piscine-run-m4finalretok50",
+  "title": "piscine-run-m4finalretok50",
+  "code_file": "script.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "matissegarlot/piscine-mix-m4finalretok50"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

@@ -1,0 +1,16 @@
+{
+  "id": "matissegarlot/piscine-run-m4finalitalics",
+  "title": "piscine-run-m4finalitalics",
+  "code_file": "script.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "matissegarlot/piscine-mix-m4finalitalics"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

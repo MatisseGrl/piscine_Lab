@@ -2,9 +2,42 @@
 
 À lire au début de chaque session, à mettre à jour à la fin. Réécrit le 14 novembre 2026 (l'historique détaillé est dans git). **Rendu le 16 novembre 2026.**
 
+## Récupération locale et nouveaux essais (15 novembre)
+
+Le ZIP mentor et ses 51 fichiers, le flux M4REFLOWBPE, le kit épinglé et
+Gutenberg recollé audité sont sauvegardés dans un dossier indépendant. Les
+17 archives de jeux de données privés Kaggle ont passé le contrôle d'intégrité.
+Les 29 archives brutes utilisées pour Wikipédia, Common Crawl, l'Assemblée
+et Wikinews ont été retéléchargées. L'archive Wikinews reconstruite depuis le dump
+redonne le SHA-256 attendu. Les deux archives Common Crawl du nettoyage
+retrouvent les empreintes du manifeste Kaggle. Les autres caches sont en cours de
+reconstitution. La collecte Gutenberg initiale et le reste de Common Crawl
+restent à reconstituer pour restaurer l'ensemble de l'ancien espace de travail.
+La commande de réentraînement depuis le ZIP mentor reste utilisable.
+
+Les recettes du nouveau lot sont documentées dans [le pipeline](../pipeline/README.md).
+Le meilleur résultat public est **M4FINALEXCERPTS à 1,276738 BPB** sur Colab T4
+en graine 1337. Le contrôle à graine 1338 donne **1,278586 BPB**. La moyenne
+sur deux graines passe de **1,286145** à **1,277662 BPB** (−0,008483).
+Le checkpoint exporté a donné **1,276737 BPB** sur CPU,
+et une deuxième préparation a retrouvé le SHA-256 du flux
+`aecae945fbf7545717a52d939c4c456cfd8da340aad69e8a41d561ffd53e2bc5`.
+Au même quota de 25 001 984 tokens, Gutenberg passe de 204 documents complets
+à 1 836 extraits terminés dans le flux. Le ZIP mentor privé pour la nouvelle
+recette inclut le flux, le checkpoint exporté, le contrôle 1338 et les
+commandes officielles. Le ZIP M4REFLOWBPE (1,2874 BPB) est conservé.
+Après restauration des deux fixtures locales, la suite complète passe (204 tests).
+Les cinq variantes au tokenizer d'origine ont
+passé la vérification des empreintes, des quotas et des blocs des sources préservées.
+
+Les sept variantes sont évaluées et consignées dans le journal, avec une
+relance de contrôle pour M4FINALEXCERPTS. Les deux essais qui attendaient
+sur Kaggle ont terminé sur Colab. Le meilleur autre candidat est
+M4FINALRETOK50 à 1,283947 BPB en graine 1337.
+
 ## Compétition, essais du 15 novembre
 
-Le paquet de compétition retenu est **M4REFLOWBPE à 1,2874 BPB** en graine officielle
+Le paquet de la première campagne est **M4REFLOWBPE à 1,2874 BPB** en graine officielle
 sur les 230 documents publics. Il combine le recollage des lignes de prose Gutenberg
 et le BPE entraîné sur 10 Mo du mélange M4. Les 4 031 livres modifiés repassent les
 gardes-fous de la validation publique et de Molière, avec zéro recouvrement détecté.

@@ -1,0 +1,17 @@
+{
+  "bpb": 1.2785860537826055,
+  "bpb_par_genre": {
+    "dialogue": 1.0820917538765498,
+    "encyclopedique": 1.3729770219102633,
+    "litteraire": 1.4595481186355956,
+    "presse": 1.201687306594761
+  },
+  "loss_par_token": 3.3451796690314524,
+  "n_documents": 230,
+  "n_tokens": 215404,
+  "n_octets": 813051,
+  "octets_par_token": 3.7745399342630592,
+  "ckpt": "/content/run-M4FINALEXCERPTS-s1338/ckpt.pt",
+  "data": "data/validation.jsonl",
+  "tokenizer_sha256": "f7599e6ac535f9a6cbb36d2caa003b0fbb675428f2259ccf4ee03fe14b2af4bd"
+}
