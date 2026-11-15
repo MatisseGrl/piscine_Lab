@@ -43,6 +43,7 @@ EXPECTED_SHA256 = {
     "M4REPEAT": "f164e06648f066c60fe01e34d5ecee252a5208d8ad72b6cc399a2231bda63980",
     "M4CLASS": "d6f84f7e27150d1acae9b73293209399c73955b4219883d3666edaee9eaefb47",
     "M4REFLOW": "6dd5de9288e50f8055a85485a6f0f4ccb800d67ea65b7a20233ed72b751e13b9",
+    "M4REFLOWBPE": "f1730391ce68f2cd5425618fa0168c5225af8a177cb565533e9804c57a356627",
 }
 
 # Ces recettes réordonnent le flux parent sans changer ses tokens ni son tokenizer.
