@@ -9,7 +9,8 @@ Gutenberg recollé audité sont sauvegardés dans un dossier indépendant. Les
 17 archives de jeux de données privés Kaggle ont passé le contrôle d'intégrité.
 Les 29 archives brutes utilisées pour Wikipédia, Common Crawl, l'Assemblée
 et Wikinews ont été retéléchargées. L'archive Wikinews reconstruite depuis le dump
-redonne le SHA-256 attendu. Les caches des trois autres sources sont en cours de
+redonne le SHA-256 attendu. Les deux archives Common Crawl du nettoyage
+retrouvent les empreintes du manifeste Kaggle. Les autres caches sont en cours de
 reconstitution. La collecte Gutenberg initiale et le reste de Common Crawl
 restent à reconstituer pour restaurer l'ensemble de l'ancien espace de travail.
 La commande de réentraînement depuis le ZIP mentor reste utilisable.
