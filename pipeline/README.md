@@ -329,3 +329,15 @@ de chaque fenêtre restent constants, et les fragments répétés arrivent vers 
 ```bash
 uv run python -m pipeline.regenerate --mix M4REPEAT
 ```
+
+## Lignes de prose Gutenberg
+
+M4REFLOW remplace par des espaces certains sauts de ligne internes aux paragraphes
+de prose coupés à largeur fixe. Les coupures de paragraphes, les blocs indentés et
+les débuts de réplique détectés sont conservés. Chaque livre modifié repasse les
+gardes-fous de contamination de la validation publique et de la validation Molière.
+Le reste du mélange suit M4, avec la même taille Gutenberg en octets et le BPE commun.
+
+```bash
+uv run python -m pipeline.regenerate --mix M4REFLOW
+```

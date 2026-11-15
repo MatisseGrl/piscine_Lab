@@ -95,6 +95,11 @@ def build_steps(mix, kit=KIT_DIR):
         Step(f"mix-{parent}", [PY, *command, "--kit", kit, "--out", str(final_dir(parent))],
              final_dir(parent) / parent / "data_meta.json"),
     ]
+    if parent == "M4REFLOW":
+        steps.insert(-1, Step(
+            "gutenberg-reflow", [PY, "-m", "pipeline.gutenberg_reflow", "--kit", kit],
+            Path("data/interim/gutenberg-reflow/stats.json"),
+        ))
     if parent != mix:
         steps.append(Step(
             f"mix-{mix}",
