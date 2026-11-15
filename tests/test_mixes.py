@@ -7,7 +7,7 @@ import json
 import numpy as np
 import pytest
 
-from pipeline.mixes import MIXES, encode_repeating, quotas
+from pipeline.mixes import MIXES, encode_repeating, quotas, replay_selection
 
 
 class FakeTokenizer:
@@ -73,3 +73,17 @@ def test_too_many_passes_are_refused(tmp_path):
     write_archive(archive, ["abcdefghi"])  # 10 tokens
     with pytest.raises(ValueError):
         encode_repeating((archive, 9, "x"), 31, FakeTokenizer(), io.BytesIO(), tmp_path)
+
+
+def test_replay_reuses_only_written_documents(tmp_path):
+    """La seconde passe reprend les extraits écrits, y compris la coupure du quota."""
+    archive = tmp_path / "literature.jsonl.gz"
+    write_archive(archive, ["abc", "def", "ghi"])
+    stream = io.BytesIO()
+    spans = []
+    encode_repeating((archive, 9, "x"), 10, FakeTokenizer(), stream, tmp_path, spans=spans)
+    first = stream.getvalue()
+    replay_selection(stream, spans, 10)
+    full = stream.getvalue()
+    assert full[:len(first)] == first
+    assert sorted(np.frombuffer(full[len(first):], dtype="<u2")) == sorted(np.frombuffer(first, dtype="<u2"))

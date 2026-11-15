@@ -1,0 +1,29 @@
+{
+  "source_sha256": "0fb0d345dd7892cb339620edbe061a64e7d2673ebb689ff292b1305dad90c85c",
+  "training_seed": 42,
+  "pseudo_pairs_by_source": {
+    "wikipedia_fr": 600,
+    "gutenberg_fr": 600,
+    "common_crawl": 600
+  },
+  "holdout_pairs": 360,
+  "holdout_pairwise_accuracy": 1.0,
+  "weights_standardized": {
+    "letters": 0.13517952373293943,
+    "digits": 0.00908354879645488,
+    "symbols": -0.706083238597082,
+    "urls": -0.8349700956454306,
+    "short_lines": -0.7215057209667645,
+    "repeated_lines": -2.0640554655112138,
+    "repeated_trigrams": -1.120702255624807,
+    "sentence_endings": -0.11662555319398868,
+    "long_words": 0.0471284745972791
+  },
+  "bias": -0.4157399518297652,
+  "docs_before": 12520,
+  "docs_after": 7354,
+  "tokens_before": 27242483,
+  "tokens_after": 16502295,
+  "threshold_logit": 0.26566394443737024,
+  "quota_training_tokens": 15001190
+}

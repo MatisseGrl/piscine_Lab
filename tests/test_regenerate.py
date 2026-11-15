@@ -5,7 +5,6 @@ import json
 import pytest
 
 from pipeline import regenerate
-from pipeline.mixes import MIXES
 
 
 def test_steps_are_in_dependency_order():
@@ -19,8 +18,17 @@ def test_steps_are_in_dependency_order():
 def test_every_mix_has_an_expected_sha_or_is_known():
     """Les SHA de référence ne concernent que des mélanges qui existent, et font 64 caractères hex."""
     for mix, digest in regenerate.EXPECTED_SHA256.items():
-        assert mix in MIXES
+        assert mix in regenerate.RECIPES
         assert len(digest) == 64 and int(digest, 16) >= 0
+
+
+def test_order_variant_uses_the_matching_parent():
+    """La variante combinée ordonne le flux qui porte déjà son mélange et son tokenizer."""
+    steps = regenerate.build_steps("M4WIKIBPEORDER")
+    parent, order = steps[-2:]
+    assert parent.name == "mix-M4WIKIBPE"
+    assert order.argv[order.argv.index("--parent") + 1] == str(parent.done.parent.parent)
+    assert order.done.name == "data_meta.json"
 
 
 def test_dry_run_launches_nothing(tmp_path, monkeypatch, capsys):
@@ -41,8 +49,15 @@ def test_finished_steps_are_skipped(tmp_path, monkeypatch):
 
     class Done:
         returncode = 0
+        stdout = regenerate.KIT_REV + "\n"
 
-    monkeypatch.setattr(regenerate.subprocess, "run", lambda argv, cwd: launched.append(argv) or Done())
+    def run(argv, cwd, **kwargs):
+        """Répond à la vérification Git et recense les étapes effectivement lancées."""
+        if argv[-2:] != ["rev-parse", "HEAD"]:
+            launched.append(argv)
+        return Done()
+
+    monkeypatch.setattr(regenerate.subprocess, "run", run)
     monkeypatch.setattr(regenerate, "verify_final", lambda mix, root: (True, "ok"))
     assert regenerate.run("M4", root=tmp_path) == 0
     assert len(launched) == len(steps) - 5
@@ -67,30 +82,38 @@ def test_unknown_step_name_is_refused(tmp_path):
         regenerate.run("M4", only="nimporte", dry_run=True, root=tmp_path)
 
 
-def write_meta(root, mix, digest):
-    """Crée le data_meta.json d'un mélange regénéré."""
+def write_mix(root, mix):
+    """Crée un flux factice, son tokenizer local et les empreintes correspondantes."""
     folder = root / regenerate.final_dir(mix) / mix
     folder.mkdir(parents=True)
-    (folder / "data_meta.json").write_text(json.dumps({"dataset_sha256": digest}))
+    (folder / "train.bin").write_bytes(b"\x00\x00\x01\x00")
+    (folder / "tokenizer.json").write_text("{}", encoding="utf-8")
+    digest = regenerate.sha256(folder / "train.bin")
+    (folder / "data_meta.json").write_text(json.dumps({
+        "dataset_sha256": digest,
+        "tokenizer_sha256": regenerate.sha256(folder / "tokenizer.json"),
+    }), encoding="utf-8")
+    return folder, digest
 
 
-def test_verify_accepts_identical_sha(tmp_path):
+def test_verify_accepts_identical_sha(tmp_path, monkeypatch):
     """Même SHA-256 que le run de référence : reproductible."""
-    write_meta(tmp_path, "M4", regenerate.EXPECTED_SHA256["M4"])
+    _, digest = write_mix(tmp_path, "M4")
+    monkeypatch.setitem(regenerate.EXPECTED_SHA256, "M4", digest)
     ok, message = regenerate.verify_final("M4", tmp_path)
     assert ok and "identique" in message
 
 
 def test_verify_rejects_different_sha(tmp_path):
     """Un SHA-256 différent est une erreur (graine, ordre ou version de dépendance)."""
-    write_meta(tmp_path, "M4", "0" * 64)
+    write_mix(tmp_path, "M4")
     ok, message = regenerate.verify_final("M4", tmp_path)
     assert not ok and "DIFFÉRENT" in message
 
 
 def test_verify_without_reference_only_reports(tmp_path):
     """Sans SHA de référence (M5), on affiche le hash à noter dans le LOG sans échouer."""
-    write_meta(tmp_path, "M5", "a" * 64)
+    write_mix(tmp_path, "M5")
     ok, message = regenerate.verify_final("M5", tmp_path)
     assert ok and "pas de référence" in message
 
@@ -99,3 +122,22 @@ def test_verify_missing_output_fails(tmp_path):
     """Pas de sortie = échec explicite."""
     ok, _ = regenerate.verify_final("M4", tmp_path)
     assert not ok
+
+
+def test_rejects_changed_bytes_with_valid_metadata(tmp_path, monkeypatch):
+    """Un flux corrompu ne peut pas être validé par son manifeste d'origine."""
+    folder, digest = write_mix(tmp_path, "M4")
+    monkeypatch.setitem(regenerate.EXPECTED_SHA256, "M4", digest)
+    (folder / "train.bin").write_bytes(b"\x01\x00\x00\x00")
+    ok, message = regenerate.verify_final("M4", tmp_path)
+    assert not ok and "data_meta.json" in message
+
+
+def test_kit_witness_at_wrong_revision_is_incomplete(tmp_path, monkeypatch):
+    """Le fichier Molière présent ne remplace pas le contrôle du commit Git."""
+    step = regenerate.build_steps("M4")[1]
+    (tmp_path / step.done).parent.mkdir(parents=True)
+    (tmp_path / step.done).touch()
+    monkeypatch.setattr(regenerate.subprocess, "run", lambda *args, **kwargs:
+                        regenerate.subprocess.CompletedProcess(args, 0, stdout="0" * 40))
+    assert not regenerate.step_is_done(step, tmp_path)

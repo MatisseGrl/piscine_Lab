@@ -1,10 +1,10 @@
-"""Prépare les flux des nouveaux mélanges de sources (M1 à M5) sans lancer d'entraînement.
+"""Prépare les flux des mélanges de sources sans lancer d'entraînement.
 
-Même protocole que `pipeline.ablation` et `pipeline.ablation_extra` : tokenizer 8 192 de la
-série de base (même SHA-256), mélange compté en tokens, même proportion dans chaque fenêtre
-de mélange, graine 42, flux de 100 007 937 tokens au format du kit (uint16 + data_meta.json).
-Seule nouveauté : une source trop petite pour son quota est RÉPÉTÉE (nouvelle passe mélangée
-avec une autre graine), au plus `MAX_PASSES` fois, et le nombre de répétitions est noté.
+Même protocole que `pipeline.ablation` : 8 192 entrées BPE, proportions constantes par
+fenêtre, graine 42 et 100 007 937 tokens au format kit. Les mélanges partagent
+le tokenizer de référence par défaut. M4BPE entraîne le sien sur les sources de M4.
+Une source trop petite pour son quota peut être répétée, au plus `MAX_PASSES` passes.
+M4REPEAT rejoue aussi une partie exacte des extraits Wikipédia et Gutenberg vus dans M4.
 """
 
 import argparse
@@ -20,7 +20,7 @@ from itertools import islice
 from pathlib import Path
 from tempfile import TemporaryDirectory, TemporaryFile
 
-from pipeline.ablation import KIT_REV, ROOT, SEED, read_json, sha256, write_json
+from pipeline.ablation import KIT_REV, ROOT, SEED, read_json, sha256, train_tokenizer, write_json
 
 # Nombre maximal de passes sur une même source (règle du plan : au plus ~3 répétitions).
 MAX_PASSES = 3
@@ -35,6 +35,27 @@ MIXES = {
            "wikinews_fr": 5},
     "M5": {"wikipedia_fr": 60, "common_crawl": 12, "assemblee_nationale": 8, "gutenberg_fr": 20},
 }
+
+DEFAULT_MIXES = tuple(MIXES)
+# Même mélange de tokens que M4, avec un BPE entraîné sur ces proportions en octets.
+MIXES["M4BPE"] = MIXES["M4"]
+MIXES["M4BPE50"] = MIXES["M4"]
+# Réalloue cinq points de l'Assemblée nationale à Wikipédia pour l'ablation M4.
+MIXES["M4WIKI"] = {**MIXES["M4"], "wikipedia_fr": 45, "assemblee_nationale": 10}
+MIXES["M4WIKIBPE"] = MIXES["M4WIKI"]
+MIXES["M4REPEAT"] = {
+    "wikipedia_fr": 45, "common_crawl": 5, "assemblee_nationale": 15,
+    "gutenberg_fr": 30, "wikinews_fr": 5,
+}
+REPLAY_SOURCES = {"wikipedia_fr", "gutenberg_fr"}
+# Seule la quantité de texte utilisée pour apprendre les fusions varie entre les deux BPE.
+BPE_SAMPLE_BYTES = {
+    "M4BPE": 10_000_000, "M4WIKIBPE": 10_000_000, "M4REFLOWBPE": 10_000_000,
+    "M4BPE50": 50_000_000,
+}
+# Mêmes quotas que M4, avec le recollage des lignes de prose Gutenberg.
+REFLOW_MIXES = ("M4REFLOW", "M4REFLOWBPE")
+MIXES.update(dict.fromkeys(REFLOW_MIXES, MIXES["M4"]))
 
 
 def quotas(size, shares):
@@ -67,7 +88,7 @@ def shuffled_texts(path, rate, seed, scratch):
             yield json.loads(spool.readline())["text"]
 
 
-def encode_repeating(entry, target, tokenizer, stream, scratch, max_passes=MAX_PASSES):
+def encode_repeating(entry, target, tokenizer, stream, scratch, max_passes=MAX_PASSES, spans=None):
     """Écrit `target` tokens d'une source ; refait une passe mélangée si le stock ne suffit pas.
 
     Renvoie le nombre de passes (1,0 = aucune répétition ; 1,8 = 80 % du stock vu deux fois).
@@ -88,6 +109,9 @@ def encode_repeating(entry, target, tokenizer, stream, scratch, max_passes=MAX_P
             for ids in tokenizer.encode_batch(batch):
                 ids.append(tokenizer.eot_id)
                 tokens = ids[:remaining]
+                if spans is not None:
+                    # Mémorise l'extrait réellement écrit, y compris le dernier document tronqué.
+                    spans.append((stream.tell(), len(tokens)))
                 stream.write(np.asarray(tokens, dtype="<u2").tobytes())
                 remaining -= len(tokens)
                 written += len(tokens)
@@ -101,7 +125,26 @@ def encode_repeating(entry, target, tokenizer, stream, scratch, max_passes=MAX_P
     raise ValueError(f"{path} : {remaining} tokens manquants après {max_passes} passes")
 
 
-def prepare_mix(folder, sources, shares, tokenizer, config, scratch):
+def replay_selection(stream, spans, target):
+    """Ajoute des documents tirés sans remise parmi les extraits de la première passe."""
+    random.Random(SEED + 1).shuffle(spans)
+    end = stream.tell()
+    for offset, length in spans:
+        count = min(length, target)
+        stream.seek(offset)
+        chunk = stream.read(2 * count)
+        if len(chunk) != 2 * count:
+            raise ValueError("Extrait à rejouer incomplet")
+        stream.seek(end)
+        stream.write(chunk)
+        end += len(chunk)
+        target -= count
+        if not target:
+            return
+    raise ValueError(f"Répétition incomplète : {target} tokens manquants")
+
+
+def prepare_mix(folder, sources, shares, tokenizer, config, scratch, replay_sources=()):
     """Assemble un flux au format du kit, avec le même mélange dans chaque fenêtre."""
     import numpy as np
     import tokenizers
@@ -110,6 +153,8 @@ def prepare_mix(folder, sources, shares, tokenizer, config, scratch):
     seen = train["max_steps"] * train["tokens_per_step"]
     window = train["shuffle_window_steps"] * train["tokens_per_step"]
     counts = quotas(seen, shares)
+    baseline = quotas(seen, MIXES["M4"]) if replay_sources else {}
+    repeated = {}
     folder.mkdir()
     passes = {}
     with ExitStack() as stack:
@@ -117,7 +162,17 @@ def prepare_mix(folder, sources, shares, tokenizer, config, scratch):
         for source, count in counts.items():
             print(f"{folder.name}/{source} : {count:,} tokens", flush=True)
             stream = stack.enter_context(TemporaryFile(dir=scratch))
-            passes[source] = encode_repeating(sources[source], count, tokenizer, stream, scratch)
+            if source in replay_sources:
+                # Conserve exactement la sélection initiale de M4, puis rejoue son sous-ensemble.
+                first_pass = baseline[source]
+                spans = []
+                passes[source] = encode_repeating(sources[source], first_pass, tokenizer, stream, scratch,
+                                                  max_passes=1, spans=spans)
+                repeated[source] = count - first_pass
+                replay_selection(stream, spans, repeated[source])
+                passes[source] += repeated[source] / first_pass
+            else:
+                passes[source] = encode_repeating(sources[source], count, tokenizer, stream, scratch)
             stream.seek(0)
             inputs[source] = stream
         rng = random.Random(SEED)
@@ -146,6 +201,8 @@ def prepare_mix(folder, sources, shares, tokenizer, config, scratch):
         "passes_started_by_source": passes,
         "input_sha256_by_source": {source: sources[source][2] for source in shares},
     }
+    if repeated:
+        metadata["replayed_tokens_by_source"] = repeated
     write_json(folder / "data_meta.json", metadata)
     return metadata
 
@@ -204,7 +261,7 @@ def prepare(kit, interim, base, out, names):
         raise FileExistsError(f"Choisis un dossier de sortie neuf : {out}")
     manifest = read_json(base / "manifest.json")
     tokenizer_path = base / "tokenizer.json"
-    # Même tokenizer et même config que toute l'ablation, sinon la comparaison ne vaut rien.
+    # Vérifie la référence commune, même quand le run étudie un autre BPE.
     if sha256(tokenizer_path) != manifest["tokenizer_sha256"]:
         raise ValueError("Le tokenizer de la série de base diffère de son manifeste")
     config = load_config()
@@ -212,6 +269,10 @@ def prepare(kit, interim, base, out, names):
         raise ValueError("Le kit ne correspond pas au protocole de la série de base")
     tokenizer = load_tokenizer(tokenizer_path)
     sources = load_sources(interim)
+    if set(names).intersection(REFLOW_MIXES):
+        from pipeline.gutenberg_reflow import load_reflowed_source
+
+        reflow_entry, reflow_audit = load_reflowed_source(interim, sources["gutenberg_fr"], kit)
     out.parent.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(dir=out.parent) as name:
         scratch = Path(name)
@@ -223,7 +284,28 @@ def prepare(kit, interim, base, out, names):
             missing = set(MIXES[mix]) - set(sources)
             if missing:
                 raise ValueError(f"{mix} : sources absentes {sorted(missing)}")
-            metas[mix] = prepare_mix(staged / mix, sources, MIXES[mix], tokenizer, config, scratch)
+            # La filiation du texte transformé est archivée à côté du flux.
+            variant_sources = sources
+            if mix in REFLOW_MIXES:
+                variant_sources = {**sources, "gutenberg_fr": reflow_entry}
+                write_json(staged / "gutenberg_reflow.json", reflow_audit)
+            mix_tokenizer = tokenizer
+            sample = None
+            if mix in BPE_SAMPLE_BYTES:
+                # Applique les pourcentages de M4 aux octets UTF-8 de l'échantillon.
+                trained_path, sample = train_tokenizer(
+                    kit, sources, scratch, MIXES["M4"], sample_bytes=BPE_SAMPLE_BYTES[mix],
+                )
+                mix_tokenizer = load_tokenizer(trained_path)
+            replay_sources = REPLAY_SOURCES if mix == "M4REPEAT" else ()
+            metas[mix] = prepare_mix(
+                staged / mix, variant_sources, MIXES[mix], mix_tokenizer, config, scratch,
+                replay_sources=replay_sources,
+            )
+            if sample is not None:
+                # Le flux embarque le tokenizer spécifique. Le manifeste décrit son échantillon.
+                shutil.copyfile(trained_path, staged / mix / "tokenizer.json")
+                metas[mix]["tokenizer_sample"] = sample
             print(mix, metas[mix]["dataset_sha256"], flush=True)
         write_json(staged / "manifest.json", dict(
             manifest, variants=metas, parent_manifest_sha256=sha256(base / "manifest.json"),
@@ -239,7 +321,7 @@ def main():
     parser.add_argument("--interim", type=Path, default=ROOT / "data/interim")
     parser.add_argument("--base", type=Path, default=ROOT / "data/processed/ablation")
     parser.add_argument("--out", type=Path, default=ROOT / "data/processed/mixes")
-    parser.add_argument("--mixes", nargs="+", default=list(MIXES), choices=list(MIXES))
+    parser.add_argument("--mixes", nargs="+", default=DEFAULT_MIXES, choices=list(MIXES))
     args = parser.parse_args()
     kit = args.kit.resolve()
     if subprocess.check_output(["git", "-C", str(kit), "rev-parse", "HEAD"], text=True).strip() != KIT_REV:

@@ -21,6 +21,26 @@ uv run python -m pipeline.regenerate --mix M4 --from quality   # reprend à une 
 
 Étapes, dans l'ordre : kit officiel (révision `3709c85`), collect, clean, dedup, quality, tokenizer 8 192 commun (`pipeline.ablation`), Wikinews, Gutenberg, mélange (`pipeline.mixes`). Une étape dont le fichier témoin existe est sautée (relance après interruption) ; une étape qui échoue arrête tout. À la fin, le SHA-256 du flux obtenu est comparé à celui du run de référence (`EXPECTED_SHA256` dans `pipeline/regenerate.py`, repris du LOG) : identique = reproductible.
 
+### Ordre des données de M4
+
+M4ORDER réutilise le flux M4 et son tokenizer, contrôlés par leurs SHA-256. Il
+répartit les mêmes 100 007 936 tokens sur deux phases. Les 1 500 premiers pas
+comptent 50,0 % de Wikipédia et Gutenberg en tokens. Leur part atteint 79,5 %
+ensuite. Le basculement suit une frontière de fenêtre du mélangeur officiel.
+Le flux conserve les quotas globaux et l'ordre des tokens au sein de chaque source.
+
+```bash
+uv run python -m pipeline.regenerate --mix M4
+uv run python -m pipeline.mix_order --parent data/processed/final/M4 --out data/processed/final/M4ORDER
+```
+
+Le dossier de sortie contient le tokenizer partagé et `M4ORDER/train.bin`
+(SHA-256 `792bb7027196ca2f0c1aa95a989421baf886a0f0e4e3a269b1f14e8dedf4f9b6`). Les
+effectifs exacts des deux phases sont dans `M4ORDER/data_meta.json`.
+Pour combiner le changement d'ordre avec un autre flux de la famille M4, passe
+son nom via `--source-mix`. Le dossier du flux de sortie ajoute `ORDER` à ce
+nom. Le tokenizer du flux de départ est copié à la racine de la sortie.
+
 Temps d'une reconstruction complète : plusieurs heures (collecte de dizaines de Gio, dédup ~36 min, qualité ~10 min, Gutenberg et mélange). Prévoir 100 Go libres. Le mélange final s'écrit dans `data/processed/final/<mélange>/` (dossier neuf obligatoire).
 
 ## Lancer la collecte
@@ -162,6 +182,33 @@ Contrôles : SHA-256 des trois sorties relus et conformes à leurs `stats.json`,
 
 Limites : regex seulement, donc pas de noms ni d'adresses ; une version logicielle du type `3.10.2.1` est masquée comme une IP ; les IPv6 très courtes (moins de 5 caractères) ne le sont pas ; un numéro suivi de lettres ou chiffres collés n'est pas masqué par prudence. Aucun BPB n'est mesuré ici : l'effet de la qualité et du PII reste à mesurer à configuration identique après les trois runs Kaggle de l'ablation.
 
+### Classifieur de bruit web pour M4
+
+M4CLASS applique une régression logistique aux passages de Common Crawl. Elle
+utilise des caractéristiques de structure, notamment les répétitions, les liens,
+le balisage et la ponctuation. Les pseudo-labels comparent des passages de
+Wikipédia, Gutenberg et Common Crawl à des copies auxquelles sont ajoutés
+menus, liens ou répétitions. Les passages de contrôle proviennent d'autres
+documents de ces mêmes archives d'entraînement. Ces corruptions servent
+uniquement au classifieur.
+
+Le quartile bas des scores par passage classe chaque document. On garde les
+documents entiers les mieux classés jusqu'à couvrir 110 % du quota Common Crawl
+de M4. Le tokenizer, les quotas et le traitement des autres sources viennent de
+M4. L'empreinte des archives est vérifiée avant le classement. Le fichier
+`quality_classification.json` détaille les pseudo-labels, les coefficients,
+le seuil retenu et le stock disponible.
+
+```bash
+uv run python -m pipeline.mix_quality --out data/processed/final/M4CLASS
+```
+
+Le classement conserve 7 354 des 12 520 documents de Common Crawl (58,7 %).
+Ces documents fournissent 16 502 295 tokens avec leurs séparateurs. Le quota
+de 15 001 190 tokens de M4 tient donc en une passe. Les 360 paires de contrôle
+sont toutes correctement ordonnées sur les corruptions simulées. L'effet sur le
+BPB reste à mesurer avec un entraînement officiel.
+
 ## Ablation sur la validation publique du kit
 
 Mélange validé par Matisse le 10/11/2026. Wikipédia FR 80 %, Common Crawl 12 %, Assemblée nationale 8 %. Pour le tokenizer BPE commun de 8 192 entrées, ces proportions s’appliquent à un échantillon fixe de 10 Mo du nettoyé, en octets UTF-8. Pour l’entraînement, elles s’appliquent aux tokens cibles, y compris les séparateurs de document. Le tirage et le mélange des blocs par fenêtre utilisent la graine 42. Le kit entraîne avec la graine 1337.
@@ -253,3 +300,49 @@ Le journal refuse la comparaison si le tokenizer, le protocole ou l'environnemen
 uv run python -m pipeline.wikinews --download   # dump + vérification de taille
 uv run python -m pipeline.wikinews              # -> data/interim/wikinews/ (JSONL gzip, stats.json, titles.json)
 ```
+
+## Tokenizer adapté à M4
+
+M4BPE garde les proportions de M4 en tokens et entraîne son BPE sur 10 Mo des mêmes
+sources, dosés avec ces proportions en octets UTF-8. Le tokenizer de M4BPE est dans le
+dossier de la variante, et son échantillon est identifié par SHA-256 dans le manifeste.
+Les quotas, les répétitions et les empreintes sont enregistrés pour chaque flux.
+M4BPE50 répète cette expérience avec un échantillon d'environ 50 Mo. M4WIKIBPEORDER
+combine le BPE appris sur les 10 Mo de M4, le mélange 45/15/10/25/5 et le réordonnancement.
+
+```bash
+uv run python -m pipeline.regenerate --mix M4BPE
+uv run python scripts/kaggle_mix_run.py M4BPE data/processed/final/M4BPE --keep-checkpoint --accelerator NvidiaTeslaT4
+uv run python -m pipeline.regenerate --mix M4BPE50
+uv run python -m pipeline.regenerate --mix M4WIKIBPEORDER
+```
+
+Le deuxième argument du lanceur crée le dataset Kaggle privé. Pour relancer un
+entraînement à partir de ce dataset déjà créé, omettre cet argument.
+
+## Seconde passe partielle
+
+M4REPEAT conserve la première passe de Wikipédia et Gutenberg de M4, puis rejoue
+5 000 397 tokens de chacune. La part de Common Crawl passe de 15 % à 5 %. Les quotas
+de chaque fenêtre restent constants, et les fragments répétés arrivent vers la fin.
+
+```bash
+uv run python -m pipeline.regenerate --mix M4REPEAT
+```
+
+## Lignes de prose Gutenberg
+
+M4REFLOW remplace par des espaces certains sauts de ligne internes aux paragraphes
+de prose coupés à largeur fixe. Les coupures de paragraphes, les blocs indentés et
+les débuts de réplique détectés sont conservés. Chaque livre modifié repasse les
+gardes-fous de contamination de la validation publique et de la validation Molière.
+Le reste du mélange suit M4, avec la même taille Gutenberg en octets et le BPE commun.
+M4REFLOWBPE réutilise le BPE appris sur 10 Mo de M4 et applique le même recollage.
+
+```bash
+uv run python -m pipeline.regenerate --mix M4REFLOW
+uv run python -m pipeline.regenerate --mix M4REFLOWBPE
+```
+
+Le [guide de rendu](../docs/RENDU_COMPETITION.md) donne les empreintes attendues et
+les commandes pour réentraîner le modèle depuis le flux fourni.

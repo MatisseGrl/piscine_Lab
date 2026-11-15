@@ -40,18 +40,22 @@ subprocess.run([sys.executable, "-m", "pip", "install", "-q", "tokenizers==0.23.
 
 # Graine optionnelle (fichier /content/data/SEED) : relance de bruit, non soumissible.
 # Seule la graine de la config du kit change ; absent = config officielle (1337).
+subprocess.run(["git", "restore", "--", "config/official.json"], cwd=kit, check=True)
 seed_file = Path("/content/data/SEED")
+suffix = ""
 if seed_file.exists():
     seed = int(seed_file.read_text().strip())
     cfg_path = kit / "config" / "official.json"
     cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
-    assert cfg["train"]["seed"] in (1337, seed)
+    assert cfg["train"]["seed"] == 1337
     cfg["train"]["seed"] = seed
     cfg_path.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
+    suffix = f"-s{seed}"
     print("graine d'entraînement :", seed)
 
 # Entraînement puis évaluation, détachés : `colab exec` rend la main tout de suite.
-out = f"/content/run-{MIX}"
+out = f"/content/run-{MIX}{suffix}"
+log = f"/content/train-{MIX}{suffix}.log"
 tokenizer = "/content/data/tokenizer.json"
 command = (
     f"{sys.executable} -m ftb.train --data {data} --tokenizer {tokenizer} --out {out} "
@@ -59,6 +63,6 @@ command = (
     f"{sys.executable} -m ftb.evaluate --ckpt {out}/ckpt.pt --tokenizer {tokenizer} "
     f"--data data/validation.jsonl --device cuda:0 --out {out}/evaluation.json"
 )
-subprocess.Popen(["bash", "-c", f"({command}) > /content/train-{MIX}.log 2>&1"], cwd=kit,
+subprocess.Popen(["bash", "-c", f"({command}) > {log} 2>&1"], cwd=kit,
                  start_new_session=True)
-print("entraînement lancé, journal : /content/train-" + MIX + ".log")
+print("entraînement lancé, journal :", log)
