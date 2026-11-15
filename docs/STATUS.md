@@ -50,12 +50,17 @@ Le ZIP mentor et ses 51 fichiers, le flux M4REFLOWBPE, le kit épinglé et
 Gutenberg recollé audité sont sauvegardés dans un dossier indépendant. Les
 17 archives de jeux de données privés Kaggle ont passé le contrôle d'intégrité.
 Les 29 archives brutes utilisées pour Wikipédia, Common Crawl, l'Assemblée
-et Wikinews ont été retéléchargées. Les caches nettoyés de ces quatre sources,
-la collecte Gutenberg initiale et le reste de Common Crawl restent à reconstituer.
+et Wikinews ont été retéléchargées. L'archive Wikinews reconstruite depuis le dump
+redonne le SHA-256 attendu. Les caches des trois autres sources sont en cours de
+reconstitution. La collecte Gutenberg initiale et le reste de Common Crawl
+restent à reconstituer pour restaurer l'ensemble de l'ancien espace de travail.
 La commande de réentraînement depuis le ZIP mentor reste utilisable.
 
 Les recettes du nouveau lot sont documentées dans [le pipeline](../pipeline/README.md).
-Le meilleur résultat officiel vérifié reste **1,2874 BPB**. La suite locale a donné
+Candidat M4FINALEXCERPTS : **1,276738 BPB** sur Colab T4 en graine 1337
+(−0,010695 vs M4REFLOWBPE). Un contrôle en graine 1338 est prévu avant
+d'arrêter le choix. Le ZIP de référence M4REFLOWBPE (1,2874 BPB) reste prêt.
+La suite locale a donné
 199 tests réussis et 5 ignorés. Les cinq variantes au tokenizer d'origine ont
 passé la vérification des empreintes, des quotas et des blocs des sources préservées.
 
