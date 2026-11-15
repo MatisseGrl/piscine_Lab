@@ -31,6 +31,12 @@ sert aux paquets de compétition. La graine 1338 sert au contrôle de stabilité
 Le [paquet vérifié](../submissions/2026-11-15_020424/) contient les poids en float16,
 réévalués sur CPU à 1,2874 BPB. Son dataset est sur Kaggle en accès privé.
 
+### Vérifications du paquet 1,2874 (15/11)
+
+- **Poids** : `ckpt.pt` réévalué sur CPU avec le kit officiel : 1,287437 BPB (1,287432 annoncé, écart dû au float16). SHA du tokenizer et du dataset conformes à `submission.json`.
+- **Régénération** : `uv run python -m pipeline.regenerate --mix M4REFLOWBPE --from gutenberg-reflow` (recollage, BPE, mélange depuis `data/interim`) redonne le **SHA-256 identique** `f1730391…`. La chaîne depuis la collecte brute n'a pas été relancée.
+- **Reste** : le dataset Kaggle `piscine-mix-m4reflowbpe` est privé ; il faut un lien accessible au mentor pour `--dataset-url`.
+
 ## Audit du 15 novembre (au matin, avant les essais ci-dessus)
 
 - Les 189 tests passent avec le corpus Molière et le tokenizer 8 192. Le test de la démo v5 reproduit la boucle signalée, sans troncature de l’historique. Le [rapport d’audit](../report/audit_20261115.md) détaille les variantes, la répétition et les indices de mémorisation.
