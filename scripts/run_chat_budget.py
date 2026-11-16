@@ -26,6 +26,7 @@ def text_digest(path):
 
 def extract_verified(path, target, manifest, steps):
     """Vérifie le préfixe, y compris lorsque Kaggle a déjà décompressé l'archive."""
+    remaining = (steps * 64 * 512 + 1) * 2
     if path.suffix == ".gz":
         with path.open("rb") as stream:
             archive_hash = hashlib.file_digest(stream, "sha256").hexdigest()
@@ -33,12 +34,12 @@ def extract_verified(path, target, manifest, steps):
             raise ValueError("Archive d'entraînement différente du manifeste.")
         source = gzip.open(path, "rb")
     else:
-        if path.stat().st_size != 2 * manifest["total_input_tokens"]:
+        # Colab peut recevoir uniquement le préfixe nécessaire.
+        if path.stat().st_size not in (remaining, 2 * manifest["total_input_tokens"]):
             raise ValueError("Taille du flux décompressé différente du manifeste.")
         source = path.open("rb")
     short = steps * 64 * 512 == manifest["short_targets"]
     expected = manifest["short_bin_sha256"] if short else manifest["train_bin_sha256"]
-    remaining = (steps * 64 * 512 + 1) * 2
     digest = hashlib.sha256()
     with source, target.open("xb") as destination:
         while remaining:
