@@ -50,7 +50,7 @@ Fiches des archives [Wikipédia](../sources/wikipedia-fr.md), [Gutenberg](../sou
 | Pré-entraînement | Matériel et PyTorch | BPB avant Molière | SHA-256 des poids |
 | --- | --- | ---: | --- |
 | 100 M, graine 1337 | Colab T4, 2.14.1+cu130 | 1,715294 | `4549e6303b48b4b415492e2801630877a0fd93740f1f48be6eadcf648e503c46` |
-| 300 M, graine 1337 | Kaggle T4, 2.11.0+cu130 | — | — |
+| 300 M, graine 1337 | Kaggle T4, 2.11.0+cu130 | 1,499422 | `cc381c69194611a8739d54491adf69567dc5cbc4cf74001851d4021d335ea9d5` |
 
 Les deux environnements utilisent des versions différentes de PyTorch. L'architecture, le type de GPU, la recette de pré-entraînement et le protocole d'évaluation sont communs.
 
@@ -65,6 +65,12 @@ Empreinte du parent Molière du 100 M, `240d9fa0eb7a4b6074fb269f1934ad2017e859f5
 | --- | ---: | ---: | ---: | ---: |
 | Chat v5 historique | 1 500 | 1,429137 | 17/20 | 8/9 |
 | 100 M, graine 1337 | 500 | 1,451311 | 9/20 | 4/9 |
+| 100 M, graine 1337 | 1 000 | 1,446508 | 15/20 | 6/9 |
+| 100 M, graine 1337, retenu sur DEV | 1 500 | 1,449145 | 16/20 | 8/9 |
+
+Le gain au pré-entraînement du 300 M sur le 100 M vaut 0,215872 BPB. Le chat 100 M retenu monte à 1,449145 après SFT, soit +0,031526 par rapport à son parent Molière. À 1 000 pas, le BPB est inférieur de 0,002637 et deux tours de contexte supplémentaires échouent. Le palier de 1 500 pas est retenu sur les réponses DEV.
+
+Empreinte du chat 100 M à 1 500 pas, `a7ad12ce4a5b1cc0d2a2de34035e86c86bd2c4dbc1193a6a9fbfdb76024a2b82`. Le rechargement CPU reproduit son BPB. Les poids et les journaux du 100 M sont conservés dans `runs/chat-budget/results-100m/`.
 
 ## Reproduction
 
