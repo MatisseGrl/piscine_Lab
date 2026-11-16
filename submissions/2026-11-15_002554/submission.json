@@ -1,0 +1,18 @@
+{
+  "participant": "Matisse Garlot",
+  "submitted": "2026-11-15T00:25:54+01:00",
+  "kit_version": "1.0",
+  "val_bpb": 1.3048095895285565,
+  "val_bpb_par_genre": {
+    "dialogue": 1.0927250760727842,
+    "encyclopedique": 1.3738586248156113,
+    "litteraire": 1.5534518012950365,
+    "presse": 1.2001647752820557
+  },
+  "dataset_sha256": "c6c628a6b44640db55654c68878a35d02748a860f7aad1ab4c9b9597349738a9",
+  "tokenizer_sha256": "b2554a8221a55c19b4008f5b605b1b6e84b6a7f84058507c15aba34eca3b2379",
+  "dataset_url": "https://www.kaggle.com/datasets/matissegarlot/piscine-mix-m4",
+  "note": "Melange M4 : Wikipedia 40 / CC 15 / Assemblee 15 / Gutenberg 25 / Wikinews 5, dedup + qualite, kit 3709c85",
+  "device": "Tesla T4",
+  "train_time_s": 851.4
+}

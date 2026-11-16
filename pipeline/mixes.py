@@ -1,0 +1,335 @@
+"""Prépare les flux des mélanges de sources sans lancer d'entraînement.
+
+Même protocole que `pipeline.ablation` : 8 192 entrées BPE, proportions constantes par
+fenêtre, graine 42 et 100 007 937 tokens au format kit. Les mélanges partagent
+le tokenizer de référence par défaut. M4BPE entraîne le sien sur les sources de M4.
+Une source trop petite pour son quota peut être répétée, au plus `MAX_PASSES` passes.
+M4REPEAT rejoue aussi une partie exacte des extraits Wikipédia et Gutenberg vus dans M4.
+"""
+
+import argparse
+import gzip
+import json
+import os
+import random
+import shutil
+import subprocess
+import sys
+from contextlib import ExitStack
+from itertools import islice
+from pathlib import Path
+from tempfile import TemporaryDirectory, TemporaryFile
+
+from pipeline.ablation import KIT_REV, ROOT, SEED, read_json, sha256, train_tokenizer, write_json
+
+# Nombre maximal de passes sur une même source (règle du plan : au plus ~3 répétitions).
+MAX_PASSES = 3
+
+# Mélanges à construire, en pourcentage de tokens vus. Ordre W, C, A, G, N.
+# M1 et M2 sont des lectures de notes orales du mentor : ce sont des hypothèses.
+MIXES = {
+    "M3": {"wikipedia_fr": 50, "common_crawl": 15, "assemblee_nationale": 10, "gutenberg_fr": 25},
+    "M1": {"wikipedia_fr": 35, "common_crawl": 15, "assemblee_nationale": 20, "gutenberg_fr": 30},
+    "M2": {"wikipedia_fr": 25, "common_crawl": 25, "assemblee_nationale": 25, "gutenberg_fr": 25},
+    "M4": {"wikipedia_fr": 40, "common_crawl": 15, "assemblee_nationale": 15, "gutenberg_fr": 25,
+           "wikinews_fr": 5},
+    "M5": {"wikipedia_fr": 60, "common_crawl": 12, "assemblee_nationale": 8, "gutenberg_fr": 20},
+}
+
+DEFAULT_MIXES = tuple(MIXES)
+# Même mélange de tokens que M4, avec un BPE entraîné sur ces proportions en octets.
+MIXES["M4BPE"] = MIXES["M4"]
+MIXES["M4BPE50"] = MIXES["M4"]
+# Réalloue cinq points de l'Assemblée nationale à Wikipédia pour l'ablation M4.
+MIXES["M4WIKI"] = {**MIXES["M4"], "wikipedia_fr": 45, "assemblee_nationale": 10}
+MIXES["M4WIKIBPE"] = MIXES["M4WIKI"]
+MIXES["M4REPEAT"] = {
+    "wikipedia_fr": 45, "common_crawl": 5, "assemblee_nationale": 15,
+    "gutenberg_fr": 30, "wikinews_fr": 5,
+}
+REPLAY_SOURCES = {"wikipedia_fr", "gutenberg_fr"}
+# Seule la quantité de texte utilisée pour apprendre les fusions varie entre les deux BPE.
+BPE_SAMPLE_BYTES = {
+    "M4BPE": 10_000_000, "M4WIKIBPE": 10_000_000, "M4REFLOWBPE": 10_000_000,
+    "M4BPE50": 50_000_000,
+}
+# Mêmes quotas que M4, avec le recollage des lignes de prose Gutenberg.
+REFLOW_MIXES = ("M4REFLOW", "M4REFLOWBPE")
+MIXES.update(dict.fromkeys(REFLOW_MIXES, MIXES["M4"]))
+
+
+def quotas(size, shares):
+    """Répartit `size` positions selon `shares` (en %), avec compensation des arrondis."""
+    if sum(shares.values()) != 100:
+        raise ValueError(f"Les parts doivent faire 100 % : {shares}")
+    limits = [0]
+    for percent in shares.values():
+        limits.append(limits[-1] + percent)
+    # Bornes cumulées : la somme des quotas vaut exactement `size`.
+    return {
+        source: size * end // 100 - size * start // 100
+        for source, start, end in zip(shares, limits, limits[1:])
+    }
+
+
+def shuffled_texts(path, rate, seed, scratch):
+    """Tire des documents (taux `rate`) sur toute l'archive puis les mélange avec `seed`."""
+    rng = random.Random(seed)
+    with TemporaryFile(dir=scratch) as spool:
+        offsets = []
+        with gzip.open(path, "rb") as stream:
+            for line in stream:
+                if rng.random() < rate:
+                    offsets.append(spool.tell())
+                    spool.write(line)
+        rng.shuffle(offsets)
+        for offset in offsets:
+            spool.seek(offset)
+            yield json.loads(spool.readline())["text"]
+
+
+def encode_repeating(entry, target, tokenizer, stream, scratch, max_passes=MAX_PASSES, spans=None):
+    """Écrit `target` tokens d'une source ; refait une passe mélangée si le stock ne suffit pas.
+
+    Renvoie le nombre de passes (1,0 = aucune répétition ; 1,8 = 80 % du stock vu deux fois).
+    """
+    import numpy as np
+
+    path, size, _ = entry
+    remaining = target
+    stock = None
+    for number in range(max_passes):
+        # Première passe : suréchantillonnage en octets comme dans pipeline.ablation.
+        # Si le quota dépasse le stock, ce taux vaut 1 : la passe lit alors tout le stock.
+        # Passes suivantes : tout le stock, dans un autre ordre (graine différente).
+        rate = min(1, 10 * target / size) if number == 0 else 1
+        written = 0
+        texts = shuffled_texts(path, rate, SEED + number, scratch)
+        while batch := list(islice(texts, 128)):
+            for ids in tokenizer.encode_batch(batch):
+                ids.append(tokenizer.eot_id)
+                tokens = ids[:remaining]
+                if spans is not None:
+                    # Mémorise l'extrait réellement écrit, y compris le dernier document tronqué.
+                    spans.append((stream.tell(), len(tokens)))
+                stream.write(np.asarray(tokens, dtype="<u2").tobytes())
+                remaining -= len(tokens)
+                written += len(tokens)
+                if not remaining:
+                    # Aucune répétition : 1,0. Sinon passes complètes + fraction de la dernière.
+                    return 1.0 if stock is None else number + written / stock
+        if rate < 1:
+            raise ValueError(f"{path} : tirage trop petit, relancer avec un taux plus élevé")
+        # Une passe complète a lu tout le stock : sa taille sert à compter les répétitions.
+        stock = written
+    raise ValueError(f"{path} : {remaining} tokens manquants après {max_passes} passes")
+
+
+def replay_selection(stream, spans, target):
+    """Ajoute des documents tirés sans remise parmi les extraits de la première passe."""
+    random.Random(SEED + 1).shuffle(spans)
+    end = stream.tell()
+    for offset, length in spans:
+        count = min(length, target)
+        stream.seek(offset)
+        chunk = stream.read(2 * count)
+        if len(chunk) != 2 * count:
+            raise ValueError("Extrait à rejouer incomplet")
+        stream.seek(end)
+        stream.write(chunk)
+        end += len(chunk)
+        target -= count
+        if not target:
+            return
+    raise ValueError(f"Répétition incomplète : {target} tokens manquants")
+
+
+def prepare_mix(folder, sources, shares, tokenizer, config, scratch, replay_sources=()):
+    """Assemble un flux au format du kit, avec le même mélange dans chaque fenêtre."""
+    import numpy as np
+    import tokenizers
+
+    train = config["train"]
+    seen = train["max_steps"] * train["tokens_per_step"]
+    window = train["shuffle_window_steps"] * train["tokens_per_step"]
+    counts = quotas(seen, shares)
+    baseline = quotas(seen, MIXES["M4"]) if replay_sources else {}
+    repeated = {}
+    folder.mkdir()
+    passes = {}
+    with ExitStack() as stack:
+        inputs = {}
+        for source, count in counts.items():
+            print(f"{folder.name}/{source} : {count:,} tokens", flush=True)
+            stream = stack.enter_context(TemporaryFile(dir=scratch))
+            if source in replay_sources:
+                # Conserve exactement la sélection initiale de M4, puis rejoue son sous-ensemble.
+                first_pass = baseline[source]
+                spans = []
+                passes[source] = encode_repeating(sources[source], first_pass, tokenizer, stream, scratch,
+                                                  max_passes=1, spans=spans)
+                repeated[source] = count - first_pass
+                replay_selection(stream, spans, repeated[source])
+                passes[source] += repeated[source] / first_pass
+            else:
+                passes[source] = encode_repeating(sources[source], count, tokenizer, stream, scratch)
+            stream.seek(0)
+            inputs[source] = stream
+        rng = random.Random(SEED)
+        with (folder / "train.bin").open("wb") as output:
+            # Le premier token sert de contexte. Le kit note les positions 1 à seen.
+            output.write(np.asarray([tokenizer.eot_id], dtype="<u2").tobytes())
+            for start in range(0, seen, window):
+                # Quotas cumulés : pas de dérive des arrondis entre fenêtres.
+                before, after = quotas(start, shares), quotas(min(start + window, seen), shares)
+                order = list(shares)
+                rng.shuffle(order)
+                for source in order:
+                    length = 2 * (after[source] - before[source])
+                    chunk = inputs[source].read(length)
+                    if len(chunk) != length:
+                        raise ValueError(f"Flux incomplet : {source}")
+                    output.write(chunk)
+    metadata = {
+        "kit_version": config["kit_version"], "tokenizers_version": tokenizers.__version__,
+        "dataset_sha256": sha256(folder / "train.bin"), "tokenizer_sha256": tokenizer.sha256,
+        "n_tokens": seen + 1, "budget_tokens": train["budget_tokens"],
+        # Clé lue par ftb.train : passes sur le FICHIER, calculée comme le kit (ftb/data.py).
+        # Les répétitions internes d'une source sont dans passes_started_by_source.
+        "passes_over_data": round(train["budget_tokens"] / max(seen + 1, 1), 3),
+        "source_percent": shares, "tokens_seen_by_source": counts,
+        "passes_started_by_source": passes,
+        "input_sha256_by_source": {source: sources[source][2] for source in shares},
+    }
+    if repeated:
+        metadata["replayed_tokens_by_source"] = repeated
+    write_json(folder / "data_meta.json", metadata)
+    return metadata
+
+
+def check_audit(audit, reference, name):
+    """Refuse une source dont l'audit de contamination n'est pas à zéro sur la même validation."""
+    if audit.get("validation_sha256") != reference:
+        raise ValueError(f"{name} : audit fait sur une autre validation")
+    if audit.get("overlap", 1) != 0:
+        raise ValueError(f"{name} : recouvrement avec la validation")
+
+
+def load_sources(interim):
+    """Renvoie {source: (chemin, octets UTF-8, sha256)} après vérification des audits."""
+    quality = read_json(interim / "quality/final/stats.json")
+    audit = quality["audit"]
+    reference = audit["validation_sha256"]
+    if (audit["validation_docs"], audit["matching_training_docs"], audit["mean_overlap"]) != (230, 0, 0):
+        raise ValueError("Audit de la sortie qualité invalide")
+    result = {}
+    # W, C, A : sortie dédup + qualité déjà utilisée pour le meilleur run (1,3304).
+    for source, entry in quality["sources"].items():
+        path = interim / "quality/final" / f"{source}.jsonl.gz"
+        result[source] = (path, entry["bytes"], entry["sha256"])
+    # N : Wikinews FR (PR #31), mêmes étapes, audit 13-grammes à zéro.
+    news = read_json(interim / "wikinews/stats.json")
+    check_audit({"validation_sha256": news["validation_sha256"],
+                 "overlap": news["final"]["overlap_with_validation_docs"]}, reference, "wikinews_fr")
+    result["wikinews_fr"] = (interim / "wikinews/wikinews_fr.jsonl.gz",
+                             news["final"]["bytes"], news["final"]["sha256"])
+    # G : Gutenberg FR, branche feat/sources-gutenberg (format de stats à confirmer à l'arrivée).
+    book_stats = interim / "gutenberg/stats.json"
+    if book_stats.exists():
+        books = read_json(book_stats)
+        final = books["final"]
+        check_audit({"validation_sha256": books["validation_sha256"],
+                     "overlap": final["overlap_with_validation_docs"]}, reference, "gutenberg_fr")
+        result["gutenberg_fr"] = (interim / "gutenberg/gutenberg_fr.jsonl.gz", final["bytes"],
+                                  final["sha256"])
+    # Le fichier lu doit être exactement celui de l'audit.
+    for source, (path, _, expected) in result.items():
+        if sha256(path) != expected:
+            raise ValueError(f"SHA-256 différent de celui de l'audit : {path}")
+        print(f"Audit vérifié : {source}", flush=True)
+    return result
+
+
+def prepare(kit, interim, base, out, names):
+    """Construit les mélanges demandés dans `out/<nom>/`, avec un manifeste commun."""
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
+    sys.path.insert(0, str(kit))
+    from ftb import load_config
+    from ftb.tokenizer import load_tokenizer
+
+    if out.exists():
+        raise FileExistsError(f"Choisis un dossier de sortie neuf : {out}")
+    manifest = read_json(base / "manifest.json")
+    tokenizer_path = base / "tokenizer.json"
+    # Vérifie la référence commune, même quand le run étudie un autre BPE.
+    if sha256(tokenizer_path) != manifest["tokenizer_sha256"]:
+        raise ValueError("Le tokenizer de la série de base diffère de son manifeste")
+    config = load_config()
+    if config != manifest["config"] or manifest["kit_revision"] != KIT_REV:
+        raise ValueError("Le kit ne correspond pas au protocole de la série de base")
+    tokenizer = load_tokenizer(tokenizer_path)
+    sources = load_sources(interim)
+    if set(names).intersection(REFLOW_MIXES):
+        from pipeline.gutenberg_reflow import load_reflowed_source
+
+        reflow_entry, reflow_audit = load_reflowed_source(interim, sources["gutenberg_fr"], kit)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(dir=out.parent) as name:
+        scratch = Path(name)
+        staged = scratch / "mixes"
+        staged.mkdir()
+        shutil.copyfile(tokenizer_path, staged / "tokenizer.json")
+        metas = {}
+        for mix in names:
+            missing = set(MIXES[mix]) - set(sources)
+            if missing:
+                raise ValueError(f"{mix} : sources absentes {sorted(missing)}")
+            # La filiation du texte transformé est archivée à côté du flux.
+            variant_sources = sources
+            if mix in REFLOW_MIXES:
+                variant_sources = {**sources, "gutenberg_fr": reflow_entry}
+                write_json(staged / "gutenberg_reflow.json", reflow_audit)
+            mix_tokenizer = tokenizer
+            sample = None
+            if mix in BPE_SAMPLE_BYTES:
+                # Applique les pourcentages de M4 aux octets UTF-8 de l'échantillon.
+                trained_path, sample = train_tokenizer(
+                    kit, sources, scratch, MIXES["M4"], sample_bytes=BPE_SAMPLE_BYTES[mix],
+                )
+                mix_tokenizer = load_tokenizer(trained_path)
+            replay_sources = REPLAY_SOURCES if mix == "M4REPEAT" else ()
+            metas[mix] = prepare_mix(
+                staged / mix, variant_sources, MIXES[mix], mix_tokenizer, config, scratch,
+                replay_sources=replay_sources,
+            )
+            if sample is not None:
+                # Le flux embarque le tokenizer spécifique. Le manifeste décrit son échantillon.
+                shutil.copyfile(trained_path, staged / mix / "tokenizer.json")
+                metas[mix]["tokenizer_sample"] = sample
+            print(mix, metas[mix]["dataset_sha256"], flush=True)
+        write_json(staged / "manifest.json", dict(
+            manifest, variants=metas, parent_manifest_sha256=sha256(base / "manifest.json"),
+            source_bytes={source: entry[1] for source, entry in sources.items()},
+        ))
+        staged.rename(out)
+
+
+def main():
+    """Résout les chemins, vérifie le clone intact du kit, puis prépare les mélanges."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--kit", type=Path, default=ROOT / "kit/Piscine-official")
+    parser.add_argument("--interim", type=Path, default=ROOT / "data/interim")
+    parser.add_argument("--base", type=Path, default=ROOT / "data/processed/ablation")
+    parser.add_argument("--out", type=Path, default=ROOT / "data/processed/mixes")
+    parser.add_argument("--mixes", nargs="+", default=DEFAULT_MIXES, choices=list(MIXES))
+    args = parser.parse_args()
+    kit = args.kit.resolve()
+    if subprocess.check_output(["git", "-C", str(kit), "rev-parse", "HEAD"], text=True).strip() != KIT_REV:
+        raise ValueError(f"Clone du kit attendu à la révision {KIT_REV}")
+    if subprocess.check_output(["git", "-C", str(kit), "status", "--porcelain", "--untracked-files=no"]):
+        raise ValueError("Le clone du kit contient des modifications")
+    prepare(kit, args.interim.resolve(), args.base.resolve(), args.out.resolve(), args.mixes)
+
+
+if __name__ == "__main__":
+    main()

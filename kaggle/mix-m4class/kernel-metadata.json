@@ -1,0 +1,16 @@
+{
+  "id": "matissegarlot/piscine-run-m4class",
+  "title": "piscine-run-m4class",
+  "code_file": "script.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "matissegarlot/piscine-mix-m4class"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

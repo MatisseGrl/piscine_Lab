@@ -29,3 +29,12 @@ class HFTokenizer:
     def decode(self, ids: list[int]) -> str:
         """ids -> texte, en gardant les tokens spéciaux."""
         return self.tk.decode(ids, skip_special_tokens=False)
+
+
+def load_tokenizer(path):
+    """Charge le bon tokenizer selon le format du fichier : Hugging Face (clé "model")
+    ou BPE maison du bloc 1 (clé "merges" seule)."""
+    import json
+    from minigpt.bpe import BPETokenizer
+    data = json.loads(Path(path).read_text(encoding='utf-8'))
+    return HFTokenizer(path) if 'model' in data else BPETokenizer.load(path)

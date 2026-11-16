@@ -42,14 +42,14 @@ def kit_command(kit, module, *args):
     subprocess.run([sys.executable, "-m", module, *map(str, args)], cwd=kit, check=True)
 
 
-def quotas(size):
+def quotas(size, shares=SHARES):
     """Répartit les positions selon le mélange, avec compensation des arrondis."""
     limits = [0]
-    for percent in SHARES.values():
+    for percent in shares.values():
         limits.append(limits[-1] + percent)
     return {
         source: size * end // 100 - size * start // 100
-        for source, start, end in zip(SHARES, limits, limits[1:])
+        for source, start, end in zip(shares, limits, limits[1:])
     }
 
 
@@ -105,12 +105,12 @@ def shuffled_texts(path, rate, scratch):
             yield json.loads(spool.readline())["text"]
 
 
-def train_tokenizer(kit, sources, scratch):
-    """Entraîne le tokenizer commun sur 10 Mo de textes nettoyés, dosés en octets UTF-8."""
+def train_tokenizer(kit, sources, scratch, shares=SHARES, sample_bytes=10_000_000):
+    """Entraîne un tokenizer sur un échantillon dosé en octets UTF-8."""
     sample = scratch / "tokenizer-sample.jsonl"
     used = {}
     with sample.open("w", encoding="utf-8", newline="\n") as stream:
-        for source, limit in quotas(10_000_000).items():
+        for source, limit in quotas(sample_bytes, shares).items():
             path, size, _ = sources[source]
             remaining = limit
             # Le tirage initial contient en moyenne deux fois le volume nécessaire.

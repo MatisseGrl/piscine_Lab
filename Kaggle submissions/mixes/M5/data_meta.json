@@ -1,0 +1,33 @@
+{
+  "kit_version": "1.0",
+  "tokenizers_version": "0.23.3",
+  "dataset_sha256": "898b5ef878d608d54836fe66426846dce8b5563264a164a5d96bb4e1aca31681",
+  "tokenizer_sha256": "b2554a8221a55c19b4008f5b605b1b6e84b6a7f84058507c15aba34eca3b2379",
+  "n_tokens": 100007937,
+  "budget_tokens": 100000000,
+  "source_percent": {
+    "wikipedia_fr": 60,
+    "common_crawl": 12,
+    "assemblee_nationale": 8,
+    "gutenberg_fr": 20
+  },
+  "tokens_seen_by_source": {
+    "wikipedia_fr": 60004761,
+    "common_crawl": 12000952,
+    "assemblee_nationale": 8000635,
+    "gutenberg_fr": 20001588
+  },
+  "passes_started_by_source": {
+    "wikipedia_fr": 1.0,
+    "common_crawl": 1.0,
+    "assemblee_nationale": 1.0,
+    "gutenberg_fr": 1.0
+  },
+  "input_sha256_by_source": {
+    "wikipedia_fr": "e0caf30fa7e9e9477e573059e3b42d9b2fbfddfee847460da87018576027c86e",
+    "common_crawl": "0fb0d345dd7892cb339620edbe061a64e7d2673ebb689ff292b1305dad90c85c",
+    "assemblee_nationale": "57153b1fc0f81040f3f4e2c41fd7a1c7bc31df9adee0b8f4f6307037e24a54a1",
+    "gutenberg_fr": "b63c6472f20825cac131a679ddc262a2bac344dbd6ef4650985517b9cc9c7cf0"
+  },
+  "passes_over_data": 1.0
+}

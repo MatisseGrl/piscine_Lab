@@ -202,7 +202,8 @@ def evaluate_bpb(model: GPT, ids: list[int], text: str) -> float:
     was_training = model.training
     model.eval()
     T = model.cfg.block_size
-    data = torch.tensor(ids, dtype=torch.long)
+    # Les ids vont sur le même appareil que le modèle (CPU ou GPU).
+    data = torch.tensor(ids, dtype=torch.long, device=next(model.parameters()).device)
     # Débuts des fenêtres : 0, T, 2T, ... ; chaque fenêtre lit [s, s+T] (T+1 tokens).
     starts = list(range(0, len(ids) - 1, T))
     total_nll = 0.0

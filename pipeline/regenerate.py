@@ -1,0 +1,202 @@
+"""Commande unique qui regénère le dataset final, du web brut au flux `train.bin`.
+
+    uv run python -m pipeline.regenerate --mix M4
+
+Elle enchaîne, dans l'ordre, les étapes déjà écrites (collect, clean, dedup, quality, tokenizer
+et flux de base, Wikinews, Gutenberg, mélange) puis compare le SHA-256 du flux obtenu à celui
+du run Kaggle/Colab consigné dans `Kaggle submissions/LOG.md`. Même SHA = reproductible.
+
+Une étape déjà faite (son fichier témoin existe) est sautée : on peut relancer après une
+interruption. Chaque étape refuse d'écraser une sortie existante, donc rien n'est perdu.
+"""
+
+import argparse
+import json
+import subprocess
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+
+from pipeline.ablation import sha256
+from pipeline.mixes import MIXES, REFLOW_MIXES
+
+ROOT = Path(__file__).resolve().parents[1]
+
+# Révision du kit officiel (même valeur que pipeline.ablation.KIT_REV).
+KIT_REV = "3709c85ddaabfcd688d6eea80a5c5ed90605b549"
+KIT_URL = "https://github.com/Meuleur/Piscine.git"
+KIT_DIR = Path("kit/Piscine-official")
+
+# SHA-256 de `train.bin` obtenus lors des runs consignés dans le LOG (flux de 100 007 937 tokens).
+# Les mélanges sans référence enregistrée affichent le SHA plutôt que de le comparer.
+EXPECTED_SHA256 = {
+    "M1": "7fafbea6078795809be9e46d98a4b8ed4c67f12c8ab86559f8bc66306dc5a6fa",
+    "M2": "6d2a5128de9a6d28e923eabf65d36ecf88c0ff64ecbbbcdc803e5bece41a37ba",
+    "M3": "b771c8aa44f9ebf478fa7c5c4395c071aee410d445505fddf993b5cd217ccb39",
+    "M4": "c6c628a6b44640db55654c68878a35d02748a860f7aad1ab4c9b9597349738a9",
+    "M4BPE": "f46b43751889b02033ab738416a114668cdb821ea3d1c3589dbd8de1fc49b34e",
+    "M4BPE50": "d0d2b008216a86aa2a904722b6c030937de2c43ae8e792e56551c4570aa6a3b3",
+    "M4ORDER": "792bb7027196ca2f0c1aa95a989421baf886a0f0e4e3a269b1f14e8dedf4f9b6",
+    "M4BPEORDER": "0726cdbf03137a169c6a98aa865714cfc53284f4ace277322aba3cbee4d4427a",
+    "M4WIKI": "1293fb61d1d4e9dec6570b95ea8798119f7b333c4ea97bc06d2740f819c0fa23",
+    "M4WIKIBPE": "52c962826e3b482f87f837fce5bb380161351ce5ae672ccb7ddd73ecbc4e9ae6",
+    "M4WIKIBPEORDER": "2259cefe6d00fa02bfe41878d518d680a4f2cd726f4dd978a77e131a704af71c",
+    "M4REPEAT": "f164e06648f066c60fe01e34d5ecee252a5208d8ad72b6cc399a2231bda63980",
+    "M4CLASS": "d6f84f7e27150d1acae9b73293209399c73955b4219883d3666edaee9eaefb47",
+    "M4REFLOW": "6dd5de9288e50f8055a85485a6f0f4ccb800d67ea65b7a20233ed72b751e13b9",
+    "M4REFLOWBPE": "f1730391ce68f2cd5425618fa0168c5225af8a177cb565533e9804c57a356627",
+}
+
+# Ces recettes réordonnent le flux parent sans changer ses tokens ni son tokenizer.
+ORDER_PARENTS = {f"{mix}ORDER": mix for mix in ("M4", "M4BPE", "M4WIKI", "M4WIKIBPE")}
+RECIPES = MIXES.keys() | ORDER_PARENTS.keys() | {"M4CLASS"}
+
+PY = sys.executable
+# Plafond d'octets compressés des archives WET retenues (10 archives), voir pipeline/README.md.
+CC_MAX_BYTES = "1050000000"
+
+
+@dataclass(frozen=True)
+class Step:
+    """Une étape : un nom, la commande à lancer et le fichier qui prouve qu'elle est faite."""
+
+    name: str
+    argv: list
+    done: Path
+
+
+def build_steps(mix, kit=KIT_DIR):
+    """Liste ordonnée des étapes pour produire le flux du mélange `mix` (chemins relatifs à ROOT)."""
+    kit = str(kit)
+    parent = ORDER_PARENTS.get(mix, mix)
+    # La recette avec classifieur prépare le même format à partir de son propre filtre.
+    command = ["-m", "pipeline.mix_quality"] if parent == "M4CLASS" else [
+        "-m", "pipeline.mixes", "--mixes", parent,
+    ]
+    steps = [
+        Step("kit", ["git", "clone", KIT_URL, kit], Path(kit) / "data/validation.jsonl"),
+        Step("kit-rev", ["git", "-C", kit, "checkout", "--detach", KIT_REV],
+             Path(kit) / "corpus/moliere_val.txt"),
+        # Le dernier fichier téléchargé par la collecte sert de témoin.
+        Step("collect", [PY, "-m", "pipeline.collect"],
+             Path("data/raw/assemblee_nationale/16/syseron.xml.zip")),
+        Step("clean", [PY, "-m", "pipeline.clean", "--kit", kit, "--include-raw",
+                       "--cc-max-bytes", CC_MAX_BYTES], Path("data/interim/clean/stats.json")),
+        Step("dedup", [PY, "-m", "pipeline.dedup", "all", "--kit", kit, "--threshold", "0.97"],
+             Path("data/interim/dedup/final/stats.json")),
+        Step("quality", [PY, "-m", "pipeline.quality", "--kit", kit],
+             Path("data/interim/quality/final/stats.json")),
+        # Tokenizer 8 192 commun (appris sur le nettoyé) + flux de base : requis par Wikinews et le mélange.
+        Step("tokenizer", [PY, "-m", "pipeline.ablation", "--kit", kit],
+             Path("data/processed/ablation/manifest.json")),
+        Step("wikinews-dump", [PY, "-m", "pipeline.wikinews", "--download"],
+             Path("data/raw/wikinews_fr/frwikinews-20261101-pages-articles.xml.bz2")),
+        Step("wikinews", [PY, "-m", "pipeline.wikinews", "--kit", kit],
+             Path("data/interim/wikinews/stats.json")),
+        Step("gutenberg", [PY, "-m", "pipeline.gutenberg", "--kit", kit],
+             Path("data/interim/gutenberg/stats.json")),
+        Step(f"mix-{parent}", [PY, *command, "--kit", kit, "--out", str(final_dir(parent))],
+             final_dir(parent) / parent / "data_meta.json"),
+    ]
+    if parent in REFLOW_MIXES:
+        steps.insert(-1, Step(
+            "gutenberg-reflow", [PY, "-m", "pipeline.gutenberg_reflow", "--kit", kit],
+            Path("data/interim/gutenberg-reflow/stats.json"),
+        ))
+    if parent != mix:
+        steps.append(Step(
+            f"mix-{mix}",
+            [PY, "-m", "pipeline.mix_order", "--kit", kit, "--parent", str(final_dir(parent)),
+             "--source-mix", parent, "--out", str(final_dir(mix))],
+            final_dir(mix) / mix / "data_meta.json",
+        ))
+    return steps
+
+
+def final_dir(mix):
+    """Dossier de sortie du mélange final (neuf : `pipeline.mixes` refuse d'écraser)."""
+    return Path("data/processed/final") / mix
+
+
+def verify_final(mix, root=ROOT):
+    """Compare le SHA-256 du flux regénéré à celui du run de référence ; renvoie (ok, message)."""
+    folder = root / final_dir(mix) / mix
+    tokenizer = folder / "tokenizer.json"
+    if not tokenizer.is_file():
+        tokenizer = folder.parent / "tokenizer.json"
+    for path in (folder / "data_meta.json", folder / "train.bin", tokenizer):
+        if not path.is_file():
+            return False, f"Introuvable : {path}"
+    meta = json.loads((folder / "data_meta.json").read_text(encoding="utf-8"))
+    obtained = sha256(folder / "train.bin")
+    if obtained != meta["dataset_sha256"]:
+        return False, f"{mix} : SHA-256 du flux DIFFÉRENT de data_meta.json ({obtained})"
+    if sha256(tokenizer) != meta["tokenizer_sha256"]:
+        return False, f"{mix} : SHA-256 du tokenizer DIFFÉRENT de data_meta.json"
+    expected = EXPECTED_SHA256.get(mix)
+    if expected is None:
+        return True, f"{mix} : SHA-256 {obtained} (pas de référence enregistrée, à noter dans le LOG)"
+    if obtained != expected:
+        return False, f"{mix} : SHA-256 DIFFÉRENT\n  obtenu   {obtained}\n  attendu  {expected}"
+    return True, f"{mix} : SHA-256 identique au run de référence ({obtained[:12]}…)"
+
+
+def step_is_done(step, root):
+    """Vérifie la révision Git réelle du kit et le fichier témoin des autres étapes."""
+    if not (root / step.done).exists():
+        return False
+    if step.name == "kit-rev":
+        # Le fichier du corpus existe aussi après un clone à une autre révision.
+        revision = subprocess.run(
+            ["git", "-C", step.argv[2], "rev-parse", "HEAD"],
+            cwd=root, capture_output=True, text=True,
+        )
+        return revision.returncode == 0 and revision.stdout.strip() == KIT_REV
+    return True
+
+
+def run(mix, dry_run=False, only=None, start=None, root=ROOT):
+    """Lance les étapes dans l'ordre ; saute celles dont le témoin existe. Renvoie 0 si tout va bien."""
+    steps = build_steps(mix)
+    names = [step.name for step in steps]
+    for label, value in (("--only", only), ("--from", start)):
+        if value and value not in names:
+            raise SystemExit(f"{label} {value} inconnu. Étapes : {', '.join(names)}")
+    started = start is None
+    for step in steps:
+        started = started or step.name == start
+        if not started or (only and step.name != only):
+            continue
+        if step_is_done(step, root):
+            print(f"[déjà fait] {step.name}  ({step.done})", flush=True)
+            continue
+        print(f"[à lancer ] {step.name} : {' '.join(map(str, step.argv))}", flush=True)
+        if dry_run:
+            continue
+        # Une étape qui échoue arrête tout : mieux vaut s'arrêter que mélanger des sorties incohérentes.
+        if subprocess.run(step.argv, cwd=root).returncode != 0:
+            print(f"ÉCHEC à l'étape {step.name}", file=sys.stderr)
+            return 1
+    if dry_run:
+        return 0
+    ok, message = verify_final(mix, root)
+    print(message, flush=True)
+    return 0 if ok else 1
+
+
+def main():
+    """Lit les options et lance la régénération."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--mix", default="M4", choices=sorted(RECIPES),
+                        help="Mélange final à produire (défaut : M4).")
+    parser.add_argument("--dry-run", action="store_true", help="Affiche les étapes sans rien lancer.")
+    parser.add_argument("--only", help="Ne lance que cette étape.")
+    parser.add_argument("--from", dest="start", help="Reprend à partir de cette étape.")
+    args = parser.parse_args()
+    # Console Windows : forcer l'UTF-8 pour que les accents des messages s'affichent bien.
+    sys.stdout.reconfigure(encoding="utf-8")
+    raise SystemExit(run(args.mix, args.dry_run, args.only, args.start))
+
+
+if __name__ == "__main__":
+    main()

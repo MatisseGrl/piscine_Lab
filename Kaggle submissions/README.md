@@ -1,6 +1,7 @@
 # Archives des entraînements
 
 - `LOG.md` : journal des expériences et scores mesurés.
+- `mixes/` : résultats par genre, journaux et métadonnées des essais de mélange.
 - `Kaggle.ipynb` : export des six essais de l'ablation, avec leurs sorties.
 - `source-mix-74-18-8.ipynb` : export original de `notebook22e941a294.ipynb`, importé le 11 novembre 2026, avec code et sorties.
 - `source-mix-74-18-8-evaluation.json` : copie de `evaluation (1).json`, cohérente avec la sortie du notebook (BPB 1,3324640181392153).
