@@ -1,18 +1,18 @@
 # Datasheet — corpus français de Feed the Beast
 
-État documentaire au **14 novembre 2026**, préparé par Matisse Garlot pour la piscine I Lab de l’ECE. Organisation selon les rubriques de *Datasheets for Datasets* (Gebru et al., 2018).
+État documentaire au **16 novembre 2026**, préparé par Matisse Garlot pour la piscine I Lab de l’ECE. Organisation selon les rubriques de *Datasheets for Datasets* (Gebru et al., 2018).
 
-**Statut : dataset final retenu = dédupliqué + qualité, mélange 80/12/8** (à confirmer par Matisse). Il obtient le meilleur BPB sur la validation publique du kit (**1,3304**), à configuration identique pour les 8 variantes testées. Détail et limites dans [report/ablation.md](ablation.md) ; le masquage PII n’a pas amélioré le meilleur score et n’est donc **pas** dans le dataset final.
+**Statut : dataset final = M4FINALEXCERPTS** (dédup + qualité, cinq sources, Gutenberg recollé et découpé en extraits, BPE appris sur le mélange). Il obtient le meilleur BPB sur la validation publique du kit : **1,2767** (graine 1337 ; 1,2786 en graine 1338). Le flux 80/12/8 (1,3304) décrit dans les sections 1 à 7 est la **référence intermédiaire** de l'ablation du pipeline, pas le dataset soumis ; la section 8 décrit le flux final. Détail et limites dans [report/ablation.md](ablation.md). Le masquage PII n'a pas amélioré le score et n'est **pas** dans le dataset final.
 
 | | Valeur |
 |---|---|
-| Composition | 80 % Wikipédia FR, 12 % Common Crawl, 8 % Assemblée nationale, comptés en tokens |
+| Composition (final) | 40 % Wikipédia FR, 15 % Common Crawl, 15 % Assemblée nationale, 25 % Gutenberg FR, 5 % Wikinews FR, comptés en tokens |
 | Traitements | nettoyage (ftfy, fastText ≥ 0,80, boilerplate) → exact + MinHash 0,97, Wikipédia plafonnée à 300 000 articles → filtre qualité |
 | Stock textuel | 320 098 documents, 1 053 824 598 octets UTF-8 (`data/interim/quality/final/`) |
-| Flux d’entraînement | 100 007 937 tokens, SHA-256 `f6ad793c15f01cfbcc297e30048061b8619c769bb100e9d9a9b2bc4ffa94c9cf` |
-| Tokenizer | BPE 8 192 entrées, SHA-256 `b2554a8221a55c19b4008f5b605b1b6e84b6a7f84058507c15aba34eca3b2379` |
-| BPB validation publique | 1,3304 (brut : 1,3538 ; nettoyé : 1,3340 ; dédupliqué : 1,3330) |
-| Test caché, classement | à compléter (soumission officielle pas encore faite) |
+| Flux d’entraînement (final) | 100 007 937 tokens, SHA-256 `aecae945fbf7545717a52d939c4c456cfd8da340aad69e8a41d561ffd53e2bc5` |
+| Tokenizer (final) | BPE 8 192 entrées appris sur 10 Mo du mélange M4, SHA-256 `f7599e6ac535f9a6cbb36d2caa003b0fbb675428f2259ccf4ee03fe14b2af4bd` |
+| BPB validation publique | **1,2767** (graine 1337), 1,2786 (graine 1338) ; référence 80/12/8 : 1,3304 ; brut : 1,3538 |
+| Test caché, classement | à compléter (score du test caché non connu) |
 | Lien public du dataset | à compléter (publication Hugging Face non décidée) |
 
 Les sections 2 à 7 décrivent l’ensemble des variantes préparées ; seules les lignes « qualité » concernent le dataset final. Les entraînements Kaggle sont suivis dans `Kaggle submissions/LOG.md`.
@@ -121,7 +121,7 @@ Les noms, adresses postales, informations biographiques et opinions politiques p
 
 ## 5. Biais, limites et usages
 
-L’usage prévu est l’étude pédagogique du préentraînement français et des traitements de données, avec mesure du BPB dans le protocole du kit. Le meilleur BPB (1,3304) est obtenu par dédup + qualité en 80/12/8 ; les écarts entre variantes fines (0,001 à 0,003) sont proches du bruit d’une seule graine. Le tokenizer appris sur le nettoyé peut avantager cette variante dans la comparaison ; une seule graine d’entraînement (1337) a été utilisée, sans barre d’erreur.
+L’usage prévu est l’étude pédagogique du préentraînement français et des traitements de données, avec mesure du BPB dans le protocole du kit. Le meilleur BPB (1,2767) est obtenu par le mélange M4 avec extraits Gutenberg ; la référence 80/12/8 donne 1,3304 ; les écarts entre variantes fines (0,001 à 0,003) sont proches du bruit d’une seule graine. Le tokenizer appris sur le nettoyé peut avantager cette variante dans la comparaison ; une seule graine d’entraînement (1337) a été utilisée, sans barre d’erreur.
 
 Le mélange privilégie l’encyclopédie et ajoute des discours institutionnels et des pages web. Il peut sous-représenter les échanges ordinaires, le français oral, les variétés régionales et les pays francophones moins présents dans ces sources. Ces déséquilibres sont des risques liés au choix des sources ; aucune répartition démographique ou géographique n’a été mesurée. Le préfixe WET, le filtre de langue et les heuristiques peuvent exclure des textes courts, mixtes ou atypiques. Le masquage retire aussi des informations techniques utiles.
 
@@ -165,3 +165,11 @@ Matisse maintient cette fiche et le pipeline dans le dépôt du projet. Aucun ca
 Les commandes existantes et paramètres sont décrits dans [pipeline/README.md](../pipeline/README.md) : collecte, nettoyage plafonné, déduplication, qualité, PII, puis préparation des flux de base et supplémentaires. La reconstruction actuelle passe par plusieurs commandes ; une commande globale allant de la collecte à toutes les variantes n’est pas documentée. Les graines et révisions sont consignées ; les sorties existantes ne doivent pas être écrasées lors d’une régénération.
 
 Il reste à compléter : le score de compétition (test caché), la décision de publication et le lien du dataset, les décisions de droits et de distribution, et les modalités de maintenance et de retrait si une publication est décidée. Le détail des comparaisons est dans [report/ablation.md](ablation.md).
+
+## 8. Flux final soumis : M4FINALEXCERPTS
+
+- **Sources** : Wikipédia FR 40 %, Common Crawl 15 %, Assemblée nationale 15 %, Gutenberg FR 25 %, Wikinews FR 5 % (en tokens, une passe sauf l'Assemblée à 1,12 passe). Fiches : `sources/` (dont Gutenberg et Wikinews).
+- **Gutenberg** : les sauts de ligne internes à la prose sont recollés (12,8 M de sauts, 4 031 livres) puis le quota de 25 001 984 tokens est rempli par **1 836 extraits d'environ 48 000 caractères** coupés aux frontières de mots, au lieu de 204 livres complets. Tirage déterministe, garde de contamination avec la validation : zéro recouvrement de 13 mots.
+- **Traitements** : dédup (exact + MinHash 0,97) et filtre qualité sur toutes les sources ; pas de masquage PII.
+- **Reproductibilité** : le paquet `Rendu-competition-M4FINALEXCERPTS` contient le flux `train.bin`, le tokenizer, le checkpoint, les logs et `verifier.py`. Entraînement ~14 min sur T4, graine 1337, config officielle du kit à `3709c85`.
+- **Risques propres au final** : Gutenberg est du français ancien et littéraire (domaine public aux États-Unis, mais style éloigné du français courant) ; le gain observé vient surtout du genre littéraire de la validation. Wikinews est sous licence CC BY 2.5 : attribution à conserver.

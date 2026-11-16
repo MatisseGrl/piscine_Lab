@@ -4,11 +4,11 @@ Matisse Garlot, ECE IA Lab. Rendu le 16/11/2026. Tous les chiffres sont dans `Ka
 
 ## En une minute
 
-Un mini-GPT codé from scratch (bloc 1), un pipeline de données français (bloc 2), une compétition où seul le dataset change (bloc 3, BPB sur validation). Résultat principal : le **nettoyage** fait presque tout le gain (1,3538 → 1,3340), le meilleur dataset (dédup + qualité, 80/12/8) atteint **1,3304**. En plus, une démo de chat « façon Molière » demandée par JB.
+Un mini-GPT codé from scratch (bloc 1), un pipeline de données français (bloc 2), une compétition où seul le dataset change (bloc 3, BPB sur validation). Résultat principal : le **nettoyage** fait presque tout le gain du pipeline (1,3538 → 1,3340) ; le **mélange de sources** (Gutenberg, Wikinews), le recollage et le découpage en extraits amènent le dataset final à **1,2767 BPB**. En plus, une démo de chat « façon Molière » demandée par JB.
 
 ## 1. Comment j'ai fait mon dataset
 
-- **Sources** : Wikipédia FR (Wikimedia, instantané du 01/11/2023), Common Crawl (`CC-MAIN-2025-05`, 10 archives WET), débats de l'Assemblée nationale (16e législature). Pas de crawl maison, pas de synthétique. Fiches dans `sources/`.
+- **Sources** : Wikipédia FR (Wikimedia, instantané du 01/11/2023), Common Crawl (`CC-MAIN-2025-05`, 10 archives WET), débats de l'Assemblée nationale (16e législature). Pour la version finale s'ajoutent Gutenberg FR (25 %) et Wikinews FR (5 %). Pas de crawl maison, pas de synthétique. Fiches dans `sources/`.
 - **Pipeline** : collecte → nettoyage (ftfy, fastText ≥ 0,80 pour le français, boilerplate) → déduplication (exacte, puis MinHash au seuil Jaccard 0,97) → filtre qualité (heuristiques) → mélange et tokenisation.
 - **Mélange** : 80 % Wikipédia, 12 % Common Crawl, 8 % Assemblée, comptés en **tokens** (pas en documents). Wikipédia est plafonnée à 300 000 articles : sans cela elle écrase tout.
 - **Tokenizer** : BPE de 8 192 entrées, identique pour toutes les variantes (sinon la comparaison est faussée).
@@ -26,7 +26,11 @@ Huit entraînements, **même config du kit, même tokenizer, même graine 1337, 
 | Dédupliqué | 1,3330 |
 | Dédup + PII | 1,3322 |
 | Dédup + qualité + PII | 1,3315 |
-| **Dédup + qualité 80/12/8** | **1,3304** |
+| Dédup + qualité 80/12/8 | 1,3304 |
+| Mélange M4 (+ Gutenberg, Wikinews) | 1,3028 |
+| + recollage Gutenberg | 1,2905 |
+| + BPE sur le mélange | 1,2874 |
+| **+ extraits Gutenberg (final)** | **1,2767** |
 | Mélange 74/18/8 | 1,3325 |
 | Mélange parts égales | 1,3362 |
 
@@ -59,7 +63,7 @@ Choix : seuil MinHash élevé (0,97) après inspection d'un pilote, pour ne pas 
 ## 6. Résultats
 
 - Bloc 1, Molière : bigramme 3,3544, mini-GPT 1,8237, meilleur modèle seul 1,743.
-- Compétition (validation publique du kit) : 1,3304 pour le dataset final ; test caché, rang : à compléter.
+- Compétition (validation publique du kit) : **1,2767** pour le dataset final M4FINALEXCERPTS (1,2786 en graine 1338) ; référence 80/12/8 à 1,3304 ; test caché, rang : à compléter.
 - Démo : chat Molière local sur page HTML ; version finale à compléter.
 
 ## Questions probables du jury (réponse en 2 lignes)
