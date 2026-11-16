@@ -57,3 +57,14 @@ Comparaison planifiée sur les 230 documents publics du kit entre le brut contr�
 | 2026-11-15 | mix-M4REFLOWBPE (Kaggle T4) | M4, recollage de la prose Gutenberg et BPE appris sur 10 Mo du mélange M4, graine 1337 | 100 007 936 | `f1730391ce68f2cd5425618fa0168c5225af8a177cb565533e9804c57a356627` | 1.287432460168729 | paquet dans `submissions/2026-11-15_020424` | −0,0138 vs M4 Kaggle et −0,0031 vs recollage seul. BPB littéraire 1,4826 contre 1,5394 pour M4 Kaggle. [Résultat](mixes/M4REFLOWBPE/evaluation.json) |
 | 2026-11-15 | mix-M4REFLOWBPE-s1338 (Kaggle T4) | M4REFLOWBPE identique, seule la graine d’entraînement passe à 1338 | 100 007 936 | `f1730391ce68f2cd5425618fa0168c5225af8a177cb565533e9804c57a356627` | 1.2848584475849507 | contrôle de bruit | −0,0218 vs M4 graine 1338. Moyenne des deux graines : 1,2861, soit −0,0178 vs M4. [Résultat](mixes/M4REFLOWBPE-s1338/evaluation.json) |
 | 2026-11-15 | submission-M4 (Colab T4) | M4 (Wikipédia 40 / CC 15 / Assemblée 15 / Gutenberg 25 / Wikinews 5), run officiel `ftb.train` graine 1337, checkpoint conservé, micro-batch 8 | 100 007 936 | SHA-256 `c6c628a6b44640db55654c68878a35d02748a860f7aad1ab4c9b9597349738a9` | 1.3048095895285565 | **oui** (`submissions/2026-11-15_002554`, go de Matisse) | Relance de M4 pour garder le checkpoint (le run Kaggle l'avait supprimé). +0,0020 vs le run Kaggle (1,3028), dans le bruit GPU. Par genre : littéraire 1,553, dialogue 1,093, encyclopédique 1,374, presse 1,200. −0,027 vs le paquet 80/12/8 précédent (1,3315). Dataset Kaggle privé `piscine-mix-m4` : visibilité à trancher par Matisse. |
+
+## Démo Molière hors classement, 16 novembre
+
+Le BPB est mesuré sur la validation Molière du kit. Les empreintes complètes sont dans le [rapport de l'essai](../report/chat_pretrain_budget.md).
+
+| Essai | Cibles présentées | SHA-256 de l'entrée | BPB Molière | Mesure |
+| --- | ---: | --- | ---: | --- |
+| Pilote T4, pré-entraînement | 65 536 | `f6ad793c15f0…` (flux qualité historique) | 3,947256 | Deux pas. |
+| Pilote T4, Molière | 16 384 | `a140c09cd253…` (train normalisé) | 3,897567 | Deux pas. |
+| Pilote T4, chat v5 | 835 réponses + 8 192 rappel | `376c76a46a02…` (dialogues v5) | 3,851989 | Deux pas. |
+| Pilote de débit T4, calcul explicite | 1 966 080 | `f6ad793c15f0…` (flux qualité historique) | — | 60 pas en 181 s. |

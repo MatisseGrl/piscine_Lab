@@ -6,7 +6,7 @@
 
 Le pilote Kaggle T4 termine les trois étapes. Le chat v5 est reproduit à **1,429137 BPB** sur Molière, avec les 24 sorties historiques identiques (13/24 pertinence, 8/13 contexte). Le parent retenu après adaptation Molière est à **1,411092 BPB**.
 
-La comparaison hors classement fixe deux préfixes à 100 M et 300 M de cibles à partir des archives françaises, le même tokenizer et les mêmes adaptations. La sélection des paliers de chat utilise DEV. Le test inédit est réservé à l'évaluation des candidats choisis. Protocole, empreintes et résultats dans le [rapport](../report/chat_pretrain_budget.md).
+La comparaison hors classement utilise 100 007 936 et 299 991 040 cibles de cinq archives françaises, sans répétition de blocs. Les essais T4 sont lancés sur Colab pour 100 M et Kaggle pour 300 M. Même tokenizer et mêmes adaptations. La sélection des paliers de chat utilise DEV. Le test inédit est réservé à l'évaluation des candidats choisis. Protocole, empreintes et suivi dans le [rapport](../report/chat_pretrain_budget.md).
 
 ## Compétition, essais du 15 novembre
 

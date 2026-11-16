@@ -6,7 +6,7 @@ Les commandes, empreintes et limites du corpus de démo sont dans le [rapport](.
 
 `build_chat_paraphrases.py` produit les variantes du corpus de réparation. `build_moliere_extra.py` contrôle les cinq pièces supplémentaires pour les essais exploratoires du bloc 1.
 
-`build_chat_budget.py` prépare deux préfixes de français pour comparer le budget de pré-entraînement de la démo. `run_chat_budget.py` et `launch_chat_budget_kaggle.py` exécutent les étapes GPU. Le [rapport dédié](../report/chat_pretrain_budget.md) donne le protocole et les commandes.
+`build_chat_budget.py` prépare deux préfixes de français pour comparer le budget de pré-entraînement de la démo. `run_chat_budget.py` exécute les étapes GPU. Les lanceurs `launch_chat_budget_kaggle.py` et `launch_chat_budget_colab.py` utilisent des sessions privées. Le [rapport dédié](../report/chat_pretrain_budget.md) donne le protocole et les commandes.
 
 `audit_dialogue_stress.py` compare la répétition et la robustesse des checkpoints du chat. Le protocole est décrit dans le [rapport d’audit](../report/audit_20261115.md).
 

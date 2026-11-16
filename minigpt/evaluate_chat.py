@@ -60,7 +60,8 @@ def main():
             'split': args.split, 'roles': args.roles, 'bpb': bpb, 'bpb_recomputed': bool(validation),
             'bench_sha256': hashlib.sha256(args.bench.read_bytes()).hexdigest() if args.bench else None,
             'discussions': results,
-            'repairs': evaluate_repairs(model, tokenizer, REPAIR_DEV if args.split == 'dev' else REPAIR_FINAL) if args.repair else [],
+            'repairs': evaluate_repairs(model, tokenizer, REPAIR_DEV if args.split == 'dev' else REPAIR_FINAL)
+            if args.repair and not args.bpb_only else [],
         })
         print(str(checkpoint), flush=True)
 
