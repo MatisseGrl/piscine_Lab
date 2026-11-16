@@ -56,7 +56,7 @@ run(sys.executable, "-m", "pip", "install", "-q", "tokenizers==0.23.3")
 data = next(inputs.rglob("chat_v5_train.json")).parent
 '''
     stage_args = (
-        f'"--archive", next(inputs.rglob("train.bin.gz")), "--steps", {STEPS[args.budget]}'
+        f'"--archive", next(inputs.rglob("train.bin*")), "--steps", {STEPS[args.budget]}'
         if pretrain else '"--checkpoint", next(inputs.rglob("pretrain/pretrained.pt"))'
     )
     source += (

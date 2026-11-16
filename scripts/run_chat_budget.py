@@ -25,16 +25,22 @@ def text_digest(path):
 
 
 def extract_verified(path, target, manifest, steps):
-    """Vérifie l'archive et extrait uniquement le préfixe consommé par ce candidat."""
-    with path.open("rb") as stream:
-        archive_hash = hashlib.file_digest(stream, "sha256").hexdigest()
-    if archive_hash != manifest["archive_sha256"]:
-        raise ValueError("Archive d'entraînement différente du manifeste.")
+    """Vérifie le préfixe, y compris lorsque Kaggle a déjà décompressé l'archive."""
+    if path.suffix == ".gz":
+        with path.open("rb") as stream:
+            archive_hash = hashlib.file_digest(stream, "sha256").hexdigest()
+        if archive_hash != manifest["archive_sha256"]:
+            raise ValueError("Archive d'entraînement différente du manifeste.")
+        source = gzip.open(path, "rb")
+    else:
+        if path.stat().st_size != 2 * manifest["total_input_tokens"]:
+            raise ValueError("Taille du flux décompressé différente du manifeste.")
+        source = path.open("rb")
     short = steps * 64 * 512 == manifest["short_targets"]
     expected = manifest["short_bin_sha256"] if short else manifest["train_bin_sha256"]
     remaining = (steps * 64 * 512 + 1) * 2
     digest = hashlib.sha256()
-    with gzip.open(path, "rb") as source, target.open("xb") as destination:
+    with source, target.open("xb") as destination:
         while remaining:
             chunk = source.read(min(remaining, 8 << 20))
             if not chunk:
