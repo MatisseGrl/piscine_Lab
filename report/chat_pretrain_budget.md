@@ -54,6 +54,18 @@ Fiches des archives [Wikipédia](../sources/wikipedia-fr.md), [Gutenberg](../sou
 
 Les deux environnements utilisent des versions différentes de PyTorch. L'architecture, le type de GPU, la recette de pré-entraînement et le protocole d'évaluation sont communs.
 
+| Après adaptation Molière | Pas choisi sur la loss des 5 % du train | Loss (nats/token) | BPB Molière | Pertinence DEV | Contexte DEV |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 100 M, graine 1337 | 800 | 3,146973 | 1,417620 | 0/20 | 0/9 |
+| 300 M, graine 1337 | — | — | — | — | — |
+
+Empreinte du parent Molière du 100 M, `240d9fa0eb7a4b6074fb269f1934ad2017e859f583825d357a26f21243fd8a71`.
+
+| Après SFT, paliers sur DEV | Pas | BPB Molière | Pertinence | Contexte |
+| --- | ---: | ---: | ---: | ---: |
+| Chat v5 historique | 1 500 | 1,429137 | 17/20 | 8/9 |
+| 100 M, graine 1337 | 500 | 1,451311 | 9/20 | 4/9 |
+
 ## Reproduction
 
 Depuis la racine du checkout, préparer les archives et les fichiers privés de la démo. Les chemins PowerShell ci-dessous correspondent à leur emplacement sur le poste.
