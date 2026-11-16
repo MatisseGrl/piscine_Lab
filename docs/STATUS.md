@@ -8,7 +8,7 @@ Le pilote Kaggle T4 termine les trois étapes. Le chat v5 est reproduit à **1,4
 
 La comparaison hors classement utilise 100 007 936 et 299 991 040 cibles de cinq archives françaises, sans répétition de blocs. Les essais T4 sont lancés sur Colab pour 100 M et Kaggle pour 300 M. Même tokenizer et mêmes adaptations. La sélection des paliers de chat utilise DEV. Le test inédit est réservé à l'évaluation des candidats choisis. Protocole, empreintes et suivi dans le [rapport](../report/chat_pretrain_budget.md).
 
-Le 100 M est mesuré à **1,715294 BPB** avant adaptation et **1,417620** après Molière (palier 800 retenu sur la loss des 5 % du train). Son chat à 1 500 pas est retenu sur DEV avec **1,449145 BPB**, 16/20 en pertinence et 8/9 en contexte. Le pré-entraînement 300 M a atteint **1,499422 BPB**, et ses adaptations sont lancées.
+Le 100 M est mesuré à **1,715294 BPB** avant adaptation et **1,417620** après Molière. Son chat à 1 500 pas est retenu sur DEV avec **1,449145 BPB**, 16/20 en pertinence et 8/9 en contexte. Le 300 M passe de **1,499422** avant Molière à **1,316178** après, puis **1,342857** pour le chat à 1 000 pas. Ce chat atteint 13/20 et 4/9 sur DEV. Une adaptation courte avec davantage de théâtre tourne pour traiter ce déficit de dialogue.
 
 ## Compétition, essais du 15 novembre
 

@@ -57,9 +57,11 @@ Les deux environnements utilisent des versions différentes de PyTorch. L'archit
 | Après adaptation Molière | Pas choisi sur la loss des 5 % du train | Loss (nats/token) | BPB Molière | Pertinence DEV | Contexte DEV |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | 100 M, graine 1337 | 800 | 3,146973 | 1,417620 | 0/20 | 0/9 |
-| 300 M, graine 1337 | — | — | — | — | — |
+| 300 M, graine 1337 | 400 | 2,877280 | 1,316178 | 0/20 | 0/9 |
 
 Empreinte du parent Molière du 100 M, `240d9fa0eb7a4b6074fb269f1934ad2017e859f583825d357a26f21243fd8a71`.
+
+Empreinte du parent Molière du 300 M, `a50b6d5b2737023c3a9efd5f87e0bd356d5a91b555196a7cf1c53732e2d4f332`.
 
 | Après SFT, paliers sur DEV | Pas | BPB Molière | Pertinence | Contexte |
 | --- | ---: | ---: | ---: | ---: |
@@ -67,10 +69,21 @@ Empreinte du parent Molière du 100 M, `240d9fa0eb7a4b6074fb269f1934ad2017e859f5
 | 100 M, graine 1337 | 500 | 1,451311 | 9/20 | 4/9 |
 | 100 M, graine 1337 | 1 000 | 1,446508 | 15/20 | 6/9 |
 | 100 M, graine 1337, retenu sur DEV | 1 500 | 1,449145 | 16/20 | 8/9 |
+| 300 M, graine 1337 | 500 | 1,340119 | 12/20 | 3/9 |
+| 300 M, graine 1337, retenu sur DEV | 1 000 | 1,342857 | 13/20 | 4/9 |
+| 300 M, graine 1337 | 1 500 | 1,347879 | 13/20 | 4/9 |
 
 Le gain au pré-entraînement du 300 M sur le 100 M vaut 0,215872 BPB. Le chat 100 M retenu monte à 1,449145 après SFT, soit +0,031526 par rapport à son parent Molière. À 1 000 pas, le BPB est inférieur de 0,002637 et deux tours de contexte supplémentaires échouent. Le palier de 1 500 pas est retenu sur les réponses DEV.
 
 Empreinte du chat 100 M à 1 500 pas, `a7ad12ce4a5b1cc0d2a2de34035e86c86bd2c4dbc1193a6a9fbfdb76024a2b82`. Le rechargement CPU reproduit son BPB. Les poids et les journaux du 100 M sont conservés dans `runs/chat-budget/results-100m/`.
+
+Le chat 300 M à 1 000 pas gagne 0,086280 BPB sur le v5 historique. Il traite les corrections de prénom et échoue sur les trois tours de contexte du scénario couleur. Empreinte du poids retenu sur DEV, `71ac67ae9ffb1e4841e3aab2be34fa987a14afb2788ab3055153621d0a3a0f4c`. Journaux et poids dans `runs/chat-budget/results-300m-pre/` et `runs/chat-budget/results-300m-adapt/`.
+
+### Affinage court à plus forte proportion de théâtre
+
+Le 300 M est repris sur son palier Molière de 400 pas. L'essai dure 750 pas, avec mesure sur DEV aux pas 250, 500 et 750. Il réutilise le v5 après déduplication exacte des conversations et réduit les familles répétitives, en conservant toutes les conversations de couleur et de conseil. Il garde 7 999 paires de théâtre parmi 19 422 réponses, soit 41 % contre 24 % dans le v5 complet. Le rappel Molière, le taux, le batch et la graine sont identiques au SFT principal. Le corpus dérivé n'ajoute aucun texte.
+
+SHA-256 des dialogues dérivés, `2bc0e2d490a4e197740508c18abcdff90c948af88dbcc0c54ffe74de0ae89bf9`. Le choix final entre les deux recettes du 300 M utilise uniquement la pertinence et le contexte sur DEV. À égalité, le chat v5 du 300 M reste retenu.
 
 ## Reproduction
 

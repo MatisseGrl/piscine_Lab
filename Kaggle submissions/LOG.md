@@ -72,3 +72,5 @@ Le BPB est mesuré sur la validation Molière du kit. Les empreintes complètes 
 | 100 M Colab, adaptation Molière | 12 288 000 | `a140c09cd253…` | 1,417620 | Palier 800 retenu sur les 5 % du train (6 553 600 cibles vues au palier). |
 | 300 M Kaggle, pré-entraînement graine 1337 | 299 991 040 | `e654437a5fef…` | 1,499422 | 9 155 pas, avant Molière. |
 | 100 M Colab, SFT de chat v5 | 642 246 réponses + 6 144 000 rappel | `376c76a46a02…` | 1,449145 | Palier 1 500 retenu sur DEV, 16/20 pertinence et 8/9 contexte. |
+| 300 M Kaggle, adaptation Molière | 12 288 000 | `a140c09cd253…` | 1,316178 | Palier 400 retenu sur les 5 % du train (3 276 800 cibles vues au palier). |
+| 300 M Kaggle, SFT de chat v5 | 642 246 réponses + 6 144 000 rappel | `376c76a46a02…` | 1,342857 | Palier 1 000 retenu, 428 443 réponses et 4 096 000 cibles de rappel à ce palier, 13/20 pertinence et 4/9 contexte sur DEV. |
