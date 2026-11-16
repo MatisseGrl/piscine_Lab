@@ -95,6 +95,8 @@ Le palier 500 récupère les trois tours de contexte sur la couleur. La pertinen
 
 ## Test final inédit
 
+La tentative Kaggle d'affinage court a ensuite terminé sur la même graine. Elle reproduit exactement les trois BPB Colab et les trois fichiers de réponses DEV. Cette répétition contrôle le changement de plateforme. La comparaison finale utilise le poids Colab sélectionné.
+
 Les paliers de chaque recette sont fixés sur DEV. Les quatre checkpoints sont relus sur CPU avec la même validation Molière et le même test inédit. Les notes de dialogue sont données tour par tour sur les réponses brutes, sans jury à l'aveugle.
 
 | Checkpoint | BPB Molière | Pertinence /24 | Contexte /13 |

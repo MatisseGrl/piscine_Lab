@@ -12,6 +12,8 @@ Le 100 M passe de **1,715294 BPB** à **1,417620** après Molière et à **1,449
 
 Sur le test inédit, le chat 300 M v5 obtient **5/24 en pertinence et 3/13 en contexte**, contre 2/24 et 0/13 pour le v5 historique. Le 100 M donne 2/24 et 0/13. L'affinage court donne 3/24 et 2/13, malgré le gain sur DEV. Le meilleur BPB de chat mesuré est **1,339598** au palier 250 de la variante courte. La qualité de dialogue libre reste faible et les résultats portent sur une seule graine. Poids, journaux et commandes recensés dans la [PR #53](https://github.com/MatisseGrl/piscine_Lab/pull/53).
 
+La tentative Kaggle d'affinage court a terminé et reproduit les BPB et les réponses DEV de Colab aux trois paliers, à graine identique.
+
 ## Compétition, essais du 15 novembre
 
 Le paquet de compétition retenu est **M4REFLOWBPE à 1,2874 BPB** en graine officielle
