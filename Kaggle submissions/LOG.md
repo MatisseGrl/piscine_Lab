@@ -68,3 +68,4 @@ Le BPB est mesuré sur la validation Molière du kit. Les empreintes complètes 
 | Pilote T4, Molière | 16 384 | `a140c09cd253…` (train normalisé) | 3,897567 | Deux pas. |
 | Pilote T4, chat v5 | 835 réponses + 8 192 rappel | `376c76a46a02…` (dialogues v5) | 3,851989 | Deux pas. |
 | Pilote de débit T4, calcul explicite | 1 966 080 | `f6ad793c15f0…` (flux qualité historique) | — | 60 pas en 181 s. |
+| 100 M Colab, pré-entraînement graine 1337 | 100 007 936 | `9a8fcca8e8c8…` | 1,715294 | 3 052 pas, avant Molière. |

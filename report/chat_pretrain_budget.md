@@ -35,6 +35,8 @@ Le pilote de débit de 60 pas a pris 181 s sur T4 avec le calcul explicite. Une 
 
 Chaque bloc est visité une fois par entraînement. Le BPE coupe les textes longs par morceaux d'au plus 8 192 caractères. Sept documents sont exclus au contrôle Molière (cinq Gutenberg, deux Wikipédia). Aucune question du test inédit n'a été trouvée dans les documents parcourus, le train Molière ou les dialogues v5. Les cinq empreintes d'archives du manifeste correspondent aux statistiques des archives récupérées.
 
+Fiches des archives [Wikipédia](../sources/wikipedia-fr.md), [Gutenberg](../sources/gutenberg-fr.md), [Common Crawl](../sources/common-crawl.md), [Assemblée nationale](../sources/assemblee-nationale-16.md) et [Wikinews](../sources/wikinews-fr.md).
+
 | Entrée | SHA-256 |
 | --- | --- |
 | Flux 100 M, préfixe avec sa cible frontière | `9a8fcca8e8c82961fe0e1b4c39c61cc631c79950277e998636145057695fce17` |
@@ -42,6 +44,15 @@ Chaque bloc est visité une fois par entraînement. Le BPE coupe les textes long
 | Gzip du flux complet | `b7ec62de467e202f77d70724dc2ac30befe0331ced9c2cd45eea92482f7cd8f6` |
 | Dialogues v5 | `376c76a46a02b03ab0b4bd7734bcef6deedfa75cdabfb15c63879c5b2c281eb4` |
 | Test de conversations inédites | `e5f13fbb99da77539c3dd215e06c461d852234c0fb645b7bed1c7d3216fcd675` |
+
+## Mesures des candidats
+
+| Pré-entraînement | Matériel et PyTorch | BPB avant Molière | SHA-256 des poids |
+| --- | --- | ---: | --- |
+| 100 M, graine 1337 | Colab T4, 2.14.1+cu130 | 1,715294 | `4549e6303b48b4b415492e2801630877a0fd93740f1f48be6eadcf648e503c46` |
+| 300 M, graine 1337 | Kaggle T4, 2.11.0+cu130 | — | — |
+
+Les deux environnements utilisent des versions différentes de PyTorch. L'architecture, le type de GPU, la recette de pré-entraînement et le protocole d'évaluation sont communs.
 
 ## Reproduction
 
