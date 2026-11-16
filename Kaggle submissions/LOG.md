@@ -74,3 +74,5 @@ Le BPB est mesuré sur la validation Molière du kit. Les empreintes complètes 
 | 100 M Colab, SFT de chat v5 | 642 246 réponses + 6 144 000 rappel | `376c76a46a02…` | 1,449145 | Palier 1 500 retenu sur DEV, 16/20 pertinence et 8/9 contexte. |
 | 300 M Kaggle, adaptation Molière | 12 288 000 | `a140c09cd253…` | 1,316178 | Palier 400 retenu sur les 5 % du train (3 276 800 cibles vues au palier). |
 | 300 M Kaggle, SFT de chat v5 | 642 246 réponses + 6 144 000 rappel | `376c76a46a02…` | 1,342857 | Palier 1 000 retenu, 428 443 réponses et 4 096 000 cibles de rappel à ce palier, 13/20 pertinence et 4/9 contexte sur DEV. |
+| Pilote de débit T4, noyaux accélérés | 1 966 080 | `f6ad793c15f0…` (flux qualité historique) | — | 60 pas en 93 s avec le flux monté sur Kaggle. |
+| 300 M Colab, SFT court avec théâtre | 300 881 réponses + 3 072 000 rappel | `2bc0e2d490a4…` | 1,341331 | Palier 500 retenu sur DEV, 15/20 et 6/9. Test inédit 3/24 et 2/13. |

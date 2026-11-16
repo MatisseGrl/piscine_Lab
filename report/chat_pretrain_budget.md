@@ -10,7 +10,7 @@ Expérience du 16 novembre 2026, hors classement. La référence [Chat v3](chat_
 
 Les 24 sorties historiques du chat sont identiques au fichier de référence, noté 13/24 en pertinence et 8/13 en suivi du contexte. Le pilote T4 de deux pas à chaque étape a parcouru la chaîne complète. Son BPB passe de 3,947256 après le pré-entraînement à 3,897567 après Molière, puis à 3,851989 après le chat. Le pilote vérifie le chargement et le calcul.
 
-Le pilote de débit de 60 pas a pris 181 s sur T4 avec le calcul explicite. Une tentative L4 n'a fourni aucun GPU. Le run long avec les noyaux accélérés a atteint le pas 60 en 16 s sur T4. Le premier lancement s'est arrêté avant l'entraînement, car Kaggle décompresse le fichier `train.bin.gz` au montage. La relance vérifie le flux binaire monté.
+Le pilote de débit de 60 pas a pris 181 s sur T4 avec le calcul explicite, puis 93 s avec les noyaux accélérés sur le même flux monté. Une tentative L4 n'a fourni aucun GPU. Le run long atteint le pas 60 en 16 s, avec les noyaux accélérés et un flux prémélangé copié sur le disque de la VM. Le premier lancement s'était arrêté avant l'entraînement, car Kaggle décompresse le fichier `train.bin.gz` au montage. La relance vérifie le flux binaire monté.
 
 ## Protocole
 
@@ -85,6 +85,31 @@ Le 300 M est repris sur son palier Molière de 400 pas. L'essai dure 750 pas, av
 
 SHA-256 des dialogues dérivés, `2bc0e2d490a4e197740508c18abcdff90c948af88dbcc0c54ffe74de0ae89bf9`. Le choix final entre les deux recettes du 300 M utilise uniquement la pertinence et le contexte sur DEV. À égalité, le chat v5 du 300 M reste retenu.
 
+| SFT court du 300 M, Colab T4 | BPB Molière | Pertinence DEV | Contexte DEV |
+| --- | ---: | ---: | ---: |
+| Pas 250 | 1,339598 | 10/20 | 6/9 |
+| Pas 500, retenu sur DEV | 1,341331 | 15/20 | 6/9 |
+| Pas 750 | 1,341289 | 11/20 | 6/9 |
+
+Le palier 500 récupère les trois tours de contexte sur la couleur. La pertinence DEV gagne deux tours par rapport au SFT v5 du 300 M, avec une baisse de 0,001526 BPB. SHA-256 des poids retenus, `164eb55295384f1ec76cb411085130d108b89610df30c4ab201f48690fd94ba3`. La file Kaggle est restée bloquée pendant la relance. Les mesures de cette variante viennent du T4 Colab, via le même script et le même parent vérifié.
+
+## Test final inédit
+
+Les paliers de chaque recette sont fixés sur DEV. Les quatre checkpoints sont relus sur CPU avec la même validation Molière et le même test inédit. Les notes de dialogue sont données tour par tour sur les réponses brutes, sans jury à l'aveugle.
+
+| Checkpoint | BPB Molière | Pertinence /24 | Contexte /13 |
+| --- | ---: | ---: | ---: |
+| Chat v5 historique | 1,429137 | 2 | 0 |
+| 100 M, SFT v5 au pas 1 500 | 1,449145 | 2 | 0 |
+| **300 M, SFT v5 au pas 1 000** | **1,342857** | **5** | **3** |
+| 300 M, SFT court au pas 500 | 1,341331 | 3 | 2 |
+
+Le 300 M avec le SFT v5 gagne **0,086280 BPB** sur le chatbot historique et réussit trois réponses pertinentes de plus sur ce test. Ses trois réussites de contexte proviennent de la même discussion sur un surnom et sa correction. Les rappels d'objet et de destination échouent. Le SFT court, meilleur sur DEV, perd deux réponses pertinentes sur l'épreuve inédite. Le meilleur BPB observé après SFT est 1,339598 à 250 pas de la variante courte, avec 10/20 en pertinence sur DEV.
+
+Les scores de l'ancien test (13/24 et 8/13 pour le v5 historique) correspondent à d'autres conversations. Ici, aucun modèle ne dépasse 5 réponses pertinentes sur 24. La qualité de dialogue libre reste faible et chaque recette a été mesurée sur une seule graine. Les différences de version PyTorch et de calendrier de taux limitent l'attribution du gain au seul budget.
+
+Sorties et annotations locales dans `runs/chat-budget/comparaison-finale/` et `runs/chat-budget/comparaison-finale-affinage-court/`. Journaux et poids du SFT court dans `runs/chat-budget/results-rebalanced-colab/`.
+
 ## Reproduction
 
 Depuis la racine du checkout, préparer les archives et les fichiers privés de la démo. Les chemins PowerShell ci-dessous correspondent à leur emplacement sur le poste.
@@ -103,6 +128,12 @@ $source = '3ff89a310c63cdadc0c1d894c5dec6cd654ba1d3'
 uv run python -m scripts.launch_chat_budget_kaggle pretrain 300m --commit "$source"
 # Après la mise à disposition du checkpoint par Kaggle.
 uv run python -m scripts.launch_chat_budget_kaggle adapt 300m --commit "$source"
+```
+
+L'affinage court utilise le parent `moliere/best.pt` de ce notebook d'adaptation. Pour le relancer sur tout environnement T4 avec les quatre fichiers de la démo dans `$d`, donner ce poids et un dossier de sortie déjà créé à la commande suivante.
+
+```powershell
+uv run python -m scripts.run_chat_budget_rebalanced --data "$d" --checkpoint <moliere/best.pt> --out <dossier>
 ```
 
 Kaggle a refusé le lancement court pendant l'attente du pilote de débit. Le court budget utilise une session T4 Colab privée. Le préfixe est envoyé par morceaux et vérifié intégralement avant le pré-entraînement.

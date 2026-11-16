@@ -8,7 +8,9 @@ Le pilote Kaggle T4 termine les trois étapes. Le chat v5 est reproduit à **1,4
 
 La comparaison hors classement utilise 100 007 936 et 299 991 040 cibles de cinq archives françaises, sans répétition de blocs. Les essais T4 sont lancés sur Colab pour 100 M et Kaggle pour 300 M. Même tokenizer et mêmes adaptations. La sélection des paliers de chat utilise DEV. Le test inédit est réservé à l'évaluation des candidats choisis. Protocole, empreintes et suivi dans le [rapport](../report/chat_pretrain_budget.md).
 
-Le 100 M est mesuré à **1,715294 BPB** avant adaptation et **1,417620** après Molière. Son chat à 1 500 pas est retenu sur DEV avec **1,449145 BPB**, 16/20 en pertinence et 8/9 en contexte. Le 300 M passe de **1,499422** avant Molière à **1,316178** après, puis **1,342857** pour le chat à 1 000 pas. Ce chat atteint 13/20 et 4/9 sur DEV. Une adaptation courte avec davantage de théâtre tourne pour traiter ce déficit de dialogue.
+Le 100 M passe de **1,715294 BPB** à **1,417620** après Molière et à **1,449145** après chat. Le 300 M passe de **1,499422** à **1,316178** après Molière, puis à **1,342857** pour le chat v5 choisi sur DEV. L'affinage court plus riche en théâtre atteint **1,341331** et 15/20, 6/9 sur DEV au palier retenu.
+
+Sur le test inédit, le chat 300 M v5 obtient **5/24 en pertinence et 3/13 en contexte**, contre 2/24 et 0/13 pour le v5 historique. Le 100 M donne 2/24 et 0/13. L'affinage court donne 3/24 et 2/13, malgré le gain sur DEV. Le meilleur BPB de chat mesuré est **1,339598** au palier 250 de la variante courte. La qualité de dialogue libre reste faible et les résultats portent sur une seule graine. Poids, journaux et commandes recensés dans la [PR #53](https://github.com/MatisseGrl/piscine_Lab/pull/53).
 
 ## Compétition, essais du 15 novembre
 
