@@ -2,6 +2,12 @@
 
 À lire au début de chaque session, à mettre à jour à la fin. Réécrit le 14 novembre 2026 (l'historique détaillé est dans git). **Rendu le 16 novembre 2026.**
 
+## Démo Molière, comparaison des budgets du 16 novembre
+
+Le pilote Kaggle T4 termine les trois étapes. Le chat v5 est reproduit à **1,429137 BPB** sur Molière, avec les 24 sorties historiques identiques (13/24 pertinence, 8/13 contexte). Le parent retenu après adaptation Molière est à **1,411092 BPB**.
+
+La comparaison hors classement fixe deux préfixes à 100 M et 300 M de cibles à partir des archives françaises, le même tokenizer et les mêmes adaptations. La sélection des paliers de chat utilise DEV. Le test inédit est réservé à l'évaluation des candidats choisis. Protocole, empreintes et résultats dans le [rapport](../report/chat_pretrain_budget.md).
+
 ## Compétition, essais du 15 novembre
 
 Le paquet de compétition retenu est **M4REFLOWBPE à 1,2874 BPB** en graine officielle

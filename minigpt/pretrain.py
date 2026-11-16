@@ -18,10 +18,17 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from minigpt.model import GPT, GPTConfig
+from minigpt.model import CausalSelfAttention, GPT, GPTConfig, LayerNorm
 
 # Configuration de la compétition : environ 12,6 M paramètres avec notre tête de sortie non liée.
 COMPETITION_CONFIG = GPTConfig(vocab_size=8192, block_size=512, n_layer=6, n_head=5, d_model=320)
+
+
+def enable_fused_kernels(model):
+    """Active les noyaux optimisés sans changer les poids ni la configuration."""
+    for module in model.modules():
+        if isinstance(module, (CausalSelfAttention, LayerNorm)):
+            module.fused = True
 
 
 def learning_rate(step: int, steps: int, warmup: int, lr: float, min_lr: float) -> float:
@@ -54,7 +61,7 @@ def batches(bin_path, batch_size: int, seq_len: int, seed: int, steps: int, *, o
 
 def pretrain(bin_path, cfg: GPTConfig, *, steps: int, batch_size: int, micro_batch: int, lr: float,
              min_lr: float, warmup: int, seed: int, device: str, log_every: int = 60,
-             weight_decay: float = 0.1, ordered: bool = False) -> dict:
+             weight_decay: float = 0.1, ordered: bool = False, fused: bool = False) -> dict:
     """Entraîne un GPT neuf et renvoie {'model', 'losses'}.
 
     Le lot logique `batch_size` est découpé en micro-lots (accumulation de gradient) pour tenir
@@ -64,6 +71,8 @@ def pretrain(bin_path, cfg: GPTConfig, *, steps: int, batch_size: int, micro_bat
     accum = batch_size // micro_batch
     torch.manual_seed(seed)
     model = GPT(cfg).to(device)
+    if fused:
+        enable_fused_kernels(model)
     # Le weight decay ne s'applique qu'aux matrices (pas aux biais ni aux LayerNorm).
     decay = [p for p in model.parameters() if p.dim() >= 2]
     no_decay = [p for p in model.parameters() if p.dim() < 2]
@@ -131,6 +140,7 @@ def main() -> None:
     p.add_argument("--warmup", type=int, default=150)
     p.add_argument("--seed", type=int, default=1337)
     p.add_argument("--ordered", action="store_true", help="Lire un flux prémélangé sans répétition.")
+    p.add_argument("--fused", action="store_true", help="Activer les noyaux accélérés de la démo.")
     p.add_argument("--device", default="cuda:0" if torch.cuda.is_available() else "cpu")
     args = p.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
@@ -139,12 +149,14 @@ def main() -> None:
     print(f"démarrage | périphérique : {args.device} | pas : {args.steps}", flush=True)
     result = pretrain(args.data, cfg, steps=args.steps, batch_size=args.batch_size,
                       micro_batch=args.micro_batch, lr=args.lr, min_lr=args.min_lr,
-                      warmup=args.warmup, seed=args.seed, device=args.device, ordered=args.ordered)
+                      warmup=args.warmup, seed=args.seed, device=args.device, ordered=args.ordered,
+                      fused=args.fused)
     model = result["model"]
     from minigpt.hf_tokenizer import HFTokenizer  # import tardif : `tokenizers` seulement ici
     tok = HFTokenizer(args.tokenizer)
     meta = {"steps": args.steps, "batch_size": args.batch_size, "seed": args.seed,
-            "ordered": args.ordered, "target_tokens": args.steps * args.batch_size * cfg.block_size,
+            "ordered": args.ordered, "fused": args.fused,
+            "target_tokens": args.steps * args.batch_size * cfg.block_size,
             "lr": args.lr, "min_lr": args.min_lr, "warmup": args.warmup,
             "tokenizer_sha256": tok.sha256, "params": model.num_params(),
             "final_loss": result["losses"][-1]}

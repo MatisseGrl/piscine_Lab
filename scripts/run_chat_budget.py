@@ -84,7 +84,7 @@ def main():
             train = Path(scratch) / "train.bin"
             extract_verified(args.archive, train, manifest, args.steps)
             run("minigpt.pretrain", "--data", train, "--tokenizer", tokenizer, "--out", out / "pretrain",
-                "--steps", args.steps, "--seed", args.seed, "--ordered")
+                "--steps", args.steps, "--seed", args.seed, "--ordered", "--fused")
         run("minigpt.evaluate_chat", "--checkpoints", out / "pretrain/pretrained.pt", *measure,
             "--bpb-only", "--out", out / "pretrain-bpb")
         # Transmet à la phase suivante les empreintes des entrées et du modèle.

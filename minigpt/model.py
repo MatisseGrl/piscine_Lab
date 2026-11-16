@@ -3,7 +3,8 @@
 Briques : embeddings de tokens + positions, blocs [LayerNorm -> attention causale multi-têtes
 -> résiduel, LayerNorm -> MLP -> résiduel], LayerNorm finale, tête linéaire vers le vocabulaire.
 L'attention et le masque causal sont codés à la main (pas de nn.MultiheadAttention ni de
-scaled_dot_product_attention). On s'autorise nn.Linear et nn.Embedding (de simples matrices).
+scaled_dot_product_attention) dans le chemin de référence. La démo GPU peut activer les
+noyaux équivalents de PyTorch pour accélérer son pré-entraînement.
 """
 
 import math
@@ -35,8 +36,11 @@ class LayerNorm(nn.Module):
         self.weight = nn.Parameter(torch.ones(d))  # gain, initialisé à 1
         self.bias = nn.Parameter(torch.zeros(d))  # décalage, initialisé à 0
         self.eps = eps  # évite la division par zéro
+        self.fused = False  # le chemin de référence garde le calcul explicite
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if self.fused:
+            return F.layer_norm(x, (self.weight.numel(),), self.weight, self.bias, self.eps)
         mean = x.mean(dim=-1, keepdim=True)  # moyenne sur les features
         var = x.var(dim=-1, keepdim=True, unbiased=False)  # variance biaisée, comme PyTorch
         x_hat = (x - mean) / torch.sqrt(var + self.eps)  # moyenne 0, variance 1
@@ -58,6 +62,7 @@ class CausalSelfAttention(nn.Module):
         self.proj = nn.Linear(cfg.d_model, cfg.d_model)
         self.attn_drop = nn.Dropout(cfg.dropout)
         self.resid_drop = nn.Dropout(cfg.dropout)
+        self.fused = False
         # Masque triangulaire inférieur : mask[i, j] = 1 si j <= i (j est dans le passé de i).
         # Buffer = sauvegardé avec le modèle mais pas appris.
         mask = torch.tril(torch.ones(cfg.block_size, cfg.block_size, dtype=torch.bool))
@@ -70,14 +75,17 @@ class CausalSelfAttention(nn.Module):
         q = q.view(B, T, self.n_head, self.head_dim).transpose(1, 2)
         k = k.view(B, T, self.n_head, self.head_dim).transpose(1, 2)
         v = v.view(B, T, self.n_head, self.head_dim).transpose(1, 2)
-        # Scores : similarité de chaque requête avec chaque clé, divisée par sqrt(head_dim)
-        # pour que la softmax ne sature pas quand la dimension grandit. Forme (B, h, T, T).
-        att = (q @ k.transpose(-2, -1)) / math.sqrt(self.head_dim)
-        # Masque causal : les positions futures reçoivent -inf, donc un poids 0 après softmax.
-        att = att.masked_fill(~self.mask[:T, :T], float("-inf"))
-        att = F.softmax(att, dim=-1)  # chaque ligne somme à 1 : poids sur les positions passées
-        att = self.attn_drop(att)
-        y = att @ v  # moyenne pondérée des valeurs, (B, h, T, head_dim)
+        if self.fused:
+            # Le noyau causal calcule la même attention sans stocker tous les scores.
+            dropout = self.attn_drop.p if self.training else 0.0
+            y = F.scaled_dot_product_attention(q, k, v, dropout_p=dropout, is_causal=True)
+        else:
+            # Échelle sqrt(head_dim) pour éviter la saturation de la softmax.
+            att = (q @ k.transpose(-2, -1)) / math.sqrt(self.head_dim)
+            # Les positions futures ont un score -inf et donc un poids nul.
+            att = att.masked_fill(~self.mask[:T, :T], float("-inf"))
+            att = F.softmax(att, dim=-1)
+            y = self.attn_drop(att) @ v  # moyenne pondérée des valeurs
         # Recolle les têtes : (B, h, T, hd) -> (B, T, C).
         y = y.transpose(1, 2).contiguous().view(B, T, C)
         return self.resid_drop(self.proj(y))
