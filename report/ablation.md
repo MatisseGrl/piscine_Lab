@@ -1,85 +1,68 @@
 # Rapport d'ablation
 
-2 pages maximum. Même modèle, même budget, seules les données changent.
+**Résultat final : 1,2767 BPB** sur la validation publique (M4FINALEXCERPTS, graine 1337 ; 1,2786 en graine 1338), contre 1,3538 pour les données brutes. Le détail des essais de sources est dans la dernière section.
 
-> Trame préparée le 10/11/2026. Les cases « à mesurer » attendent les runs Kaggle. Aucun chiffre de BPB n'est inventé.
+Même modèle, même budget, seules les données changent. Tous les chiffres viennent de `Kaggle submissions/LOG.md` et des `result.json` de chaque run (vérifiés le 14/11/2026).
 
 ## Protocole
 
-- **Modèle et entraînement :** configuration figée du kit (`config/official.json`, kit à `3709c85`), graine 1337, 3 052 pas, soit 100 007 936 tokens vus par run, une seule passe sur les données. Entraînement sur Kaggle T4.
-- **Tokenizer :** un seul, de 8 192 entrées, appris sur 10 Mo du nettoyé avec le mélange validé. Le même fichier sert à toutes les variantes (SHA-256 `b2554a82…2379`). Limite : appris sur le nettoyé, ce qui peut l'avantager.
-- **Mélange :** 80 % Wikipédia FR, 12 % Common Crawl, 8 % Assemblée nationale, **compté en tokens**, mêmes proportions dans chaque fenêtre de mélange, graine 42 pour les tirages.
-- **Validation :** les 230 documents publics du kit. BPB = bits de NLL divisés par les **octets UTF-8** (813 051). Aucune suite de 13 mots en commun avec l'entraînement, vérifiée sur chaque variante.
-
-## Variantes comparées
-
-| Variante | Étapes appliquées | Documents | Octets UTF-8 |
-|---|---|---:|---:|
-| Brut contrôlé | collecte + export brut | voir `clean/stats.json` | |
-| Nettoyé | encodage, langue (fastText ≥ 0,80), boilerplate | 2 530 051 | 7 795 353 284 |
-| Dédupliqué | + exact + MinHash (Jaccard 0,97), Wikipédia plafonné à 300 000 articles | 320 319 | 1 056 674 469 |
-| + qualité | + lettres ≥ 30 %, Common Crawl : ≥ 100 car., lignes répétées ≤ 60 % | 320 098 | 1 053 824 598 |
-| + PII | + masquage regex (e-mail, téléphone, IBAN, URL, IP) | 320 319 | 1 055 854 450 |
-| + qualité + PII | les deux | 320 098 | 1 053 018 328 |
+- **Modèle et entraînement :** configuration figée du kit (`config/official.json`, kit à `3709c85`), graine 1337, 3 052 pas, **100 007 936 tokens vus** par run, une seule passe. Entraînement sur Kaggle (GPU T4).
+- **Tokenizer :** un seul, de 8 192 entrées, appris sur 10 Mo du nettoyé avec le mélange 80/12/8 (SHA-256 `b2554a82…2379`). Le même fichier sert à toutes les variantes. Limite : appris sur le nettoyé, ce qui peut l'avantager.
+- **Mélange de référence :** 80 % Wikipédia FR, 12 % Common Crawl, 8 % Assemblée nationale, compté en **tokens**, graine 42 pour les tirages.
+- **Validation :** les 230 documents publics du kit. BPB = bits de NLL divisés par les **octets UTF-8** (813 051), pas par les caractères. Aucune suite de 13 mots en commun entre l'entraînement et la validation, vérifiée sur chaque variante.
 
 ## Résultats
 
-| Données | Tokens vus | BPB val | Écart vs référence |
-|---|---|---|---|
-| Brutes | 100 007 936 | à mesurer | référence |
-| Nettoyées | 100 007 936 | à mesurer | vs brutes |
-| Dédupliquées | 100 007 936 | à mesurer | vs nettoyées |
-| + qualité | 100 007 936 | à mesurer | vs dédupliquées |
-| + PII | 100 007 936 | à mesurer | vs dédupliquées |
-| + qualité + PII | 100 007 936 | à mesurer | vs dédupliquées |
+Les cinq premières lignes forment la chaîne de traitement (80/12/8). Les trois dernières comparent des mélanges de sources.
+
+| # | Données | BPB val | Écart vs ligne de comparaison |
+|---|---|---:|---|
+| 1 | Brut contrôlé | 1,3538 | référence |
+| 2 | Nettoyé | 1,3340 | −0,0198 vs 1 |
+| 3 | Dédupliqué (exact + MinHash 0,97, Wikipédia plafonnée à 300 000 articles) | 1,3330 | −0,0010 vs 2 |
+| 4 | Dédupliqué + PII | 1,3322 | −0,0008 vs 3 |
+| 5 | Dédupliqué + qualité + PII | 1,3315 | −0,0014 vs 3 |
+| 6 | **Dédupliqué + qualité, 80/12/8 (meilleur du pipeline seul)** | **1,3304** | **−0,0025 vs 3 ; −0,0234 vs 1** |
+| 7 | Mélange 74/18/8 (dédup + qualité) | 1,3325 | +0,0020 vs 6 |
+| 8 | Mélange parts égales (dédup + qualité) | 1,3362 | +0,0058 vs 6 |
 
 ## Quelles étapes ont le plus d'impact ?
 
-À remplir avec les BPB. Ce que le pipeline mesure déjà : le nettoyage rejette 96 % des pages Common Crawl, la déduplication retire peu de documents sur le nettoyé (3 815 doublons exacts puis 199 par MinHash), la qualité retire 0,07 % des documents.
+**Le nettoyage, de très loin : −0,020 BPB**, soit 85 % du gain total entre le brut et le meilleur run (−0,0234). Il retire l'encodage cassé, les textes non français (96 % des pages Common Crawl rejetées) et le boilerplate web. Le reste de la chaîne apporte ensemble environ 0,004.
+
+Les écarts suivants sont **petits** (0,001 à 0,003 BPB). Le filtre qualité est la meilleure des étapes fines (−0,0025), sur un effet de bord curieux : il ne retire que 221 documents Common Crawl (0,07 % du total), mais Common Crawl pèse 12 % des tokens vus, donc le contenu retiré (pages très courtes ou très répétitives) était sur-échantillonné par rapport à son nombre de documents. Je n'ai pas testé cette explication.
+
+Le mélange compte plus que les étapes fines : 80/12/8 bat 74/18/8 de 0,0020 et les parts égales de 0,0058. Les parts égales obligent aussi à répéter beaucoup de tokens (6,1 M de Common Crawl et 19,5 M de l'Assemblée) : l'écart mélange le choix des proportions et la répétition.
 
 ## Lesquelles ne servent à rien ?
 
-Hypothèse à confirmer ou infirmer par la mesure : le filtre qualité, vu son taux de rejet, et le masquage PII, qui change environ 0,1 % des octets. Une étape qui ne baisse pas le BPB à configuration identique est à dire sans détour.
+- **Le masquage PII n'a pas d'effet démontré sur le BPB.** Seul il donne −0,0008, mais ajouté au filtre qualité il donne +0,0011 (1,3315 contre 1,3304). Un effet qui change de signe selon le contexte est typiquement du bruit. Il reste justifiable par la **protection des données**, pas par le BPB. Le dataset final n'a pas de masquage PII : c'est la version qui score le mieux.
+- **La déduplication** apporte un gain réel mais minime (−0,0010) et il est mélangé à autre chose (voir ci-dessous). Elle sert surtout à ne pas apprendre par cœur des textes répétés.
 
-## Échecs et surprises
+## Échecs, surprises et limites
 
-À compléter. Limites déjà connues : le contraste nettoyé → dédupliqué inclut le plafonnement de Wikipédia ; le tokenizer est appris sur le nettoyé ; une seule graine d'entraînement, donc pas de barre d'erreur ; le masquage ne détecte ni noms ni adresses postales.
+- **Une seule graine d'entraînement, donc pas de barre d'erreur.** Je n'ai pas mesuré la variabilité d'un run à l'autre. Les écarts de 0,001 à 0,003 sont probablement proches du bruit : je les présente comme des tendances, pas comme des preuves. Seul le nettoyage (−0,020) est largement au-dessus.
+- **Nettoyé → dédupliqué n'isole pas la déduplication.** Cette étape inclut aussi le plafonnement de Wikipédia à 300 000 articles (2 205 718 articles retirés par tirage, graine 42), alors que la déduplication elle-même n'a retiré que 3 815 doublons exacts et 199 quasi-doublons (MinHash).
+- **Le run 74/18/8 a été importé** d'un notebook : le journal ne précise pas ses étapes de préparation et son hash de dataset n'a pas été fourni. Le STATUS le décrit comme « dédup + qualité » ; à confirmer avant de l'affirmer à l'oral.
+- **Tokenizer appris sur le nettoyé** : il peut avantager légèrement cette variante.
+- **Le masquage PII est un regex** (e-mail, téléphone, IBAN, URL, IP) : ni noms ni adresses postales. Il ne garantit pas l'anonymat.
+- **Filtre de langue peu validé** : le contrôle manuel donne 99/100 sur 100 documents, surtout Wikipédia ; trop petit pour conclure sur Common Crawl.
+- **Score caché inconnu** : tous les BPB sont sur la validation publique (230 documents). Le test caché n'est pas connu ; le gain final vient surtout du genre littéraire, donc il dépend du poids de ce genre dans ce test.
 
-## Ablation des sources (mélanges M1 à M5, 14-15/11)
+## Compétition : mélange de sources, recollage et extraits (14-15/11)
 
-Même protocole : kit `3709c85`, config officielle, tokenizer 8 192 commun, 100 007 936 tokens vus, micro-batch 8, GPU T4 (Colab ou Kaggle), validation publique de 230 documents. Toutes les sources passent par dédup + qualité, sans PII. Deux sources ajoutées : Gutenberg FR (PR #32) et Wikinews FR (PR #31). Construction : `pipeline/mixes.py`. Fichiers bruts : `Kaggle submissions/mixes/<ID>/`.
+Même protocole (kit `3709c85`, 3 052 pas, 100 007 936 tokens, validation publique). **Bruit mesuré** : la référence 80/12/8 donne 1,3304 / 1,3315 / 1,3270 (moyenne 1,3296, σ 0,0023), donc un écart n'est retenu qu'au-delà de **~0,005**. Deux sources ajoutées : Gutenberg FR et Wikinews FR.
 
-**Bruit** (`report/noise.md`) : la référence 80/12/8 donne 1,3304 / 1,3315 / 1,3270, moyenne **1,3296**, σ 0,0023. Une amélioration ne compte que si elle dépasse **~0,005**. Contrôles ajoutés : M3 relancé à l'identique sur un autre GPU (1,3151 puis 1,3146, écart 0,0005) et M4 avec une 2e graine (1,3028 puis 1,3066).
+| Étape | BPB (graine 1337 / 1338) | Gain | Verdict |
+|---|---|---|---|
+| Référence 80/12/8 | 1,3304 / 1,3270 | – | départ |
+| **M4** : 40 Wikipédia / 15 CC / 15 Assemblée / 25 Gutenberg / 5 Wikinews | 1,3028 / 1,3066 | −0,025 | gain confirmé (2 graines) |
+| M4REFLOW : sauts de ligne internes de Gutenberg recollés | 1,2905 / 1,2938 | −0,011 à −0,013 | gain confirmé |
+| M4REFLOWBPE : + BPE 8 192 appris sur le mélange | 1,2874 / 1,2849 | −0,003 de plus | gain faible, additif |
+| **M4FINALEXCERPTS : Gutenberg en 1 836 extraits de ~48 000 car. au lieu de 204 livres, même quota** | **1,2767 / 1,2786** | **−0,0085 en moyenne** | **retenu, 2 graines** |
 
-| Mélange (tokens) | Wiki | CC | AN | Gut. | WN | BPB | Écart vs 1,3296 | Verdict |
-|---|---:|---:|---:|---:|---:|---:|---:|---|
-| Référence 80/12/8 | 80 | 12 | 8 | – | – | 1,3296 (moy. 3) | – | référence |
-| M1 | 35 | 15 | 20 | 30 | – | 1,3262 | −0,0034 | pas de différence démontrée |
-| M2 | 25 | 25 | 25 | 25 | – | 1,3469 | +0,0173 | dégradation |
-| M3 | 50 | 15 | 10 | 25 | – | 1,3151 / 1,3146 | −0,015 | gain (1 graine, 2 GPU) |
-| **M4** | 40 | 15 | 15 | 25 | 5 | **1,3028 / 1,3066** (moy. 1,3047) | **−0,025** | **gain confirmé sur 2 graines** |
-| M5 | 60 | 12 | 8 | 20 | – | 1,3138 | −0,016 | gain (1 graine) |
+**Ce qui compte.** Gutenberg est la source qui fait baisser le BPB (littéraire : 1,68 → 1,46 au total). Le recollage corrige un artefact de format, et passer de quelques livres entiers à beaucoup d'extraits donne plus de variété au même nombre de tokens. Baisser Wikipédia coûte en encyclopédique (1,31 → 1,37), mais est compensé.
 
-Par genre (BPB ; référence = moyenne du bruit) :
+**Essais sans gain ou dégradants** (une graine, sauf mention) : parts égales M2 1,3469 ; ordre des données M4ORDER 1,3106 ; 45 % Wikipédia M4WIKI 1,3115 ; rejeu de tokens M4REPEAT 1,3172 ; classifieur web M4CLASS 1,3044 ; BPE sur 50 Mo 1,2983 / 1,3038 ; Gutenberg à 30 % / 35 % 1,2900 / 1,2842 ; livres permutés 1,2899 ; italiques retirés 1,2851 ; BPE réappris 1,2982 (10 Mo) et 1,2839 (50 Mo), tous dans le bruit ou pires.
 
-| Genre | Réf. | M1 | M2 | M3 | M4 (g. 1337) | M5 |
-|---|---:|---:|---:|---:|---:|---:|
-| Littéraire | 1,673 | 1,576 | 1,646 | 1,558 | 1,547 | 1,557 |
-| Dialogue | 1,127 | 1,084 | 1,076 | 1,110 | 1,092 | 1,120 |
-| Encyclopédique | 1,311 | 1,395 | 1,419 | 1,357 | 1,373 | 1,345 |
-| Presse | 1,206 | 1,252 | 1,248 | 1,236 | 1,200 | 1,234 |
-
-**Ce que ça montre**
-- **Gutenberg est la source qui compte** : 20 à 30 % de livres font baisser le littéraire d'environ 0,10 à 0,13 dans tous les mélanges. C'est l'essentiel du gain global.
-- **Baisser Wikipédia coûte en encyclopédique** (+0,03 à +0,11), de façon à peu près proportionnelle. M2 (25 %) est le pire.
-- **M4 est le seul mélange qui ne perd pas en presse** (1,200, soit −0,006, dans le bruit), sans doute grâce aux 5 % de Wikinews. Pas d'ablation propre de Wikinews seul : effet non démontré isolément.
-- Plus d'Assemblée aide le dialogue (M1, M2), mais répéter l'Assemblée 1,8 fois (M2) ne compense pas la perte sur les autres genres.
-
-**Choix soumis** : M4, run officiel relancé avec checkpoint conservé (Colab T4, graine 1337) : **1,3048**, paquet `submissions/2026-11-15_002554`. Le paquet 80/12/8 `2026-11-14_182456` reste intact.
-
-**Limites**
-- M1 et M2 sont des lectures de notes orales du mentor (« 35 15 20 30 », parts égales) : interprétation non confirmée par écrit.
-- L'Assemblée est répétée dans M1 (1,45 passe), M2 (1,81) et M4 (1,08) ; les autres sources restent en une passe.
-- M3 et M5 : une seule graine (M3 relancé sur un autre GPU, même graine). Seul M4 a deux graines.
-- Une seule validation publique (230 documents). Le gain vient surtout du littéraire : si le test caché pèse moins ce genre, ou si le style Gutenberg est moins proche de ses textes, le gain caché peut être plus faible.
-- Les écarts entre M3, M5 et M4 (~0,011) sont au-dessus du seuil, mais n'ont pas été répétés sur plusieurs graines pour M3 et M5.
+**Limites.** M1/M2 viennent de lectures de notes orales du mentor, non confirmées par écrit. Seuls M4, M4REFLOW, M4REFLOWBPE et M4FINALEXCERPTS ont deux graines. Les journaux complets sont dans `Kaggle submissions/LOG.md` ; les courbes, dans `report/courbes/`.

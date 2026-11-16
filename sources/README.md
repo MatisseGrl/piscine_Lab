@@ -8,6 +8,12 @@ Sources de la collecte du bloc 2 :
 - [Project Gutenberg FR](gutenberg-fr.md)
 - [Wikinews FR](wikinews-fr.md) (presse libre, dump du 1er novembre 2026, phase A de l'ablation des sources)
 
+Sources de la démo de chat et du bloc 1 (hors compétition) :
+
+- [Molière du kit (Projet Gutenberg) et dialogues du projet](chat-demo.md)
+- [Wikisource : théâtre de Molière](wikisource-moliere.md) (collecté, non utilisé pour l'entraînement)
+- [OpenAssistant/oasst1](oasst1.md) (examiné, écarté)
+
 Une fiche par source, nommée `<source>.md` (ex. `common-crawl.md`, `wikipedia-fr.md`). Modèle à copier :
 
 ```markdown
