@@ -16,7 +16,7 @@ STEPS = {"100m": 3052, "300m": 9155}
 def main():
     """Prépare le notebook et envoie uniquement du code et des références privées."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("stage", choices=["pretrain", "adapt"])
+    parser.add_argument("stage", choices=["pretrain", "adapt", "rebalanced"])
     parser.add_argument("budget", choices=STEPS)
     parser.add_argument("--commit", required=True)
     parser.add_argument("--seed", type=int, default=1337)
@@ -31,7 +31,9 @@ def main():
         "language": "python", "kernel_type": "script", "is_private": True,
         "enable_gpu": True, "enable_internet": True,
         "dataset_sources": [CHAT_DATASET, BUDGET_DATASET] if pretrain else [CHAT_DATASET],
-        "kernel_sources": [] if pretrain else [pretrain_job],
+        "kernel_sources": [] if pretrain else [
+            pretrain_job if args.stage == "adapt" else f"{ACCOUNT}/{batch}-adapt"
+        ],
         "competition_sources": [], "model_sources": [],
     }
     # Kaggle monte les entrées privées. Le clone public ne transporte que le code.
@@ -55,14 +57,20 @@ def run(*args):
 run(sys.executable, "-m", "pip", "install", "-q", "tokenizers==0.23.3")
 data = next(inputs.rglob("chat_v5_train.json")).parent
 '''
-    stage_args = (
-        f'"--archive", next(inputs.rglob("train.bin*")), "--steps", {STEPS[args.budget]}'
-        if pretrain else '"--checkpoint", next(inputs.rglob("pretrain/pretrained.pt"))'
-    )
-    source += (
-        f'run(sys.executable, "-m", "scripts.run_chat_budget", {args.stage!r}, '
-        f'"--data", data, "--out", out, "--seed", {args.seed}, {stage_args})\n'
-    )
+    if args.stage == "rebalanced":
+        source += (
+            'run(sys.executable, "-m", "scripts.run_chat_budget_rebalanced", "--data", data, '
+            '"--out", out, "--checkpoint", next(inputs.rglob("moliere/best.pt")))\n'
+        )
+    else:
+        stage_args = (
+            f'"--archive", next(inputs.rglob("train.bin*")), "--steps", {STEPS[args.budget]}'
+            if pretrain else '"--checkpoint", next(inputs.rglob("pretrain/pretrained.pt"))'
+        )
+        source += (
+            f'run(sys.executable, "-m", "scripts.run_chat_budget", {args.stage!r}, '
+            f'"--data", data, "--out", out, "--seed", {args.seed}, {stage_args})\n'
+        )
     with TemporaryDirectory(prefix="piscine-chat-kernel-") as scratch:
         path = Path(scratch)
         (path / "script.py").write_text(source, encoding="utf-8")
