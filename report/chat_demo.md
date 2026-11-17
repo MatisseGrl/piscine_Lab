@@ -106,7 +106,7 @@ Set-Location 'C:\Users\mgarl\Documents\piscine_Lab\runs\worktree-moliere-demo'
 uv run --frozen python -m minigpt.web_chat --checkpoint runs/chat-main-v2-r30/step-1000.pt --tokenizer ../../data/processed/bpe_moliere_1024.json
 ```
 
-Ouvrir [http://localhost:8765](http://localhost:8765). Après redémarrage depuis un terminal neuf, Chrome a affiché les trois réponses attendues du scénario de démo, dont « Prenez quelque repos, je vous en prie. » au troisième tour. **135 tests passent** avec la validation Molière disponible dans le worktree. Les sources et leurs licences figurent aussi dans le [PPTX](Feed-the-Beast-demo.pptx).
+Ouvrir [http://localhost:8765](http://localhost:8765). Après redémarrage depuis un terminal neuf, Chrome a affiché les trois réponses attendues du scénario de démo, dont « Prenez quelque repos, je vous en prie. » au troisième tour. **135 tests passent** avec la validation Molière disponible dans le worktree. Les sources et leurs licences figurent aussi dans le [PPTX](Feed-the-Beast-soutenance.pptx).
 
 ## Chat v3 : pré-entraînement français, puis Molière, puis dialogues (14 novembre)
 

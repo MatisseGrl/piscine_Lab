@@ -2,6 +2,12 @@
 
 À lire au début de chaque session, à mettre à jour à la fin. Réécrit le 14 novembre 2026 (l'historique détaillé est dans git). **Rendu le 16 novembre 2026.**
 
+## Dernier état (17 novembre)
+
+- **Meilleur BPB : 1,2767** (M4FINALEXCERPTS, graine 1337 ; 1,2786 en graine 1338), détaillé dans `report/ablation.md` et `report/courbes/`. Les sections ci-dessous sont l'historique des essais du 15/11.
+- **PowerPoint de soutenance refait** : `report/Feed-the-Beast-soutenance.pptx` (8 diapos : projet, architecture technique, sources et licences, ablation, genres et échecs, mini-GPT et démo, rendu et limites). Il remplace l'ancien `Feed-the-Beast-demo.pptx`, centré sur la démo seule et resté aux chiffres du 14/11. Il est généré par `uv run --with python-pptx python report/build_deck.py` : changer un chiffre dans le script puis regénérer.
+- À vérifier par Matisse avant de présenter : le score du test caché (inconnu), et le lien public du dataset (toujours privé).
+
 ## Compétition, essais du 15 novembre
 
 Le paquet de compétition retenu est **M4REFLOWBPE à 1,2874 BPB** en graine officielle
