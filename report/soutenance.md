@@ -57,12 +57,12 @@ Choix : seuil MinHash élevé (0,97) après inspection d'un pilote, pour ne pas 
 - Premier SFT sur 5 920 paires extraites du théâtre : **0 réponse pertinente sur 8** (les répliques dépendent d'une scène absente). Abandonné pour des dialogues courts et autonomes.
 - Reprises prolongées de l'entraînement Molière : le BPB remonte après le pas 400 (1,7901 → 1,8896), un meilleur palier mais une qualité de dialogue pas meilleure.
 - Chat : un bon BPB ne suffit pas à bien dialoguer ; les réparations de dialogue donnent au mieux 1/8 sur des cas inédits. Le prototype tient le scénario de JB mais reste fragile en conversation libre.
-- Un modèle « ensemble » à 1,696 BPB Molière est **exploratoire** (fréquences réglées sur la validation) : je ne le présente pas comme résultat. Le résultat propre est 1,743.
+- Un modèle « ensemble » à 1,696 BPB Molière est **exploratoire** (fréquences réglées sur la validation) : je ne le présente pas comme résultat. Le résultat propre est 1,4111 (mini-GPT pré-entraîné sur le dataset puis repris sur Molière).
 - OpenAssistant/oasst1 examiné puis **écarté** : 37 candidats après filtre, plusieurs réponses hors sujet ou datées.
 
 ## 6. Résultats
 
-- Bloc 1, Molière : bigramme 3,3544, mini-GPT 1,8237, meilleur modèle seul 1,743.
+- Bloc 1, Molière : bigramme 3,3544, mini-GPT sur Molière seul 1,8237, pré-entraîné sur le dataset puis repris sur Molière **1,4111** (chat v5 : 1,4291). Conversations inédites : 2/24 réponses pertinentes (v5), 5/24 avec 3× plus de tokens.
 - Compétition (validation publique du kit) : **1,2767** pour le dataset final M4FINALEXCERPTS (1,2786 en graine 1338) ; référence 80/12/8 à 1,3304 ; test caché, rang : à compléter.
 - Démo : chat Molière local sur page HTML ; version finale à compléter.
 

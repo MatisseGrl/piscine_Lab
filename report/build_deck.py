@@ -215,7 +215,7 @@ notes(d, "Le modèle est le même pour tout le monde : c'est la donnée qui chan
 d = prs.slides.add_slide(VIDE)
 entete(d, "LE PROJET", "Trois blocs, une idée : la donnée fait le modèle")
 cartes = [
-    ("BLOC 1", "Mini-GPT from scratch", "1,82 BPB", "Molière : bigramme 3,35 → mini-GPT",
+    ("BLOC 1", "Mini-GPT from scratch", "1,41 BPB", "validation Molière, pré-entraîné (bigramme : 3,35)",
      "Autograd maison, bigramme, BPE, transformer décodeur (attention causale, LayerNorm, résiduels). "
      "Tests écrits avant le code, comparés à PyTorch."),
     ("BLOC 2", "Pipeline de données", "320 098 docs", "1,05 Go de texte français, 5 sources",
@@ -300,7 +300,7 @@ dessiner_chaine(4.44, 0.85, 5.39, chaine_b, ENCRE, ENCRE, BLANC)
 forme(d, 0.6, 6.4, 12.13, 0.5, TEINTE, nom="Outils")
 texte(d, 0.8, 6.4, 11.8, 0.5,
       [[("Outils  ", {"gras": True, "couleur": BORDEAUX}),
-        ("uv, Python 3.12, PyTorch, pytest (189 tests), Kaggle CLI et Colab (T4), git : une branche et une PR par tâche", {})]],
+        ("uv, Python 3.12, PyTorch, pytest (202 tests), Kaggle CLI et Colab (T4), git : une branche et une PR par tâche", {})]],
       taille=13, ancre=MSO_ANCHOR.MIDDLE)
 pied(d, 3)
 notes(d, "Deux chaînes. En haut, les données : on collecte cinq sources, on nettoie, on déduplique, on filtre, "
@@ -501,8 +501,8 @@ notes(d, "À gauche, le BPB par genre : le gain vient presque entièrement du li
 d = prs.slides.add_slide(VIDE)
 entete(d, "BLOC 1 ET DÉMO", "Le mini-GPT, et sa démo façon Molière")
 perf = CategoryChartData()
-perf.categories = ["Bigramme (comptage)", "Mini-GPT du bloc 1", "Meilleur modèle seul", "Pré-entraîné sur notre dataset"]
-perf.add_series("BPB Molière", (3.3544, 1.8237, 1.7434, 1.4111))
+perf.categories = ["Bigramme (comptage)", "Mini-GPT sur Molière seul", "Pré-entraîné sur notre dataset", "Idem, 3× plus de tokens (essai)"]
+perf.add_series("BPB Molière", (3.3544, 1.8237, 1.4111, 1.3162))
 cadre_g = d.shapes.add_chart(XL_CHART_TYPE.BAR_CLUSTERED, Inches(0.6), Inches(1.7), Inches(6.0), Inches(3.05), perf)
 cadre_g.name = "BPB Molière"
 g = cadre_g.chart
@@ -526,12 +526,13 @@ g.value_axis.maximum_scale = 4.0
 for i in range(4):
     pt = plot.series[0].points[i]
     pt.format.fill.solid()
-    pt.format.fill.fore_color.rgb = OR if i == 3 else (GRIS_CLAIR if i == 0 else BORDEAUX)
-texte(d, 0.6, 4.78, 6.0, 0.3, "BPB sur la validation Molière du kit (plus bas = mieux)", taille=11, couleur=GRIS)
-forme(d, 0.6, 5.2, 6.0, 0.62, TEINTE, nom="Test final")
-texte(d, 0.8, 5.2, 5.6, 0.62,
-      [[("Test final, lu une seule fois  ", {"gras": True, "couleur": BORDEAUX}),
-        ("13/24 réponses pertinentes, 8/13 en contexte. Fragile hors des thèmes appris.", {})]],
+    pt.format.fill.fore_color.rgb = OR if i == 2 else (GRIS_CLAIR if i == 0 else BORDEAUX)
+texte(d, 0.6, 4.75, 6.0, 0.3, "BPB sur la validation Molière du kit (plus bas = mieux)", taille=11, couleur=GRIS)
+forme(d, 0.6, 5.1, 6.0, 0.72, TEINTE, nom="Test inédit")
+texte(d, 0.8, 5.1, 5.6, 0.72,
+      [[("Conversations inédites (6 × 4 tours)  ", {"gras": True, "couleur": BORDEAUX}),
+        ("2/24 réponses pertinentes pour le chat retenu, 5/24 avec 3× plus de tokens. "
+         "Le BPB baisse plus vite que la qualité du dialogue.", {})]],
       taille=12, ancre=MSO_ANCHOR.MIDDLE)
 # Conversation réelle (scénario du mentor), 3 tours sur 3
 texte(d, 6.95, 1.7, 5.8, 0.3, "SCÉNARIO DU MENTOR  ·  3 TOURS SUR 3  ·  127.0.0.1:8765", taille=11, gras=True, couleur=BORDEAUX)
@@ -561,10 +562,11 @@ texte(d, 0.8, 6.02, 11.75, 0.82,
          "CC BY-NC-SA 4.0 (arxiv.org/abs/2311.16840). OpenAssistant/oasst1 examiné puis écarté.", {})]],
       taille=10.5, ancre=MSO_ANCHOR.MIDDLE)
 pied(d, 7)
-notes(d, "Le mini-GPT est écrit de zéro. Sur Molière, le bigramme fait 3,35 BPB, le mini-GPT 1,82. Quand on le pré-entraîne "
-         "sur notre dataset français puis qu'on le reprend sur Molière, il tombe à 1,41 : c'est la démonstration que les données "
+notes(d, "Le mini-GPT est écrit de zéro. Sur Molière, le bigramme fait 3,35 BPB, le mini-GPT entraîné sur Molière seul 1,82. Quand on le pré-entraîne "
+         "sur notre dataset français puis qu'on le reprend sur Molière, il tombe à 1,41 (1,32 avec trois fois plus de tokens) : c'est la démonstration que les données "
          "font le modèle. Le chat est fine-tuné sur des dialogues puis servi par une page HTML locale. Le scénario de JB passe "
-         "3 tours sur 3, mais le modèle de 12,8 millions de paramètres reste fragile en conversation libre. Toutes les réponses "
+         "3 tours sur 3, mais sur six conversations inédites le chat ne réussit que 2 réponses sur 24 : le modèle de "
+         "12,8 millions de paramètres reste très fragile en conversation libre. Toutes les réponses "
          "sont générées par le modèle, rien n'est scripté. Les sources externes et leurs licences sont dans l'encadré du bas.")
 
 # =====================================================================================
