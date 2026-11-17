@@ -570,35 +570,44 @@ notes(d, "Le mini-GPT est écrit de zéro. Sur Molière, le bigramme fait 3,35 B
          "sont générées par le modèle, rien n'est scripté. Les sources externes et leurs licences sont dans l'encadré du bas.")
 
 # =====================================================================================
-# 8. Rendu et limites (fond sombre : fin du sandwich)
+# 8. Conclusion (fond sombre : fin du sandwich)
 # =====================================================================================
 d = prs.slides.add_slide(VIDE)
 fond_diapo(d, ENCRE)
-entete(d, "RENDU", "Un rendu vérifiable, des limites assumées", sombre=True)
-for x, titre_c, lignes in [
-    (0.6, "Ce qui est remis",
-     ["ZIP privé : flux d'entraînement exact, kit figé (révision 3709c85), checkpoint, tokenizer, logs et preuves.",
-      "Checkpoint relu sur CPU avec le kit officiel : 1,276737 BPB (1,276738 sur GPU).",
-      "Empreintes SHA-256 du flux, du tokenizer et de chaque fichier, contrôlées par verifier.py.",
-      "Régénération du flux en une commande, SHA identique vérifié sur les mélanges M4 et M4REFLOWBPE."]),
-    (6.85, "Limites assumées",
-     ["Score du test caché inconnu au rendu : tous les BPB sont sur la validation publique (230 textes).",
-      "Le gain vient surtout du genre littéraire : il dépend du poids de ce genre dans le test.",
-      "Une à deux graines seulement ; un écart sous 0,005 est traité comme du bruit.",
-      "Collecte complète depuis un dossier vide non rejouée de bout en bout."]),
-]:
-    forme(d, x, 1.8, 5.88, 3.95, CARTE_SOMBRE, rayon=0.04, nom=titre_c)
-    texte(d, x + 0.35, 2.05, 5.2, 0.4, titre_c, taille=20, gras=True, police=TITRE, couleur=OR)
-    texte(d, x + 0.35, 2.7, 5.2, 3.2, lignes, taille=15, couleur=BLANC, espace_apres=12)
-texte(d, 0.6, 6.1, 12.13, 0.6,
-      [[("Pour aller plus loin  ", {"gras": True, "couleur": OR}),
-        ("publier le dataset sur Hugging Face avec sa dataset card, rejouer plusieurs graines pour des barres d'erreur.", {})]],
+entete(d, "CONCLUSION", "Ce que je retiens, et ce que je ne sais pas encore", sombre=True)
+retenus = [
+    ("−0,077", "BPB, même modèle", "De 1,3538 à 1,2767 (−5,7 %) : seules les données ont changé."),
+    ("0,005", "seuil de bruit mesuré", "En dessous, je ne conclus pas : dédup, qualité et PII restent des tendances."),
+    ("1,276737", "relu sur CPU", "Le checkpoint rendu redonne le score avec le kit officiel. Empreintes SHA-256 vérifiables."),
+]
+largeur_col = (12.13 - 2 * 0.4) / 3
+for i, (gros, label, detail) in enumerate(retenus):
+    x = 0.6 + i * (largeur_col + 0.4)
+    texte(d, x, 1.85, largeur_col, 0.95, gros, taille=48, gras=True, police=TITRE, couleur=OR, nom=f"Chiffre {i + 1}")
+    texte(d, x, 2.85, largeur_col, 0.4, label, taille=18, gras=True, couleur=BLANC)
+    texte(d, x, 3.35, largeur_col, 1.1, detail, taille=14, couleur=GRIS_CLAIR)
+forme(d, 0.6, 4.75, 12.13, 1.65, CARTE_SOMBRE, rayon=0.05, nom="Inconnues")
+texte(d, 0.95, 4.92, 6, 0.3, "CE QUE JE NE SAIS PAS ENCORE", taille=12, gras=True, couleur=OR)
+inconnues = [
+    ("Le test caché", "Tous mes BPB sont sur la validation publique (230 textes)."),
+    ("Le poids du littéraire", "Mon gain vient surtout de ce genre : il dépend du test."),
+    ("La reproduction totale", "Une à deux graines ; collecte complète non rejouée de bout en bout."),
+]
+largeur_inc = (12.13 - 0.7 - 2 * 0.35) / 3
+for i, (titre_i, detail_i) in enumerate(inconnues):
+    x = 0.95 + i * (largeur_inc + 0.35)
+    texte(d, x, 5.3, largeur_inc, 1.0,
+          [[(titre_i, {"gras": True, "couleur": BLANC, "taille": 15})], detail_i],
+          taille=13, couleur=GRIS_CLAIR, espace_apres=3)
+texte(d, 0.6, 6.62, 12.13, 0.35,
+      [[("Ensuite  ", {"gras": True, "couleur": OR}),
+        ("dataset publié sur Hugging Face avec sa dataset card, et plusieurs graines pour des barres d'erreur.", {})]],
       taille=14, couleur=GRIS_CLAIR)
 pied(d, 8, sombre=True)
-notes(d, "Ce qui est remis : un ZIP avec le flux exact, le kit figé, le checkpoint et les preuves. Le checkpoint relu sur CPU "
-         "redonne 1,276737. Les limites : je ne connais pas le score sur le test caché, le gain est concentré sur le littéraire, "
-         "j'ai une à deux graines, et la collecte complète depuis zéro n'a pas été rejouée de bout en bout. "
-         "Je préfère les dire que les cacher.")
+notes(d, "Trois choses à retenir. Un : avec le même modèle, seules les données font passer de 1,3538 à 1,2767. "
+         "Deux : j'ai mesuré le bruit, 0,005, et je ne conclus rien en dessous. Trois : le checkpoint rendu redonne 1,276737 "
+         "sur CPU avec le kit officiel, et les empreintes SHA-256 se vérifient. Ce que je ne sais pas : le score sur le test caché, "
+         "le poids du genre littéraire dans ce test, et je n'ai qu'une à deux graines. Ensuite : publier le dataset sur Hugging Face.")
 
 prs.save(SORTIE)
 print("écrit :", SORTIE)
