@@ -215,7 +215,7 @@ notes(d, "Le modèle est le même pour tout le monde : c'est la donnée qui chan
 d = prs.slides.add_slide(VIDE)
 entete(d, "LE PROJET", "Trois blocs, une idée : la donnée fait le modèle")
 cartes = [
-    ("BLOC 1", "Mini-GPT from scratch", "1,41 BPB", "validation Molière, pré-entraîné (bigramme : 3,35)",
+    ("BLOC 1", "Mini-GPT from scratch", "1,41 BPB", "Molière, pré-entraîné (bigramme : 3,35)",
      "Autograd maison, bigramme, BPE, transformer décodeur (attention causale, LayerNorm, résiduels). "
      "Tests écrits avant le code, comparés à PyTorch."),
     ("BLOC 2", "Pipeline de données", "320 098 docs", "1,05 Go de texte français, 5 sources",
