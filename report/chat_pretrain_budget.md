@@ -1,0 +1,153 @@
+# Démo Molière — budget de pré-entraînement
+
+Expérience du 16 novembre 2026, hors classement. La référence [Chat v3](chat_demo.md#chat-v3--pré-entraînement-français-puis-molière-puis-dialogues-14-novembre) a été recalculée sur les trois poids d'origine.
+
+| Poids de référence | BPB Molière recalculé | SHA-256 du checkpoint |
+| --- | ---: | --- |
+| Pré-entraînement français | 2,011198 | `d6e3588edfa3f965fab2998753cec4f2c42d6e74406f1791c57b2175ad1466ed` |
+| Après Molière, pas 600 | 1,411092 | `839e7e4ceab4ad13b01615b263617b78b974b6d60c72192083631f6360e1721a` |
+| Chat v5, pas 1 500 | 1,429137 | `e309d3d41963ebb725e7c8210cf5df6a89032ded38c4ac000eb288add463c0c9` |
+
+Les 24 sorties historiques du chat sont identiques au fichier de référence, noté 13/24 en pertinence et 8/13 en suivi du contexte. Le pilote T4 de deux pas à chaque étape a parcouru la chaîne complète. Son BPB passe de 3,947256 après le pré-entraînement à 3,897567 après Molière, puis à 3,851989 après le chat. Le pilote vérifie le chargement et le calcul.
+
+Le pilote de débit de 60 pas a pris 181 s sur T4 avec le calcul explicite, puis 93 s avec les noyaux accélérés sur le même flux monté. Une tentative L4 n'a fourni aucun GPU. Le run long atteint le pas 60 en 16 s, avec les noyaux accélérés et un flux prémélangé copié sur le disque de la VM. Le premier lancement s'était arrêté avant l'entraînement, car Kaggle décompresse le fichier `train.bin.gz` au montage. La relance vérifie le flux binaire monté.
+
+## Protocole
+
+- Deux initialisations neuves à graine 1337, mini-GPT 12 805 120 paramètres, 6 couches, 5 têtes, largeur 320, contexte 512. Tokenizer de la démo à 8 192 entrées, SHA-256 `b2554a8221a55c19b4008f5b605b1b6e84b6a7f84058507c15aba34eca3b2379`.
+- Le court budget lit les 3 052 premiers lots du long, soit 100 007 936 cibles sur 299 991 040. Chaque lot contient 64 × 512 cibles, micro-lots de 16. Même AdamW, montée de 150 pas et cosinus de 0,002 à 0,0002 recalés sur chaque horizon. Les calendriers divergent après la montée. Les deux essais utilisent les noyaux accélérés d'attention et de normalisation uniquement pendant le pré-entraînement. Le test vérifie les logits et les gradients en float64. Le pré-entraînement historique utilisait un autre mélange et le calcul PyTorch explicite.
+- Sources prévues en tokens, avant arrondi par blocs de 8 192. Wikipédia 66 %, Gutenberg 23 %, Common Crawl 6 %, Assemblée nationale 3,5 %, Wikinews 1,5 %. Préfixes tirés dans les archives existantes, déduplication exacte des documents normalisés entre sources puis mélange des blocs sans remise. Les textes sont contrôlés au niveau document contre les séquences de 13 mots du train et de la validation Molière. La validation et les questions inédites sont également contrôlées contre les dialogues v5. Des reformulations ou quasi-doublons peuvent subsister.
+- Même adaptation Molière pour les deux budgets. 1 500 pas, batch 16 × 512, cosinus de 1e-4 vers 1e-5, graine 1337. Sélection par la loss sur les 5 % finaux du train officiel aux paliers de 200 pas et au dernier pas. Pendant le SFT, le rappel reprend tout le train officiel comme dans la démo précédente.
+- Même SFT sur les dialogues v5, 1 500 pas, batch 32 et rappel Molière par batch de 8, taux 1e-4 et pondération de rappel 0,3. Les candidats sont notés à 500, 1 000 et 1 500 pas sur DEV (20 tours, dont 9 de contexte). Sélection par pertinence, puis contexte, puis palier le plus précoce en cas d'égalité.
+- Validation BPB Molière séparée, 260 488 octets UTF-8 après normalisation des fins de ligne. SHA-256 `e5dde8f5782f15943443cddb056bf9fd19efd67822b9e36a875e2c2970ede12c`. Fenêtres et comptage identiques à `evaluate_bpb`.
+- Comparaison finale entre le v5 historique et les candidats retenus. Six conversations inédites de quatre tours, dont 13 tours de contexte. Décodage glouton limité à 80 tokens, arrêt à la première double fin de ligne, historique alimenté par les réponses générées. Pertinence = réponse intelligible et adaptée au tour. Contexte = reprise de la bonne information, y compris la correction et le rappel de sa propre réponse. Les deux notes sont binaires. Le fichier de test reste local pendant la sélection.
+
+## Corpus construit
+
+| Source | Documents utilisés sur 300 M | Cibles 100 M | Cibles 300 M |
+| --- | ---: | ---: | ---: |
+| Wikipédia | 205 029 | 65 740 800 | 197 992 448 |
+| Gutenberg | 572 | 23 330 816 | 69 001 216 |
+| Common Crawl | 8 262 | 5 914 624 | 17 997 824 |
+| Assemblée nationale | 5 961 | 3 620 864 | 10 502 144 |
+| Wikinews | 16 311 | 1 400 832 | 4 497 408 |
+| **Total** | **236 135** | **100 007 936** | **299 991 040** |
+
+Chaque bloc est visité une fois par entraînement. Le BPE coupe les textes longs par morceaux d'au plus 8 192 caractères. Sept documents sont exclus au contrôle Molière (cinq Gutenberg, deux Wikipédia). Aucune question du test inédit n'a été trouvée dans les documents parcourus, le train Molière ou les dialogues v5. Les cinq empreintes d'archives du manifeste correspondent aux statistiques des archives récupérées.
+
+Fiches des archives [Wikipédia](../sources/wikipedia-fr.md), [Gutenberg](../sources/gutenberg-fr.md), [Common Crawl](../sources/common-crawl.md), [Assemblée nationale](../sources/assemblee-nationale-16.md) et [Wikinews](../sources/wikinews-fr.md).
+
+| Entrée | SHA-256 |
+| --- | --- |
+| Flux 100 M, préfixe avec sa cible frontière | `9a8fcca8e8c82961fe0e1b4c39c61cc631c79950277e998636145057695fce17` |
+| Flux 300 M, dernière cible incluse | `e654437a5fef65ae557452c5845859e66a583043864a4dafb3725fd76047c13d` |
+| Gzip du flux complet | `b7ec62de467e202f77d70724dc2ac30befe0331ced9c2cd45eea92482f7cd8f6` |
+| Dialogues v5 | `376c76a46a02b03ab0b4bd7734bcef6deedfa75cdabfb15c63879c5b2c281eb4` |
+| Test de conversations inédites | `e5f13fbb99da77539c3dd215e06c461d852234c0fb645b7bed1c7d3216fcd675` |
+
+## Mesures des candidats
+
+| Pré-entraînement | Matériel et PyTorch | BPB avant Molière | SHA-256 des poids |
+| --- | --- | ---: | --- |
+| 100 M, graine 1337 | Colab T4, 2.14.1+cu130 | 1,715294 | `4549e6303b48b4b415492e2801630877a0fd93740f1f48be6eadcf648e503c46` |
+| 300 M, graine 1337 | Kaggle T4, 2.11.0+cu130 | 1,499422 | `cc381c69194611a8739d54491adf69567dc5cbc4cf74001851d4021d335ea9d5` |
+
+Les deux environnements utilisent des versions différentes de PyTorch. L'architecture, le type de GPU, la recette de pré-entraînement et le protocole d'évaluation sont communs.
+
+| Après adaptation Molière | Pas choisi sur la loss des 5 % du train | Loss (nats/token) | BPB Molière | Pertinence DEV | Contexte DEV |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 100 M, graine 1337 | 800 | 3,146973 | 1,417620 | 0/20 | 0/9 |
+| 300 M, graine 1337 | 400 | 2,877280 | 1,316178 | 0/20 | 0/9 |
+
+Empreinte du parent Molière du 100 M, `240d9fa0eb7a4b6074fb269f1934ad2017e859f583825d357a26f21243fd8a71`.
+
+Empreinte du parent Molière du 300 M, `a50b6d5b2737023c3a9efd5f87e0bd356d5a91b555196a7cf1c53732e2d4f332`.
+
+| Après SFT, paliers sur DEV | Pas | BPB Molière | Pertinence | Contexte |
+| --- | ---: | ---: | ---: | ---: |
+| Chat v5 historique | 1 500 | 1,429137 | 17/20 | 8/9 |
+| 100 M, graine 1337 | 500 | 1,451311 | 9/20 | 4/9 |
+| 100 M, graine 1337 | 1 000 | 1,446508 | 15/20 | 6/9 |
+| 100 M, graine 1337, retenu sur DEV | 1 500 | 1,449145 | 16/20 | 8/9 |
+| 300 M, graine 1337 | 500 | 1,340119 | 12/20 | 3/9 |
+| 300 M, graine 1337, retenu sur DEV | 1 000 | 1,342857 | 13/20 | 4/9 |
+| 300 M, graine 1337 | 1 500 | 1,347879 | 13/20 | 4/9 |
+
+Le gain au pré-entraînement du 300 M sur le 100 M vaut 0,215872 BPB. Le chat 100 M retenu monte à 1,449145 après SFT, soit +0,031526 par rapport à son parent Molière. À 1 000 pas, le BPB est inférieur de 0,002637 et deux tours de contexte supplémentaires échouent. Le palier de 1 500 pas est retenu sur les réponses DEV.
+
+Empreinte du chat 100 M à 1 500 pas, `a7ad12ce4a5b1cc0d2a2de34035e86c86bd2c4dbc1193a6a9fbfdb76024a2b82`. Le rechargement CPU reproduit son BPB. Les poids et les journaux du 100 M sont conservés dans `runs/chat-budget/results-100m/`.
+
+Le chat 300 M à 1 000 pas gagne 0,086280 BPB sur le v5 historique. Il traite les corrections de prénom et échoue sur les trois tours de contexte du scénario couleur. Empreinte du poids retenu sur DEV, `71ac67ae9ffb1e4841e3aab2be34fa987a14afb2788ab3055153621d0a3a0f4c`. Journaux et poids dans `runs/chat-budget/results-300m-pre/` et `runs/chat-budget/results-300m-adapt/`.
+
+### Affinage court à plus forte proportion de théâtre
+
+Le 300 M est repris sur son palier Molière de 400 pas. L'essai dure 750 pas, avec mesure sur DEV aux pas 250, 500 et 750. Il réutilise le v5 après déduplication exacte des conversations et réduit les familles répétitives, en conservant toutes les conversations de couleur et de conseil. Il garde 7 999 paires de théâtre parmi 19 422 réponses, soit 41 % contre 24 % dans le v5 complet. Le rappel Molière, le taux, le batch et la graine sont identiques au SFT principal. Le corpus dérivé n'ajoute aucun texte.
+
+SHA-256 des dialogues dérivés, `2bc0e2d490a4e197740508c18abcdff90c948af88dbcc0c54ffe74de0ae89bf9`. Le choix final entre les deux recettes du 300 M utilise uniquement la pertinence et le contexte sur DEV. À égalité, le chat v5 du 300 M reste retenu.
+
+| SFT court du 300 M, Colab T4 | BPB Molière | Pertinence DEV | Contexte DEV |
+| --- | ---: | ---: | ---: |
+| Pas 250 | 1,339598 | 10/20 | 6/9 |
+| Pas 500, retenu sur DEV | 1,341331 | 15/20 | 6/9 |
+| Pas 750 | 1,341289 | 11/20 | 6/9 |
+
+Le palier 500 récupère les trois tours de contexte sur la couleur. La pertinence DEV gagne deux tours par rapport au SFT v5 du 300 M, avec une baisse de 0,001526 BPB. SHA-256 des poids retenus, `164eb55295384f1ec76cb411085130d108b89610df30c4ab201f48690fd94ba3`. La file Kaggle est restée bloquée pendant la relance. Les mesures de cette variante viennent du T4 Colab, via le même script et le même parent vérifié.
+
+## Test final inédit
+
+La tentative Kaggle d'affinage court a ensuite terminé sur la même graine. Elle reproduit exactement les trois BPB Colab et les trois fichiers de réponses DEV. Cette répétition contrôle le changement de plateforme. La comparaison finale utilise le poids Colab sélectionné.
+
+Les paliers de chaque recette sont fixés sur DEV. Les quatre checkpoints sont relus sur CPU avec la même validation Molière et le même test inédit. Les notes de dialogue sont données tour par tour sur les réponses brutes, sans jury à l'aveugle.
+
+| Checkpoint | BPB Molière | Pertinence /24 | Contexte /13 |
+| --- | ---: | ---: | ---: |
+| Chat v5 historique | 1,429137 | 2 | 0 |
+| 100 M, SFT v5 au pas 1 500 | 1,449145 | 2 | 0 |
+| **300 M, SFT v5 au pas 1 000** | **1,342857** | **5** | **3** |
+| 300 M, SFT court au pas 500 | 1,341331 | 3 | 2 |
+
+Le 300 M avec le SFT v5 gagne **0,086280 BPB** sur le chatbot historique et réussit trois réponses pertinentes de plus sur ce test. Ses trois réussites de contexte proviennent de la même discussion sur un surnom et sa correction. Les rappels d'objet et de destination échouent. Le SFT court, meilleur sur DEV, perd deux réponses pertinentes sur l'épreuve inédite. Le meilleur BPB observé après SFT est 1,339598 à 250 pas de la variante courte, avec 10/20 en pertinence sur DEV.
+
+Les scores de l'ancien test (13/24 et 8/13 pour le v5 historique) correspondent à d'autres conversations. Ici, aucun modèle ne dépasse 5 réponses pertinentes sur 24. La qualité de dialogue libre reste faible et chaque recette a été mesurée sur une seule graine. Les différences de version PyTorch et de calendrier de taux limitent l'attribution du gain au seul budget.
+
+Sorties et annotations locales dans `runs/chat-budget/comparaison-finale/` et `runs/chat-budget/comparaison-finale-affinage-court/`. Journaux et poids du SFT court dans `runs/chat-budget/results-rebalanced-colab/`.
+
+## Reproduction
+
+Depuis la racine du checkout, préparer les archives et les fichiers privés de la démo. Les chemins PowerShell ci-dessous correspondent à leur emplacement sur le poste.
+
+```powershell
+$p = 'C:/Users/mgarl/Documents/piscine_Lab'
+$d = "$p/runs/kaggle-chat-ft-data"
+$a = 'C:/Users/mgarl/Documents/Piscine-recuperation-20261115/archives-auditees'
+uv run python -m scripts.build_chat_budget --archives "$a" --corpus "$d" --tokenizer "$d/tokenizer.json" --chat "$d/chat_v5_train.json" --exam runs/chat-budget/final.json --out runs/chat-budget/corpus
+```
+
+La commande écrit `kaggle/train.bin.gz` et `kaggle/manifest.json`. Le notebook vérifie les empreintes avant l'entraînement. Placer les deux fichiers et `dataset-metadata.json` dans un dossier, s'y placer et lancer `kaggle datasets create -p .` en mode privé. Le dataset créé est `matissegarlot/piscine-chat-budget-fr`. Le deuxième dataset privé, `matissegarlot/piscine-chat-ft`, contient le corpus du kit, le tokenizer et les dialogues v5.
+
+```powershell
+$source = '3ff89a310c63cdadc0c1d894c5dec6cd654ba1d3'
+uv run python -m scripts.launch_chat_budget_kaggle pretrain 300m --commit "$source"
+# Après la mise à disposition du checkpoint par Kaggle.
+uv run python -m scripts.launch_chat_budget_kaggle adapt 300m --commit "$source"
+```
+
+L'affinage court utilise le parent `moliere/best.pt` de ce notebook d'adaptation. Pour le relancer sur tout environnement T4 avec les quatre fichiers de la démo dans `$d`, donner ce poids et un dossier de sortie déjà créé à la commande suivante.
+
+```powershell
+uv run python -m scripts.run_chat_budget_rebalanced --data "$d" --checkpoint <moliere/best.pt> --out <dossier>
+```
+
+Kaggle a refusé le lancement court pendant l'attente du pilote de débit. Le court budget utilise une session T4 Colab privée. Le préfixe est envoyé par morceaux et vérifié intégralement avant le pré-entraînement.
+
+```powershell
+colab new --gpu T4 --session piscine-chat-budget-100m
+$source = '9f6d46d54d6af4f68a6ba37091b7a352c23b5a92'
+uv run python -m scripts.launch_chat_budget_colab --archive runs/chat-budget/corpus/kaggle/train.bin.gz --data "$d" --commit "$source"
+```
+
+Pour réévaluer localement après sélection, donner tous les checkpoints retenus dans la même invocation.
+
+```powershell
+uv run python -m minigpt.evaluate_chat --checkpoints <checkpoints> --tokenizer "$d/tokenizer.json" --validation "$d/moliere_val.txt" --bench runs/chat-budget/final.json --split final --out runs/chat-budget/comparaison-finale
+```

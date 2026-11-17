@@ -2,6 +2,18 @@
 
 À lire au début de chaque session, à mettre à jour à la fin. Réécrit le 14 novembre 2026 (l'historique détaillé est dans git). **Rendu le 16 novembre 2026.**
 
+## Démo Molière, comparaison des budgets du 16 novembre
+
+Le pilote Kaggle T4 termine les trois étapes. Le chat v5 est reproduit à **1,429137 BPB** sur Molière, avec les 24 sorties historiques identiques (13/24 pertinence, 8/13 contexte). Le parent retenu après adaptation Molière est à **1,411092 BPB**.
+
+La comparaison hors classement utilise 100 007 936 et 299 991 040 cibles de cinq archives françaises, sans répétition de blocs. Les essais T4 sont lancés sur Colab pour 100 M et Kaggle pour 300 M. Même tokenizer et mêmes adaptations. La sélection des paliers de chat utilise DEV. Le test inédit est réservé à l'évaluation des candidats choisis. Protocole, empreintes et suivi dans le [rapport](../report/chat_pretrain_budget.md).
+
+Le 100 M passe de **1,715294 BPB** à **1,417620** après Molière et à **1,449145** après chat. Le 300 M passe de **1,499422** à **1,316178** après Molière, puis à **1,342857** pour le chat v5 choisi sur DEV. L'affinage court plus riche en théâtre atteint **1,341331** et 15/20, 6/9 sur DEV au palier retenu.
+
+Sur le test inédit, le chat 300 M v5 obtient **5/24 en pertinence et 3/13 en contexte**, contre 2/24 et 0/13 pour le v5 historique. Le 100 M donne 2/24 et 0/13. L'affinage court donne 3/24 et 2/13, malgré le gain sur DEV. Le meilleur BPB de chat mesuré est **1,339598** au palier 250 de la variante courte. La qualité de dialogue libre reste faible et les résultats portent sur une seule graine. Poids, journaux et commandes recensés dans la [PR #53](https://github.com/MatisseGrl/piscine_Lab/pull/53).
+
+La tentative Kaggle d'affinage court a terminé et reproduit les BPB et les réponses DEV de Colab aux trois paliers, à graine identique.
+
 ## Compétition, essais du 15 novembre
 
 Le paquet de compétition retenu est **M4REFLOWBPE à 1,2874 BPB** en graine officielle
