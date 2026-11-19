@@ -2,6 +2,12 @@
 
 À lire au début de chaque session, à mettre à jour à la fin. Réécrit le 14 novembre 2026 (l'historique détaillé est dans git). **Rendu le 16 novembre 2026.**
 
+## Dernier état (17 novembre)
+
+- **Meilleur BPB : 1,2767** (M4FINALEXCERPTS, graine 1337 ; 1,2786 en graine 1338), détaillé dans `report/ablation.md` et `report/courbes/`. Les sections ci-dessous sont l'historique des essais du 15/11.
+- **PowerPoint de soutenance refait** : `report/Feed-the-Beast-soutenance.pptx` (8 diapos : projet, architecture technique, sources et licences, ablation, genres et échecs, mini-GPT et démo, rendu et limites). Il remplace l'ancien `Feed-the-Beast-demo.pptx`, centré sur la démo seule et resté aux chiffres du 14/11. Il est généré par `uv run --with python-pptx python report/build_deck.py` : changer un chiffre dans le script puis regénérer.
+- À vérifier par Matisse avant de présenter : le score du test caché (inconnu), et le lien public du dataset (toujours privé).
+
 ## Démo Molière, comparaison des budgets du 16 novembre
 
 Le pilote Kaggle T4 termine les trois étapes. Le chat v5 est reproduit à **1,429137 BPB** sur Molière, avec les 24 sorties historiques identiques (13/24 pertinence, 8/13 contexte). Le parent retenu après adaptation Molière est à **1,411092 BPB**.
@@ -58,7 +64,7 @@ un dossier vide reste à vérifier.
 
 ## Audit du 15 novembre (au matin, avant les essais ci-dessus)
 
-- Les 189 tests passent avec le corpus Molière et le tokenizer 8 192. Le test de la démo v5 reproduit la boucle signalée, sans troncature de l’historique. Le [rapport d’audit](../report/audit_20261115.md) détaille les variantes, la répétition et les indices de mémorisation.
+- Les 189 tests passaient (202 passent le 17/11) avec le corpus Molière et le tokenizer 8 192. Le test de la démo v5 reproduit la boucle signalée, sans troncature de l’historique. Le [rapport d’audit](../report/audit_20261115.md) détaille les variantes, la répétition et les indices de mémorisation.
 - **Meilleur BPB public compétition : 1,302769 (M4, graine officielle 1337)**. Le run M4 n’a pas conservé le checkpoint. Le paquet préparé est le 80/12/8 avec filtre qualité, réévalué à **1,331469** sur CPU avec le kit officiel. Score caché et soumission effective non vérifiés.
 - À vérifier avant le rendu : aligner les chiffres du rapport et de la soutenance sur le paquet réellement remis. La commande de régénération contrôle le hash écrit dans le manifeste, donc calculer directement celui de `train.bin` pour vérifier le fichier.
 
@@ -67,7 +73,7 @@ un dossier vide reste à vérifier.
 
 | Bloc | État |
 |---|---|
-| Bloc 1, mini-GPT (`minigpt/`) | Fait et mergé. BPB Molière : 1,8237 (base), **1,743** pour le meilleur modèle seul (continuation avec 5 pièces Wikisource contrôlées). Le 1,696 est un ensemble de 6 modèles avec fréquences réglées sur la validation : exploratoire, ne pas le présenter comme résultat propre. |
+| Bloc 1, mini-GPT (`minigpt/`) | Fait et mergé. BPB Molière : 1,8237 (entraîné sur Molière seul), **1,4111** pré-entraîné sur notre dataset puis repris sur Molière (1,4291 pour le chat v5, 1,3162 avec 3× plus de tokens de pré-entraînement). Les ensembles de modèles à 1,696 sont exploratoires : ne pas les présenter comme résultat propre. |
 | Bloc 2, pipeline (`pipeline/`) | Fait : collecte, nettoyage, dédup (exact + MinHash 0,97), qualité, PII. Filtre de langue : 99/100 (échantillon surtout Wikipédia). |
 | Bloc 3, compétition | Ablations et contrôles de stabilité terminés. Résultats récents dans la section du 15 novembre. |
 | Démo chat (demandée par le mentor) | Prototype local `demo/` (PR #23) : tient 3 tours sur le scénario de JB, mais réponses médiocres en conversation libre. À refaire mieux (voir plan). |
